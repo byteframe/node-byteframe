@@ -104,3 +104,13 @@ discover = (account, cycle = 3) => (
         http_request(account, 'https://store.steampowered.com/explore/generatenewdiscoveryqueue', { "queuetype": 0 }, (body, reponse, error) =>
           body.queue.forEach((appid, index) =>
             http_request(account, 'https://store.steampowered.com/app/10', { "appid_to_clear_from_queue": appid }))), i*5000))),
+//----------------------------------------------------------------------------- Discover2020
+discover = (account, cycle = 1) => (
+  http_request(accounts[2], 'https://store.steampowered.com/points/shop', {}, (body, response, error) =>
+    http_request(accounts[2], 'https://api.steampowered.com/ISummerSale2020Service/ClaimItem/v1?access_token=' + body.match(/webapi_token\&quot\;\:\&quot\;.*?\&quot\;/)[0].slice(25, -6), {}))
+  (!account.limited) &&
+    [...Array(cycle).keys()].forEach((item, i) =>
+      setTimeout(() =>
+        http_request(account, 'https://store.steampowered.com/explore/generatenewdiscoveryqueue', { "queuetype": 0 }, (body, reponse, error) =>
+          body.queue.forEach((appid, index) =>
+            http_request(account, 'https://store.steampowered.com/app/10', { "appid_to_clear_from_queue": appid }))), i*5000))),

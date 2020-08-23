@@ -1,3 +1,22 @@
+//------------------------------------------------------------------------------ RenaCommentScript
+var match = "*://steamcommunity.com/profiles/* + *://steamcommunity.com/id/*"
+var comment = `
+:icon: - :icon: - :icon: - :icon: - :icon: - :icon:
+~ Have a very nice day $NAME! ~
+:icon: - :icon: - :icon: - :icon: - :icon: - :icon:
+`;
+jQuery(document).keyup(function(event) {
+  if (event.which == 27) {
+    jQuery('textarea.commentthread_textarea').each(function(index, item) {
+      if (jQuery(item).val() === '$$$') {
+        jQuery(item).val(comment.trim().replace(
+          '$NAME', jQuery('.actual_persona_name')[0].innerText));
+        jQuery(item).click();
+        return false;
+      }
+    });
+  }
+});
 //------------------------------------------------------------------------------ Zadey1
 var targets = [
     [ '76561197961017729', 'byteframe', 3],
