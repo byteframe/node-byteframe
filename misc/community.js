@@ -1,3 +1,13 @@
+//-------------------------------------------------------------------------------- FriendsStatsLastBroken
+http_request(accounts[0], 'https://steamcommunity.com/id/byteframe', null, (body) => global.body = body);
+body.match(/friendPlayerLevelNum\"\>\d+/)[0].match(/\d+/)[0];
+(body.indexOf('in common') > -1) && body.match(/[\d,]+ friends\<\/a\> in common/)[0].replace(',', '').match(/\d+/)[0];
+(body.indexOf('totalcount') > -1) &&  body.match(/totalcount\"\>[\d,]+/)[0].replace(',', '').match(/\d+/)[0];
+body.indexOf('commentthread_textarea') > -1
+Cheerio.load(body)('.profile_count_link_total').last().text().replace(',', '').trim();
+//------------------------------------------------------------------------------ FollowFunctional
+follow = (account, id, action = 'follow') =>
+  http_request(account, 'profiles/' + id + '/' + action + "user/", {}),
 //------------------------------------------------------------------------------ ReviewVoteUp
 http_request(a(i), 'https://steamcommunity.com/userreviews/rate/$REVIEWID', { rateup: true });
 //------------------------------------------------------------------------------ Following

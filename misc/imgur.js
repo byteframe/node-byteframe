@@ -1,9 +1,4 @@
 //------------------------------------------------------------------------------ ShareFunction
-/**
- * Share image
- * @param {string} shareid - id of the image to share
- * @returns {promise}
- */
 imgur.shareImage = function (shareid, title) {
     var deferred = Q.defer();
     if(!shareid) {

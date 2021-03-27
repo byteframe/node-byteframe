@@ -1,11 +1,212 @@
+//------------------------------------------------------------------------------ BadgesPageOnWebSession
+(!account.badges) &&
+  http_request(account, 'my/badges', null, (body, response, err,
+    links = Cheerio.load(body)('a.btn_green_white_innerfade')) => (
+    account.badges = [],
+    (links.length > 0) &&
+      links.each((i, link) =>
+        account.badges.push(+link.attribs.href.substr(12)))))
+//------------------------------------------------------------------------------ BotchedNewSlimArtworkSed
+http_request(account, 'sharedfiles/itemedittext?' + element, { id: element, language: 0, title: pool(data.emojis_bulk) + generate_fortune('all', 1, 95, 100).replace(/\n/g, '').replace(/ -- .*/, '').trim() + pool(data.emojis_bulk), description: '' }),
+//------------------------------------------------------------------------------ CompletionistShowcase
+completionist: { shuffle_slots: [ 0, 1 ], shuffle_types: [ -1, -1 ], slots: [ [ ()=> pool(data.completionist) ], [ () => pool(data.completionist) ] ] },
+alter_showcase('completionist', 23, (i, element) =>
+  account.edit_2 += "&rgShowcaseConfig%5B23_0%5D%5B" + i + "%5D%5Bappid%5D=" + element)
+//------------------------------------------------------------------------------ WainSelect
+http_request(account, 'https://steamcommunity.com/actions/selectPreviousAvatar', { json: 1, sha: pool(data.wain_sha) }, (body, response, error) =>
+//------------------------------------------------------------------------------ GenerateLinks
+generate_links = (links = shuffle_array(data.links)) =>
+  (pool(data.emoticons[6], 1) + ' ' + links[0] + ' ' + pool(data.emoticons[8], 1) + ' ' +
+  links[1] + ' ' + pool(data.emoticons[2], 1) + ' ' +
+  links[2] + ' ' + pool(data.emoticons[4], 1) + ' ' +
+  links[3] + ' ' + pool(data.emoticons[3], 1) + ' ' +
+  links[4] + ' ' + pool(data.emoticons[11], 1) + ' ' +
+  links[5] + ' ' + pool(data.emoticons[9], 1) + ' ' +
+  links[6] + ' ' + pool(data.emoticons[5], 1) + ' ' + links[7]).replace(/:/g, 'ː');
+//------------------------------------------------------------------------------ GenerateHalfLife
+generate_halflife = (array, min, max, s = '') => (
+  s += pool(array) + " ",
+  (s.length > max) ?
+    generate_halflife(array, min, max)
+  : (s.length > min) ?
+    s.trim()
+  : generate_halflife(array, min, max, s)),
+//------------------------------------------------------------------------------ GenerateHeart
+generate_heart = (index = -1, right, h = (index != -1 ? data.hearts[index] : pool(data.hearts, 1, null)[0]), r = (!right ? h[6] : right)) =>
+    h[0] + h[0] + h[0] + h[0] + h[0] + h[0] + h[0] + h[0] + h[0] + r[0] + "\n"
+  + h[1] + h[2] + h[2] + h[1] + h[1] + h[1] + h[2] + h[2] + h[1] + r[1] + "\n"
+  + h[2] + h[3] + h[3] + h[2] + h[1] + h[2] + h[3] + h[3] + h[2] + r[2] + "\n"
+  + h[2] + h[3] + h[3] + h[3] + h[2] + h[3] + h[3] + h[3] + h[2] + r[3] + "\n"
+  + h[1] + h[2] + h[3] + h[3] + h[4] + h[3] + h[3] + h[2] + h[1] + r[4] + "\n"
+  + h[1] + h[1] + h[2] + h[3] + h[3] + h[3] + h[2] + h[1] + h[1] + r[5] + "\n"
+  + h[1] + h[1] + h[1] + h[2] + h[3] + h[2] + h[1] + h[1] + h[1] + r[6] + "\n"
+  + h[5] + h[5] + h[5] + h[5] + h[2] + h[5] + h[5] + h[5] + h[5] + r[7],
+//------------------------------------------------------------------------------ KnowledgeRead
+knowledge = fs.readFileSync('rivescript/knowledge.rive', 'utf-8').match(/\n\n+.*\n-.*/g).filter((text) => text.indexOf('*') == -1).map((text) => text.replace(/<set .+>/g, '').replace(/{random}/g, '').trim()),
+//------------------------------------------------------------------------------ ProfileErrorLogging
+edit_1_errors = [],
+edit_2_errors = [],
+(body.success != 1) && 
+  edit_1_errors.push(account.edit_1),
+(body.success != 1) && 
+  edit_2_errors.push(account.edit_2),
+//------------------------------------------------------------------------------ EmoticonConvertCallsStillInPlace
+emoticon_convert = (text) => (
+  text = text.replace(/ː/g, ':').replace(/:[0-9a-zA-Z_]+:/g, () => pool(pool(data.emojis, 1, null)[0])),
+  data.emojis.index = 0,
+  text),
+//------------------------------------------------------------------------------ GenerateGreetingsFunction
+generate_greetings = (delimiter = "/", text = '') => (
+  shuffle_array(data.greetings).forEach((greeting) =>
+    text += greeting + '[/url] ' + delimiter + ' '),
+  text.trim().slice(0, -2)),
+//------------------------------------------------------------------------------ FunctonEditors
+edit_group = (account, group, headline, group_form) =>
+  http_request(account, 'groups/' + group + '/edit', '&' + group_form.replace(
+    /&headline=.*&summary=/, '&headline=' + headline + '&summary=')),
+edit_text = (account, publishedfileid, title, description = '') =>
+  http_request(account, 'sharedfiles/itemedittext?' + publishedfileid, { id: publishedfileid, language: 0, title: title, description: description }),
+//------------------------------------------------------------------------------ GenerateArtworkText
+generate_artwork_text = (text = [ haiku.random("html").toString(), haiku.random("html").toString(), haiku.random("html").toString() ]
+    .reduce((a, v) => a && a.length <= v.length ? a : v, '').toLowerCase().replace(/<br>/g, '\n').split('\n')) =>
+  pool(pool(data.emojis, 1, null)[0]) + " " + text[0] + " " + pool(pool(data.emojis, 1, null)[0]) + " " + text[1] + " "
+  + pool(pool(data.emojis, 1, null)[0]) + " " + text[2] + " " + pool(pool(data.emojis, 1, null)[0]),
+//------------------------------------------------------------------------------ GenerateBigFortuneHeadline
+generate_big_fortune_headline = (size, file = 'all', text = generate_big_fortune(212, file).substr(0, size).split(' ')) => (
+  [...Array(6).keys()].forEach((i) =>
+    text[(i+1)*(Math.floor((text.length+1)/6)-1)] += " YYY"),
+  insert_emojis("YYY " + text.join(' ') + " YYY")),
+//------------------------------------------------------------------------------ ProfileIntermediateB
+shuffle_string = (s) =>
+  shuffle_array(s.split("")).join(""),
+profile_intermediate = (account,
+  group_url = profile.group_favorite.selection[0].substr(19),
+  rainbow = pool(data.rainbows, 1, null)[0],
+  rainbow_cut = (205-rainbow.join('').length)/3,
+  big_fortune = generate_big_fortune(175),
+  big_fortune_split = [ big_fortune.substr(0, rainbow_cut).trim(), big_fortune.substr(rainbow_cut, rainbow_cut).trim(), big_fortune.substr((rainbow_cut*2)-1, rainbow_cut-1).trim() ]) => (
+  edit_group(account, group_url, generate_big_fortune_headline(212), data.group_forms[group_url]),
+  edit_text(account, profile.artwork.selection[0], generate_artwork_text()),
+  edit_text(account, profile.guide_collector.selection[0], generate_big_fortune_headline(84, 'zippy')),
+  edit_text(account, profile.guide_collector.selection[1], generate_big_fortune_headline(84, 'wisdom')),
+  edit_text(account, profile.guide_collector.selection[2], generate_big_fortune_headline(84, 'cookie')),
+  edit_text(account, profile.guide_collector.selection[3], generate_big_fortune_headline(84, 'definitions')),
+  edit_text(account, profile.guide_favorite.selection[0]
+    , pool(pool(data.emojis, 1, null)[0]) + " Lucky Numbers: " + Math.floor(Math.random()*9) + ',' + Math.floor(Math.random()*9) + ',' + Math.floor(Math.random()*9) + " " + pool(pool(data.emojis, 1, null)[0]) + " [̲̅$̲̅(̲̅5̲̅)̲̅$̲̅]"
+    , "\nEQ: [u]" + shuffle_array(data.equalizer).join(' ') + "[/u]\n"
+    + "| " + pool(data.ascii) + " " + pool(data.guide_rainbows) + ' '
+    + pool(data.ascii) + ' ' + pool(data.guide_rainbows) + ' '
+    + pool(data.ascii) + ' ' + pool(data.guide_rainbows) + ' '
+    + pool(data.ascii) + ' ' + pool(data.guide_rainbows) + ' '
+    + pool(data.ascii) + ' ' + pool(data.guide_rainbows) + ' '
+    + pool(data.ascii) + ' ' + pool(data.guide_rainbows) + ' '
+    + pool(data.ascii) + ' ' + pool(data.guide_rainbows) + ' '
+    + pool(data.ascii) + "\n"
+    + "[i]" + haiku.random("html").toString().replace(/<br>/g, '/').trim().toLowerCase().replace(/[.,'"?!]/g, '').replace(/ \//g, '/') + "[/i] "
+    + shuffle_string(data.barcode) + "_" + pool(pool(data.emojis, 1, null)[0]) + "_" + shuffle_string(data.chinese).substr(0, 4) + ' (' + pool(data.alphabet).toUpperCase() + ') + ' + pool(pool(data.emojis, 1, null)[0])),
+  edit_text(account, profile.workshop_favorite.selection[0]
+    , data.chinese.substr(0, 2) + " " + pool(pool(data.emojis, 1, null)[0]) + " "
+    + data.chinese.substr(2, 2) + " " + pool(pool(data.emojis, 1, null)[0]) + " "
+    + data.chinese.substr(4, 2) + " " + pool(pool(data.emojis, 1, null)[0]) + " "
+    + data.chinese.substr(6, 2) + " " + pool(pool(data.emojis, 1, null)[0]) + " "
+    + data.chinese.substr(8, 2)
+    , (rainbow[0] + "●▬▬▬▬▬▬▬▬▬▬▬▬▬ 웃" + pool(pool(data.emojis, 1, null)[0]) + "유 ▬▬▬▬▬▬▬▬▬▬▬▬▬●\n"
+    + rainbow[1] + "[i] → " + big_fortune_split[0] + " " + pool(pool(data.emojis, 1, null)[0]) + "\n"
+    + rainbow[2] + " → " + big_fortune_split[1] + " " + pool(pool(data.emojis, 1, null)[0]) + "\n"
+    + rainbow[3] + " → " + big_fortune_split[2] + " " + pool(pool(data.emojis, 1, null)[0]) + "\n"
+    + rainbow[4]).replace(/[-.,"']/g, '').toLowerCase())),
+//------------------------------------------------------------------------------ ProfileIntermediateA
+(minutes == 666) && (
+  (state.guide_editing[profile.guide_favorite.selection[0]] != 'favorite') && (
+    state.guide_editing[profile.guide_favorite.selection[0]] = 'favorite',
+    edit_text(account, profile.guide_favorite.selection[0]
+      , pool(pool(data.emojis, 1, null)[0]) + " Lucky Numbers: " + Math.floor(Math.random()*9) + ',' + Math.floor(Math.random()*9) + ',' + Math.floor(Math.random()*9) + " " + pool(pool(data.emojis, 1, null)[0]) + " [̲̅$̲̅(̲̅5̲̅)̲̅$̲̅]"
+      , "\nEQ: [u]" + shuffle_array(data.equalizer).join(' ') + "[/u]\n"
+      + "| " + pool(data.ascii) + " " + pool(data.guide_rainbows) + ' '
+      + pool(data.ascii) + ' ' + pool(data.guide_rainbows) + ' '
+      + pool(data.ascii) + ' ' + pool(data.guide_rainbows) + ' '
+      + pool(data.ascii) + ' ' + pool(data.guide_rainbows) + ' '
+      + pool(data.ascii) + ' ' + pool(data.guide_rainbows) + ' '
+      + pool(data.ascii) + ' ' + pool(data.guide_rainbows) + ' '
+      + pool(data.ascii) + ' ' + pool(data.guide_rainbows) + ' '
+      + pool(data.ascii) + "\n"
+      + "[i]" + haiku.random("html").toString().replace(/<br>/g, '/').trim().toLowerCase().replace(/[.,'"?!]/g, '').replace(/ \//g, '/') + "[/i] "
+      + shuffle_string(data.barcode) + "_" + pool(pool(data.emojis, 1, null)[0]) + "_" + shuffle_string(data.chinese).substr(0, 4) + ' (' + pool(data.alphabet).toUpperCase() + ') + ' + pool(pool(data.emojis, 1, null)[0]))),
+  [...Array(4).keys()].forEach((i) =>
+    (state.guide_editing[profile.guide_collector.selection[i]] != 'collector') && (
+      state.guide_editing[profile.guide_collector.selection[i]] = 'collector',
+      edit_text(account, profile.guide_collector.selection[i], generate_big_fortune_headline(84)))),
+  edit_text(account, profile.artwork.selection[0], generate_artwork_text()),
+  edit_text(account, profile.workshop_favorite.selection[0]
+    , data.chinese.substr(0, 2) + " " + pool(pool(data.emojis, 1, null)[0]) + " "
+    + data.chinese.substr(2, 2) + " " + pool(pool(data.emojis, 1, null)[0]) + " "
+    + data.chinese.substr(4, 2) + " " + pool(pool(data.emojis, 1, null)[0]) + " "
+    + data.chinese.substr(6, 2) + " " + pool(pool(data.emojis, 1, null)[0]) + " "
+    + data.chinese.substr(8, 2)
+    , (rainbow[0] + "●▬▬▬▬▬▬▬▬▬▬▬▬▬ 웃" + pool(pool(data.emojis, 1, null)[0]) + "유 ▬▬▬▬▬▬▬▬▬▬▬▬▬●\n"
+    + rainbow[1] + "[i] → " + big_fortune_split[0] + " " + pool(pool(data.emojis, 1, null)[0]) + "\n"
+    + rainbow[2] + " → " + big_fortune_split[1] + " " + pool(pool(data.emojis, 1, null)[0]) + "\n"
+    + rainbow[3] + " → " + big_fortune_split[2] + " " + pool(pool(data.emojis, 1, null)[0]) + "\n"
+    + rainbow[4]).replace(/[-.,"']/g, '').toLowerCase()),
+  edit_group(account, group_url, generate_big_fortune_headline(212), data.group_forms[group_url])),
+//------------------------------------------------------------------------------ PdlAvatar
+avatars_group = fs.readdirSync("./images/group"),
+(new Date().getMinutes() == 666) &&
+  ((avatar_file = fs.readFileSync("./images/group/" + pool(avatars_group))) =>
+    account.community.httpRequestPost({
+      "uri": "https://steamcommunity.com/actions/FileUploader",
+      "json": true,
+      "formData": {
+        "type": "group_avatar_image", "doSub": 1, "json": 1,
+        "MAX_FILE_SIZE": avatar_file.length,
+        "gId": "103582791432273268",
+        "sessionid": account.community.getSessionID(),
+        "avatar": { "value": avatar_file, "options": { "filename": 'avatar.jpg', "contentType": 'image/jpeg' } } }
+    }, (err, response, body) =>
+      (err || response.statusCode != 200 || !body || !body.success) ?
+        log(account, 'FAILURE | actions/uploadAvatar: ' + (""+avatars_group.index).yellow)
+      : (state.verbose == 1) &&
+        log(account, 'SUCCESS | actions/uploadAvatar: ' + (""+avatars_group.index).yellow)))()
+//------------------------------------------------------------------------------ GamesPlayed
+gamesPlayed: { shuffle_slots: [], shuffle_types: [ 0 ], slots: [ [
+  (account) => (
+    (!account.user.playingState.blocked) &&
+      account.user.gamesPlayed([+pool(data.faker_apps),+pool(data.faker_apps),+pool(data.faker_apps)]),
+    setTimeout(() => account.user.gamesPlayed(
+      pool(data.emojis[0]) + " " + pool(data.emojis[1]) + " "
+      + pool(data.emojis[2]) + " " + pool(data.emojis[3]) + " "
+      + pool(data.emojis[0]) + " " + pool(data.emojis[1]) + " "
+      + pool(data.emojis[2]) + " " + pool(data.emojis[3]) + " "
+      + pool(data.emojis[0]) + " " + pool(data.emojis[1]) + " "
+      + pool(data.emojis[2])), 2500)) ] ] } },
+//------------------------------------------------------------------------------ ReplicantProfile
+replicant_profile = {
+  lite: true,
+  background: profile.background,
+  countries: profile.countries,
+  persona_name: {},
+  real_name: profile.real_name,
+  summary_text: profile.summary_text,
+  showcases: { shuffle_slots: [], shuffle_types: [ 1 ], slots: [ [ 8,2,6,9 ] ] },
+  information_text: { shuffle_slots: [], shuffle_types: [ 0 ], slots: [ [ () => comment_message_bot(6000) ] ] },
+  information_title: { shuffle_slots: [], shuffle_types: [ 0 ], slots: [ [ () => generate_artwork_text() ] ] },
+  game_favorite: profile.game_favorite,
+  game_collector:  profile.game_collector,
+  group_favorite:  profile.group_favorite,
+  group_primary: { shuffle_slots: [], shuffle_types: [ 0 ], slots: [ [ () => pool(data.group_favorite), ] ] },
+  gamesPlayed: { shuffle_slots: [ 0 ], shuffle_types: [ 0 ], slots: [ [ (account) =>
+    (account.badges && account.badges.length > 0) ?
+      account.user.gamesPlayed(account.badges)
+    : account.user.gamesPlayed([ +pool(data.sharedconfig), +pool(data.sharedconfig), +pool(data.sharedconfig), +pool(data.sharedconfig), +pool(data.sharedconfig), +pool(data.sharedconfig), +pool(data.sharedconfig), +pool(data.sharedconfig), +pool(data.sharedconfig) ]) ] ] } },
+Object.assign(replicant_profile.persona_name, profile.persona_name),
 //------------------------------------------------------------------------------ Badges
 badges = JSON.parse(body.match(/InitBadges.*}]/)[0].substr(11));
 badge_favorite.slots = [[() => ( badge = badges[Math.floor(Math.random()*badges.length)], (badge.badgeid) ? "badgeid_" + badge.badgeid : "communityitemid_" + badge.communityitemid)]],
 //------------------------------------------------------------------------------ CheckDuplicateAch
 (check_duplicate_ach = () => {
   let result = [];
-  achievement_array.forEach(function(element, index) {
-    if (achievement_array.indexOf(element, index + 1) > -1) {
+  data.achievement_array.forEach(function(element, index) {
+    if (data.achievement_array.indexOf(element, index + 1) > -1) {
       if (result.indexOf(element) === -1) {
         result.push(element);
       }

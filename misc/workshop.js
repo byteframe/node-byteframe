@@ -1,36 +1,30 @@
-//------------------------------------------------------------------------------ EditReview
-edit_reviews = (account, r = 0) => {
-  var review_data = byteframe.review_data;
-  if (r == review_data.length) {
-    return console.log('done');
-  } else if (review_data[r].edited || !review_data[r].showcasing) {
-    return edit_reviews(account, r+1);
-  }
-  review_data[r].new_text = generate_links() + "\n"
-    + pool_emoticon() + " " + review_data[r].text + " " + pool_emoticon();
-  review_data[r].new_text = review_data[r].new_text.replace(/[.] /g, ".유 ");
-  review_data[r].new_text = review_data[r].new_text.replace(/[?] /g, "?유 ");
-  review_data[r].new_text = review_data[r].new_text.replace(/! /g, "!유 ");
-  review_data[r].new_text = review_data[r].new_text.replace(/, /g, ",유 ");
-  review_data[r].new_text = review_data[r].new_text.replace(/[.]\[/g, ".유 [");
-  review_data[r].new_text = review_data[r].new_text.replace(/[?]\[/g, "?유 [");
-  review_data[r].new_text = review_data[r].new_text.replace(/!\[/g, "!유 [");
-  review_data[r].new_text = review_data[r].new_text.replace(/,\[/g, ",유 [");
-  review_data[r].new_text = review_data[r].new_text.replace(/\n\n/g, "유\n\n");
-  while (true) {
-    if (review_data[r].new_text.indexOf("유") == -1) {
-      break;
-    }
-    review_data[r].new_text = review_data[r].new_text.replace('유', " " + pool_emoticon());
-  }
-review_data[r].new_text =   review_data[r].text;
-  account.http_request('https://steamcommunity.com/userreviews/update/' + review_data[r].id, {
-    received_compensation: false, review_text: review_data[r].new_text, voted_up: review_data[r].rating
-  }, (body, reponse, error) => {
-    console.log(r + " -- https://steamcommunity.com/id/byteframe/recommended/" + review_data[r].appid);
-    edit_reviews(account, r+1);
-  });
-};
+//------------------------------------------------------------------------------ CountVideos
+array1 = JSON.parse(fs.readFileSync('/mnt/c/Users/byteframe/Desktop/443.json')).map((file)=>file.slice(0,-4))
+array2 = JSON.parse(fs.readFileSync('/mnt/c/Users/byteframe/Desktop/2874.json')).map((file)=>file.slice(0,-4))
+files = array1.concat(array2)
+files.push('Across the Line - {HTC VIVE VR}');
+files.push('Coffee Vendor - Artificial Arm {HTC VIVE VR}');
+files.push('Abode 2 - {VALVE INDEX VR}');
+files.push('Attack of the Bugs - {HTC VIVE VR}');
+files.push('Cliffstone Manor - {VALVE INDEX VR}');
+files.push('Summerland');
+state_titles = [];
+Object.values(state.videos).forEach((video) => state_titles.push(video.title));
+state_titles.length;
+state_titles = state_titles.map((name) => name.replace(/-/g, ' '))
+state_titles = state_titles.map((name) => name.replace(/,/g, ''))
+files = files.map((name) => name.replace(/-/g, ' '))
+files = files.map((name) => name.replace(/,/g, ''))
+files.forEach((title) =>
+  (state_titles.indexOf(title) == -1) && (
+    console.log(title + "(file) not found in state")))
+//------------------------------------------------------------------------------ SubscribeManual
+[XXX].forEach((index) =>
+  ((appid = state.accounts[index].subscriptions.pop()) => (
+    http_request(a(index), 'sharedfiles/voteup', { appid: 250820, id: appid }),
+    http_request(a(index), 'sharedfiles/subscribe', { appid: 250820, id: appid }),
+    http_request(a(index), 'sharedfiles/favorite', { appid: 250820, id: appid })))())
+state.accounts.forEach((account) => account.subscriptions.length > 0 && console.log(account.name + " " + account.subscriptions));
 //------------------------------------------------------------------------------ CheckContentFiles
 check_content_files = (account, content_files = {}, page = 1, base = 'my/videos', url = base + "/?p=" + page + '&privacy=8&sort=oldestfirst') =>
   http_request(account, url, null, (body, response, err, files = body.match(/OnVideoClicked\( \d+/g)) =>
@@ -317,50 +311,6 @@ for (var i = 0; i < sorted_arr.length - 1; i++) {
   }
 }
 console.log(results);
-//------------------------------------------------------------------------------ GetReviewPageJQuery
-(get_review_page = (p = 1) => {
-  jQuery.get(get_url() + '/recommended?p=/' + p).done((response1) => {
-    (get_review = (r = 0) => {
-      jQuery.get(jQuery(response1).find('div.title a')[r].href).done((response2) => {
-        var modalContentLink = jQuery('div#ReviewText a.modalContentLink')[0];
-        if (typeof modalContentLink !== 'undefined') {
-          ylink = 'https://youtu.be/' + jQuery(modalContentLink).find('img')[0].src.replace(/^.*vi\//, '').replace(/\/.*/, ''),
-          jQuery('div#ReviewEdit textarea').text(jQuery('div#ReviewEdit textarea').text().replace(
-            /http.*:\/\/steamcommunity.com\/sharedfiles\/filedetails\/\?id=[0-9]*/, ylink));
-          jQuery('span#SaveReviewBtn').click();
-        }
-        revid: jQuery('div.responsive_page_template_content script')[0].innerHTML
-        score: (jQuery('span.btnv6_blue_hoverfade.btn_small_thin.ico_hover')[0].id == 'OwnerVoteUpBtn') ? true : false,
-        video.revid = video.revid.slice(video.revid.indexOf("'")+1, video.revid.indexOf("',"));
-        setTimeout(() => {
-          jQuery.post('//steamcommunity.com/userreviews/update/' + revid, {
-            received_compensation: false,
-            voted_up: score,
-            sessionid: g_sessionID,
-            review_text: rtext
-          }).done(function(response) {
-            console.log('review ' + review.slots[0][r] + ": " + r + '/' + review.slots[0].length);
-          });
-        }, 10000);
-      });
-    })();
-  });
-})();
-//------------------------------------------------------------------------------ GetReviews
-(get_reviews = (p = 1) =>
-  (p != 0) &&
-    http_request(accounts[0], 'my/recommended/?p=' + p, null, (body, response, error,
-      _reviews = body.match(/https\:\/\/steamcommunity.com\/id\/byteframe\/recommended\/[0-9]*/g).filter((element, index) => index % 2 == 0)) =>
-        setTimeout(() => (get_review = (r = 0) =>
-          (r == _reviews.length) ?
-            setTimeout(() => get_reviews(p-1), 3000)
-          : http_request(accounts[0], _reviews[r], null, (body, response, error, appid = _reviews[r].substr(52)) => (
-              (!config.reviews.hasOwnProperty(appid)) && (
-                config.reviews[appid] = {
-                  currated: false,
-                  rating: (body.match("thumbsUp.png") ? true: false),
-                  text: Cheerio.load(body)('textarea')[0].children[0].data }),
-              get_review(r+1))))(), 1000)))(1)
 //------------------------------------------------------------------------------ VideoRater
 shuffle_array(Object.keys(state.videos).slice(-50)).some((video) =>
   (config.state[video][2] != 0 && state.videos[video][3] < Math.floor(Math.random()*(99-33)+33)) && (

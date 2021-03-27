@@ -1,3 +1,47 @@
+//------------------------------------------------------------------------------ FunctionalPostsFromCommentArray
+(args) => pool(data.confusion),
+() => "https://steamcommunity.com/sharedfiles/filedetails/?id=" + pool(data.cats)
+  + [6,8,2,4,3,11,9,5].map((color) => pool(data.links) + ' ' + pool(data.emoticons[color], 1)).join(' ').replace(/:/g, 'ː')
+  + " https://steamcommunity.com/sharedfiles/filedetails/?id=" + pool(data.cats),
+() =>
+  + pool(state.accounts[0].backgrounds, 1, null)[0].id + "\n" + comment_messages[17]()
+  + "\n\nhttps://steamcommunity.com/sharedfiles/filedetails/?id="
+  + pool(data.memes),
+(appid1 = pool(profile.game_favorite.slots[0]).replace('_', '/'),
+  appid2 = pool(profile.game_favorite.slots[0]).replace('_', '/')) =>
+  "[b] * " + get_reply('', 'joke') + "[/b]\n\n"
+  + "https://store.steampowered.com/app/" + appid1
+  + " [b] * " + get_reply('', 'joke') + "[/b]\n\n"
+  + pool(data.emoticons[2], 34) + pool(data.emoticons[3], 34)
+  + pool(data.emoticons[4], 34) + pool(data.emoticons[5], 34)
+  + pool(data.emoticons[8], 34) + pool(data.emoticons[9], 34) + "\n\n"
+  + "[b] * " + get_reply('', 'joke') + "[/b]\n\n"
+  + "https://store.steampowered.com/app/" + appid2
+  + " [b] * " + get_reply('', 'joke') + "[/b] [spoiler]" + appid1 + "," + appid2 + "[/spoiler]",
+(random_video = pool(Object.keys(state.videos)),
+  random_heart = Math.floor(Math.random()*data.hearts.length)) =>
+  pool(data.emoticons[0], 34) + "\n"
+  + pool(data.emoticons[1], 34) + "\n"
+  + generate_greetings('|')
+  + ' https://steamcommunity.com/sharedfiles/filedetails/?id=' + random_video + "\n"
+  + generate_heart(random_heart, [
+      data.hearts[random_heart][6][0],
+      data.hearts[random_heart][6][1],
+      " ║" + pool(data.symbols) + " [spoiler]" + new Date().toUTCString() + "[/spoiler]",
+      " ║" + pool(data.symbols) + " steam://broadcast/watch/76561197961017729",
+      " ║" + pool(data.symbols) + " [i]https://twitch.tv/byteframe[/i]",
+      " ║" + pool(data.symbols) + " [b]https://steamcommunity.com/id/byteframe/videos[/b]",
+      " ║" + pool(data.symbols) + " [u]" + state.videos[random_video].text.substr(state.videos[random_video].text.indexOf('http')) + "[/u]",
+      " ║" + pool(data.symbols) + " https://youtube.com/c/byteframe" ]) + "\n\n"
+  + (state.videos[random_video].text.indexOf('steamcommunity.com') == -1 ? "https://store.steampowered.com/app/" + pool([323910,550768,719950])
+    : state.videos[random_video].text.replace('id/byteframe/recommended', 'app').replace('steamcommunity.com', 'store.steampowered.com').slice(1).split('"')[1]) + "\n"
+  + pool(data.emoticons[12], 34) + "\n"
+  + generate_emoticons(34)
+//------------------------------------------------------------------------------ PostStatusFunctional
+post_status = (account, text, appid) =>
+  http_request(account, "my/ajaxpostuserstatus", { status_text: (account.index == 0 ? text : emoticon_convert(text)), appid: appid }, (body, response, err) =>
+    log(account, 'SUCCESS | ajaxpostuserstatus: ' + ('https://steamcommunity.com/' + profile_url(account) + '/status/' + body.blotter_html.match(/userstatus_\d+_/)[0].slice(11, -1)).yellow)),
+//------------------------------------------------------------------------------
 "cat_apps": [
   500580,451010,330180,253110,384740,329860,418960,474980,742980,895750,914150,
   677290,336380,384120,369400,686180,350610,95700,343780,706980,913150,913120,

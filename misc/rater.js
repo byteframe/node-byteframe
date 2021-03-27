@@ -1,3 +1,38 @@
+//------------------------------------------------------------------------------ Rater2020Functional
+VoteUp = (account, _item_id, item_id = _item_id.slice(0, -2)) =>
+  http_request(account, 'sharedfiles/voteup?' + item_id , { id: item_id , appid: 0 }, (body, response, err) =>
+    vote(account), true),
+VoteUpCommentThread = (account, _thread, thread = _thread.slice(1, -3).split('_')) =>
+  http_request(account, 'comment/' + thread[0] + '/voteup/' + thread[1] + '/' + thread[2] + "/",
+    { vote: 1, count: thread[0] == 'UserReceivedNewGame' ? 3 : 6, newestfirstpagination: true }, (body, response, error) =>
+      vote(account), true),
+vote = (account, delay = Math.random()*(14000-7000)+7000) =>
+  (account.votes.length > 0) &&
+    setTimeout((account, item = account.votes.shift().split('(')) =>
+      eval(item[0])(account, item[1]), delay, account),
+activity_rater = (account) => (
+  (!account.votes) ? (
+    account.votes = [],
+    account.cycles = 0)
+  : (++account.cycles % 8 == 0) && (
+    account.blotter_url = ''),
+  http_request(account, 'my/ajaxgetusernews/' + account.blotter_url, null, (body, response, err,
+  init = (account.votes.length > 0) ? false : true) => (
+    account.blotter_url = body.next_request.substr(body.next_request.indexOf('?')),
+    body = Cheerio.load(body.blotter_html),
+    body('div.blotter_block').filter((index, element) =>
+      (body(element).text().toLowerCase().indexOf("a workshop item") > -1
+      || body(element).text().toLowerCase().indexOf("a guide for") > -1
+      || body(element).text().toLowerCase().indexOf("a collection for") > -1) ?
+        false
+      : true
+    ).find('[id^="vote_up_"]').not(".active").each((index, _element,
+      element = _element.attribs.onclick.substr(7).replace("\'", "'")) =>
+      (account.votes.indexOf(element) == -1) &&
+        account.votes.push(element)),
+    (init) &&
+      vote(account, 0)))),
+//------------------------------------------------------------------------------
 VoteUp2 = (account, _item_id, item_id = _item_id.slice(0, -2)) => (
   (shared_files.indexOf(item_id) == -1) &&
     shared_files.push(item_id),

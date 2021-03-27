@@ -1,3 +1,27 @@
+//------------------------------------------------------------------------------ print_achievement_page
+print_achievement_page = (account, appid = 710780, text = '<html><head><style>.td1 { background-color: white; font-weight: bold; } .td2 { background-color: #C1C1C1; font-weight: italic; } body { font-color: #123123; background-color: #333333; }</style></head><body>\n<table border="1">') =>
+  http_request(account, 'my/ajaxgetachievementsforgame/' + appid, {}, (body) => (
+    Cheerio.load(body)('div.achievement_list_item').each((i, item) =>
+      text += "\n  <tr>\n    <td><img src=\"" + item.children[1].attribs.src + "\" width=\"48\" length=\"48\"></td>\n"
+        + '    <td class="td1">' + appid + '_' + item.attribs['data-statid'] + '_' + item.attribs['data-bit'] + '</td>\n'
+        + '    <td class="td2">' + item.children[3].children[1].children[0].data + '</td>\n'
+        + '  </tr>'),
+    text += '\n</table>\n</body></html>',
+    fs.writeFileSync(appid + '.html', text),
+    console.log(text))),
+//------------------------------------------------------------------------------ check_appid_duplicates
+array_duplicates = (array, sorted_arr = array.slice().sort(), results = []) => (
+  [...Array(sorted_arr.length-1).keys()].forEach((item, i) =>
+    (sorted_arr[i+1] == sorted_arr[i]) &&
+      results.push(sorted_arr[i])),
+  results);
+check_appid_duplicates = () =>
+  console.log('fakersd.length: ' + data.faker_apps.length
+    + '\nnot_faking.length: ' + data.not_faking.length
+    + array_duplicates(profile.game_favorite.slots[0].map((game) => parseInt(game.match(/\d+/)[0]))
+      .concat(profile.game_collector.slots[0]).concat(profile.game_collector.slots[1])
+      .concat(profile.game_collector.slots[2]).concat(profile.game_collector.slots[3])
+      .concat(profile.review.slots[0]))),
 //------------------------------------------------------------------------------ StoreLinksOldAugmented
 jQuery('.apphub_OtherSiteInfo a.btnv6_blue_hoverfade.btn_medium').eq(0).clone().attr('href',
   jQuery('a.btnv6_blue_hoverfade.btn_medium').eq(0).attr('href').replace(

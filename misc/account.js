@@ -1,3 +1,153 @@
+//------------------------------------------------------------------------------ Gmail
+base64 = (data) =>
+  new Buffer(data).toString('base64'),
+google = require('googleapis').google,
+google_auth = new google.auth.OAuth2(state.google_secret.installed.client_id, state.google_secret.installed.client_secret, state.google_secret.installed.redirect_uris[0]),
+google_auth.setCredentials(state.google_token),
+googleAPIsGmail = google.gmail({ version: 'v1', google_auth }),
+base64toUTF8 = (str) =>
+  Buffer.from(str, 'base64').toString('utf8'),
+get_gmail = (account, callback, maxResults = 10, q = 'from:noreply@steampowered.com') =>
+  googleAPIsGmail.users.messages.list({ auth: google_auth, userId: 'me', maxResults: maxResults, q: q + ",to:" + account.mail },(err, response, gmails = []) =>
+    (err || !response.data.messages) ? (
+      log(accounts[0], 'FAILURE | gmail error: ' + (err ? err : 'no gmail data').yellow),
+      callback(true, []))
+    :(read_message = (m = 0) =>
+      (m == response.data.messages.length) ?
+        callback(false, gmails)
+      : googleAPIsGmail.users.messages.get({
+        auth: google_auth, userId: 'me', id: response.data.messages[m].id
+      }, (err, response, body = '') => (
+        response.data.payload.parts.forEach((part) => body += base64toUTF8(part.body.data)),
+        gmails.push(body),
+        read_message(m+1))))())
+//------------------------------------------------------------------------------ NewGmailSearch
+search_gmail = (gmails, regex, match = gmails.join('\n').match(regex)) =>
+  match && match[0] || '';
+//------------------------------------------------------------------------------ GetGmailGuard
+(account.index != 0) ?
+  account.user.on('steamGuard', (domain, callback) =>
+    (get_gmail_guard = (retries = 0) =>
+      (retries < 3) &&
+        setTimeout(() => get_gmail(account, (err, gmails, code) =>
+          (code = search_gmail(gmails, /\r\n\r\n[A-Z0-9]{5}/).trim()) ? (
+            account.auth_code = code,
+            callback(code))
+          : get_gmail_guard(retries+1)), 3000))())
+//------------------------------------------------------------------------------ GetA
+a = (a) =>
+  accounts.find((account) => account.index == a),
+//------------------------------------------------------------------------------ OldTimer
+old_timer = (a = (state.account_index = (state.account_index+1 == accounts.length ? 1 : state.account_index+1))) => (
+  save_state_files(),
+  login(accounts[0]),
+  login(accounts[(a < accounts.length-1 ? a+1 : 1)]),
+  randomize_profile(accounts[0], profile, () => (
+    prep_randomize_profile(accounts[0], profile),
+    friends_check(accounts[0]),
+    (accounts[0].comment_check > -1) && (
+      http_request(accounts[0], 'my/commentnotifications', { action: 'markallread' }, (body, response, err) =>
+        accounts[0].comment_check = -1),
+      (accounts[0].comment_check > 0) &&
+        http_request(accounts[0], 'my/allcomments', null, (_body, response, err, body = Cheerio.load(_body), players = {},
+          count = +_body.match(/total_count\":[0-9]*/)[0].substr(13)) =>
+          (count > 49666) && (
+            body('.commentthread_comment').each((i, element, cid = element.attribs['id'].substr(8),
+              steamid = translate_id(body('#comment_' + cid + " a")[0].attribs['data-miniprofile']),
+              contents = body("#comment_content_" + cid).contents().toString().trim()) =>
+              (!players.hasOwnProperty(steamid)) ?
+                players[steamid] = [ contents ]
+              : (players[steamid].indexOf(contents) == -1) ?
+                players[steamid].push(contents)
+              : (state.comments.indexOf(cid) == -1) &&
+                state.comments.unshift(cid)),
+            (state.comments.length > 0) &&
+              [...Array(count-49666).keys()].forEach((item, index) =>
+                http_request(accounts[0], 'comment/Profile/delete/76561197961017729/-1/', { count: 6, feature2: -1, gidcomment: state.comments.shift() }))))),
+    (typeof free_game !== 'undefined' && accounts[a].free_games.indexOf(free_game) == -1) &&
+      http_request(accounts[a], 'https://store.steampowered.com/checkout/addfreelicense/' + free_game, { ajax: true }, (body) =>
+        accounts[a].free_games.push(free_game)),
+    accounts[a].user.setPersona(SteamUser.EPersonaState.Snooze),
+    (!accounts[a].limited && state.adds.length) &&
+      accounts[a].user.addFriend(state.adds.shift()),
+    Object.keys(accounts[a].user.myFriends).forEach((friend) =>
+      (accounts[a].user.myFriends[friend] == 2 && state.steamid_blacklist.indexOf(friend) == -1) ?
+        accounts[a].user.addFriend(friend)
+      : (accounts[a].user.myFriends[friend] == 3 && state.steamid_blacklist.indexOf(friend) > -1 && friend != accounts[0].steamID) &&
+        accounts[a].user.removeFriend(friend)),
+    (!accounts[a].limited && (accounts[a].badges && accounts[a].badges.length > 0 || a % 3)) &&
+      randomize_profile(accounts[a], replicant_profile),
+    discover(accounts[a]),
+    (a % 9 == 0) ?  (
+      profile_commenter(accounts[0], true))
+    : (!accounts[a].limited || "friend_spamming" === "666") &&
+      profile_commenter(accounts[a]),
+    (a % 49 == 0) &&
+      ("upvoting" == "upvoting") &&
+        ((a = Math.floor(Math.random() * (accounts.length-1) + 1)) =>
+          (state.accounts[accounts[a].index].subscriptions.length > 0) &&
+            ((fileid = shuffle_array(state.accounts[accounts[a].index].subscriptions).pop()) => (
+              http_request(accounts[a], 'sharedfiles/favorite', { appid: 250820, id: fileid }),
+              http_request(accounts[a], 'sharedfiles/subscribe', { appid: 250820, id: fileid }),
+              http_request(accounts[a], 'sharedfiles/voteup', { appid: 250820, id: fileid }),
+              log(accounts[a], 'SUCCESS | rateup: ' + (""+fileid).yellow)))())(),
+    (a % 16 == 0) ? (
+      ((group_url = profile.group_favorite.selection[0].substr(19)) =>
+        edit_group(accounts[0], group_url, generate_big_fortune_headline(212), data.group_forms[group_url]))(),
+      ((game_tag = pool(data.game_tags, 1, null)[0]) =>
+        http_request(accounts[0], 'https://store.steampowered.com/curator/2751860-primarydataloop/admin/ajaxupdatepagesection/', {
+          appid: "", index: 0, linkedhomepages: "[]", linktitle: "franchise",
+          listid: game_tag[2], listid_label: "Select...", presentation: "featuredcarousel",
+          sort: 'recent', tagid: game_tag[0], tagid_label: game_tag[1], type: "featured_tag" }))(),
+      ("wishlisting" == "666") && (
+        (accounts[0].last_wish) && (
+          http_request(accounts[0], 'https://store.steampowered.com/api/removefromwishlist', { appid: accounts[0].last_wish[0] }),
+          http_request(accounts[0], 'https://steamcommunity.com/app/' + accounts[0].last_wish[1] + '/leaveOGG?sessionID=' + accounts[0].community.getSessionID(), {})),
+        accounts[0].last_wish = pool(profile.game_favorite.slots[0], 2, null).map((appid) => appid.match(/\d+/)[0]),
+        http_request(accounts[0], 'https://store.steampowered.com/api/addtowishlist', { appid: accounts[0].last_wish[0] }),
+        http_request(accounts[0], 'https://steamcommunity.com/app/' + accounts[0].last_wish[1] + '/joinOGG?sessionID=' + accounts[0].community.getSessionID(), {})))
+    : (a == accounts.length-1) && (
+      ("twitter" == "666") &&
+        twitter_profile(accounts[0], profile.persona_name.selection[0].slice(2, -2), profile.background.selection[0].image, accounts[0].avatar_url, 'International Space Station'),
+      ("activityfeed" == "666") &&
+        post_status(accounts[0], comment_messages[Math.floor(Math.random()*comment_messages.length)](), pool(profile.game_favorite.slots[0]).replace(/_.*/, '')),
+      ("twitter" == "666" && Math.floor(Math.random()*12) == 1 && screenshots_twitter.length > 0) &&
+        screenshot_twitter(),
+      ("tumblr" == "666") &&
+        screenshot_tumblr(),
+      ("imgur" == "666") &&
+        screenshot_imgur(),
+      curate_reviews(accounts[0]),
+      curate_videos(accounts[0]),
+      accounts.forEach((account) =>
+        (account.index != 0) &&
+          account.user.setPersona(SteamUser.EPersonaState.Online))))))
+//------------------------------------------------------------------------------ GooglePhotos
+googleAPIsPhotos = require('googlephotos'),
+google_photos = new googleAPIsPhotos(google_auth.credentials.access_token),
+google_photos.albums.list().then((result) =>
+  ((total_count = +result.albums[0].mediaItemsCount + +result.albums[1].mediaItemsCount,
+    picture = Math.floor(Math.random() * total_count),
+    album = (picture > 19999 ? result.albums[0].id : result.albums[1].id) ) =>
+      google_photos.mediaItems.search(album).then((result) =>
+        global.result1 = result
+      );
+  )()
+//------------------------------------------------------------------------------ GoogleOAuth2
+scopes = [
+  "https://www.googleapis.com/auth/youtube.readonly",
+  "https://www.googleapis.com/auth/youtubepartner",
+  "https://www.googleapis.com/auth/youtube",
+  "https://www.googleapis.com/auth/gmail.readonly",
+  "https://www.googleapis.com/auth/youtube.upload",
+  "https://www.googleapis.com/auth/photoslibrary.readonly",
+  "https://www.googleapis.com/auth/drive.metadata.readonly",
+  "https://www.googleapis.com/auth/drive.file",
+  "https://www.googleapis.com/auth/drive.readonly"
+];
+google_auth.generateAuthUrl({ access_type: 'offline', scope: scopes.join(' ') });
+code = 'CODE_FROM_GOOGLE';
+google_auth.getToken(code, (err, token) => (err) ? console.error(err) : (console.log(token), state.google_token = token));
 //------------------------------------------------------------------------------ OPNEvents
 this.user.on('groupRelationship', (steamID, relationship) => {
   if (relationship != SteamUser.EClanRelationship.Blocked
