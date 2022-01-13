@@ -52,7 +52,8 @@ bot.community.clearPersonaNameHistory(),
 http_request(bot, 'https://steamcommunity.com/games/' + avatar[0] + '/selectAvatar', { selectedAvatar: avatar[1] }),
 bot.community.editProfile({ name: "_" + bot.index, summary: '<< first-thought // giver of will >>' }, (err) => console.log(err));
 http_request(bot, 'my/ajaxsetprivacy/', { eCommentPermission: 2, Privacy: JSON.stringify({ "PrivacyProfile": 2, "PrivacyInventory": 2, "PrivacyInventoryGifts": 1, "PrivacyOwnedGames": 2, "PrivacyPlaytime": 2, "PrivacyFriendsList": 2 }) }),
-[[ 50, 782330 ],[ 51, 546560 ],[ 52, 275850 ],[ 53, 1097150 ],[ 55, 1049410 ],[ 58, 412020 ],[ 56, 1172470 ],[ 54, 362890 ],[ 57, 1289310 ],[ 59, 837470 ]].forEach((vote, i) =>
+[[ 61, 892970 ],[ 62, 1499120 ],[ 63, 105600 ],[ 64, 924970 ],[ 65, 607080 ],[ 66, 1282730 ],[ 67, 699130 ],[ 68, 1490890 ],[ 69, 1259420 ],[ 70, 1248130 ]].forEach((vote) =>
+[[ 50, 782330 ],[ 51, 546560 ],[ 52, 275850 ],[ 53, 1097150 ],[ 55, 1049410 ],[ 58, 412020 ],[ 56, 1172470 ],[ 54, 362890 ],[ 57, 1289310 ],[ 59, 837470 ]].forEach((vote) =>
   http_request(bot, 'https://store.steampowered.com/salevote', { voteid: vote[0], appid: vote[1], developerid: 0 }));
 //------------------------------------------------------------------------------ Nominate2020Busted
 appids = [ 1471610, 896890, 810500, 1211960, 1383030, 1419110, 1258560, 1271460, 1380620, 1446720 ];

@@ -1,3 +1,42 @@
+//------------------------------------------------------------------------------ SteamFriends.info
+diff_array = (array1, array2) =>
+  array1.filter((i) => array2.indexOf(i) < 0),
+friends_check = (account,
+  friends = Object.keys(account.user.myFriends).filter((friend) =>
+    account.user.myFriends[friend] == 3 || account.user.myFriends[friend] == 6),
+  lines = (action, players, callback, date = new Date()) =>
+    (!players.length) ?
+      callback()
+    : account.user.getPersonas(players, (err, personas) => (
+      (typeof personas == 'undefined') ?
+        personas = err : null,
+      Object.keys(personas).forEach((persona) =>
+        state.accounts[account.index].friends_diff.push([
+          date.getFullYear() + "-" + pad(date.getMonth()+1) + "/" + pad(date.getDate()) +
+            "-" + pad(date.getHours()) + ":" + pad(date.getMinutes()),
+          action, friends.length, persona, personas[persona].player_name.replace(
+            /([\uE000-\uF8FF]|\uD83C[\uDF00-\uDFFF]|\uD83D[\uDC00-\uDDFF])/g, '') ] )),
+      state.accounts[account.index].friends_diff = state.accounts[account.index].friends_diff.slice(-100),
+      callback()))) =>
+  (friends.length) &&
+    (!state.accounts[account.index].hasOwnProperty('friends_diff')) ? (
+      state.accounts[account.index].last_friends = [],
+      state.accounts[account.index].friends_diff = [])
+    : ((removed = diff_array(state.accounts[account.index].last_friends, friends),
+      added = diff_array(friends, state.accounts[account.index].last_friends)) =>
+      lines(false, removed, () =>
+        lines(true, added, () =>
+          (added.length || removed.length) ?
+            state.accounts[account.index].last_friends = friends: null)))(),
+friends_check(accounts[0]),
+      + pool(data.emoticons[5]) + ' [url=sdq.st/u/49520]SideQuest[/url]\n\n'
+      + '[h1]Friend (' + (profile.game_favorite.selection[0]+"").replace(/_.*/, "") + ') [/h1]\n'
+      + ((friend_activity = '') => (
+        state.accounts[0].friends_diff.slice(-4).reverse().forEach((entry) =>
+          friend_activity += entry[0].replace('2019-', '') + " - [" + (entry[1] ? pool(data.green_icons) : pool(data.red_icons))
+          + " ] [b] " + entry[2] + "[/b]| [u]" + entry[3] + "[/u] | "
+          + pool(pool(data.emojis, 1, null)[0]) + " = [i]" + entry[4].slice(0, 22) + "[/i]\n"),
+        friend_activity))() ] ] } },
 //------------------------------------------------------------------------------ BadgesPageOnWebSession
 (!account.badges) &&
   http_request(account, 'my/badges', null, (body, response, err,
@@ -803,4 +842,122 @@ alter_showcase2 = (_showcase, callback = '') => {
     }
   })
 }
+//------------------------------------------------------------------------------ ObsoleteData2021
+"maxims" : [
+  "Accidentally wiped my friends list due to a zero being a one. I'm so careless and stupid.",
+  "Removed all of my friends to protest the semiconductor shortage. I want a new Geforce!",
+  "Dumped my friends list so my computer (and yours too, actually) will start to run faster!",
+  "Oh no. Where did everyone go? Am I being punished? Add me back! Not you, though. Go away.",
+  "None of you were buying me VR game gifts so I had to nuke my friends list from orbit.",
+  "Rebuilding Steam friend list. Rotten to the core. Not you though, I like you, add me back.",
+  "To become a Steam friend you must follow my Youtube page. Why didn't I think of this before!?",
+  "Please have over 500 other Steam friends before adding me, for network effects, you see.",
+  "The next stage of the master plan requires a complete rebuilding of the friends list...",
+  "To become a Steam friend, upload screenshot of my profile onto the front of yours and tell me.",
+  "My computer will rate up anything you upload to my feed, so please, don't post any anime.",
+  "Join the primarydataloop group chat to receive further communiques from the Big Giant Head.",
+  "Only accepting friend requests from those who have a Virtual Reality headset, my people.",
+  "I obliterated my friends list because my psychiatrist suggested it would be therapeutic.",
+  "What are you doing here? You're not supposed to be here. Turn around and never come back!",
+  "This profile randomly shuffles it's contents every minute to better suit your needs.",
+  "Please don't give me or my artworks any awards. When you do it my computer gets screwed up.",
+  "I'm sorry, I would love to be of assistance to you, but I'm afraid I speak no English.",
+  "The Matrix is everywhere. It is all around us. Even now, in this very room...",
+  "We are the Borg. Lower your shields and surrender your ships. Resistance is futile.",
+  "I had to remove you because you wouldn't stop posting 6 of the same message. That's spam.",
+  "I removed all Russians. Seemed odd to have them when I plan to invade their country.",
+  "Murdered everyone in my friends list because Valve won't fix my Index controllers.",
+  "SteamVR Home now runs a million times faster after I 'accidentally' cleared friends ledger.",
+  "I removed you because of that thing you did with the stuff. I'll never forgive you for it.",
+  "Advanced computer algorithms are analyzing friend requests. If you are cool, it auto-accepts.",
+  "Achilles wished all Steam Friends would die, so he and Patroclus could conquer Troy alone.",
+  "Deleted my friends list because I'm super depressed and you should buy me VR games.",
+  "I accidentally removed everyone in my friends list to a programming error. Whoops."
+],
+"unused_greetings": [
+  "[url=https://steamcommunity.com/id/byteframe?l=korean]안녕하세요![/url]",
+  "[url=https://steamcommunity.com/id/byteframe?l=japanese]こんにちは![/url]" ],
+"dead_social_links":  [
+  "https://instagib.tv/byteframe",
+  "https://smashcast.tv/byteframe",
+  "https://www.mixer.com/95892684",
+  "https://streamcraft.com/user/2051568140/room",
+  "https://live.loots.com/c/byteframe"
+],
+"steam_dev_days": [
+  550781,550766,550782,550767,550783,550768,550784,550769,550770,550771,550772,550773,534615,534613,534614,534629,534630,534631,
+  534616,534632,534617,534618,534633,534634,534619,534635,534620,534636,534621,534622,534623,534624,534625,534610,534626,534611,534627,534612,534628,
+  550765,550774,550775,550760,550776,550761,550777,550762,550778,550763,550779,550764,550780,534600 ],
+"achievement_array_busted": [
+[ [ "836200_85_13","836200_91_11","836200_91_19","776960_7_26","836200_75_0","836200_95_30","836200_90_11" ], "the New girl + sos pie" ],
+[ [ "1024500_3_28","1024500_3_6","1024500_3_5","828960_11_7","1024500_3_1","1024500_1_7","1024500_1_1" ], "one boobs em up + radlis from reflex" ],
+[ [ "625400_28_8","625400_255_13","625400_50_6","667120_2_12","625400_283_18","625400_58_14","625400_42_12" ], "Sisters in Hotel | I Town" ],
+[ [ "860910_85_24","860910_85_34","860910_85_22","860910_77_10","860910_83_7","860910_83_6","860910_83_5" ], "CHESTNUT TREE wonderwomen, im not mad +2" ],
+[ [ "860910_85_21","860910_85_20","860910_85_19","860910_85_18","860910_85_17","860910_85_16","860910_85_15" ], "3018BP" ],
+[ [ "860910_48_5","860910_48_4","860910_48_3","860910_47_31","860910_48_2","860910_48_1","860910_48_0" ], "3018=knihazsx7coloredhearts" ],
+[ [ "860910_12_23","860910_12_22","860910_12_21","860910_12_17","860910_12_20","860910_12_19","860910_12_18" ], "3018=animegirlinswimsuit" ],
+[ [ "860910_41_18","860910_41_17","860910_41_16","860910_41_15","860910_41_14","860910_41_13","860910_41_12" ], "3018=purpleOnesOmg" ],
+[ [ "860910_45_3","860910_45_2","860910_45_1","860910_16_10","860910_45_0","860910_44_31","860910_39_25" ], "3018=5 new blue, last historiayuri w/irill" ],
+[ [ "860910_9_15","860910_47_12","860910_41_26","860910_48_7","860910_41_22","860910_35_1","860910_39_26" ], "3018=irlgen2 w/ rainbowDash" ],
+[ [ "860910_74_16","860910_74_15","860910_74_14","860910_71_19","860910_74_13","860910_74_12","860910_74_11" ], "3018 new KR + high af" ],
+[ [ "860910_80_3","860910_80_2","860910_80_1","860910_80_10","860910_79_31","860910_79_30","860910_80_0" ], "WILL,3018redhyewonOnly5soVicAngelli" ],
+[ [ "860910_30_24","860910_35_0","860910_35_2","860910_53_28","860910_44_28","860910_52_20","860910_53_9" ], "hent3018Aug1" ],
+[ [ "860910_53_7","860910_53_5","860910_53_15","860910_48_9","860910_53_13","860910_53_10","860910_53_6" ], "hent3018Aug2" ],
+[ [ "860910_20_30","860910_20_29","860910_20_28","860910_32_20","860910_20_25","860910_20_26","860910_19_2" ], "Hent3018_AAA_Sementalx5+Sextu+RBRussian" ],
+[ [ "860910_72_7","860910_72_6","860910_72_5","860910_70_5","860910_72_4","860910_72_3","860910_70_6" ], "bvdnituwu4 + 2x andriana" ],
+[ [ "860910_65_5","860910_65_4","860910_65_3","860910_60_31","860910_65_2","860910_65_1","806140_82_26" ], "twice3018darkMagicGirl" ],
+[ [ "860910_41_0","860910_56_3","860910_64_4","828960_4_1","860910_64_3","860910_64_1","860910_64_0" ], "margotMisc" ],
+[ [ "860910_72_26","860910_72_25","860910_72_24","860910_59_26","860910_72_23","860910_72_22","860910_70_3" ], "pitchpl" ],
+[ [ "860910_72_18","860910_72_17","860910_72_16","860910_72_15","860910_72_14","860910_72_13","860910_72_12" ], "miyawaki" ],
+[ [ "860910_60_11","860910_60_10","860910_60_9","745740_27_13","860910_60_8","860910_60_7","860910_53_7" ], "hent3018=itzy+reflexgotti+redswap" ],
+[ [ "860910_57_7","860910_57_5","860910_57_4","828960_11_14","860910_57_3","860910_57_2","860910_57_1" ], "hent3018=jeongyeonnnnnnnn+bdriver_jamieRB" ],
+[ [ "860910_30_23","860910_30_22","860910_30_21","745740_10_6","860910_30_20","860910_30_19","860910_30_18" ], "Hent3018Jvckx6+Reflex AnimalLion" ],
+[ [ "860910_31_2","860910_31_1","860910_31_0","506730_37_11","860910_29_7","860910_30_2","860910_26_4" ], "Hent3018Blons+DinoForestBlackAlphabet" ],
+[ [ "860910_35_8","860910_32_27","860910_35_6","745740_26_26","860910_3_7","860910_35_4","860910_39_31" ], "Hent3018Pales+ReflexDay69cover2" ],
+[ [ "860910_61_25","860910_61_24","860910_61_23","828960_4_3","860910_60_25","860910_60_24","860910_60_23" ], "mariana/viktoria" ],
+[ [ "806140_63_12","806140_63_11","806140_63_9","776960_7_31","806140_66_4","806140_55_18","806140_62_2"], "Achievement printer gen2 1 + sos rbf" ],
+[ [ "806140_59_30","806140_56_30","806140_56_29","675460_10_21","806140_53_10","806140_53_8","806140_31_8" ], "Achievement printer gen2 1 + crumulent rb" ],
+[ [ "818730_19_31","806140_61_28","806140_60_10","776960_16_31","806140_53_4","806140_57_0","806140_61_31"], "Achievement printer gen2 1 + tower aznr2 + sos rb other q" ],
+[ [ "806140_69_28","806140_69_27","806140_69_26","745740_33_13","806140_69_25","806140_69_24","806140_69_22" ], "achprinter=GFriend2" ],
+[ [ "806140_73_13","806140_73_12","806140_73_11","806140_73_7","806140_73_10","806140_73_9","806140_73_8" ], "achprinter=Fromis_9" ],
+[ [ "806140_73_28","806140_73_27","806140_73_26","818730_18_14","806140_73_25","806140_73_24","806140_73_23" ], "achprinter=GFriend1+squirtleTOwerClimber" ],
+[ [ "806140_90_9","806140_90_7","806140_90_6","806140_89_27","806140_90_5","806140_90_0","806140_89_29" ], "happyruuuX4_new fromis x2+chef wabbit" ],
+[ [ "806140_88_1","806140_88_0","806140_87_31","860910_9_4","806140_87_30","806140_87_29","860910_57_6" ], "ITZY new x5 || catMyraMIDDLE + missed/new jeonungg" ],
+[ [ "806140_85_6","806140_85_5","806140_85_4","806140_24_24","806140_85_3","806140_85_2","806140_85_1" ], "RemiYasuda - top one + ah ha ha cat" ],
+[ [ "806140_49_9","806140_49_8","806140_49_7","806140_29_1","806140_49_6","806140_49_5","806140_48_26" ], "Achievement printer 3" ],
+[ [ "806140_40_1","806140_40_0","806140_39_31","806140_39_19","806140_39_29","806140_30_28","806140_30_27" ], "Achievement Printer 3" ],
+[ [ "806140_32_4","806140_33_7","806140_31_23","776340_1_0","806140_33_23","806140_32_5","806140_28_8" ], "Achievement Printer 2 3" ],
+[ [ "806140_31_13","806140_23_26","806140_22_22","806140_29_12","806140_32_18","806140_26_26","806140_29_4" ], "Achievement Printer 1" ],
+[ [ "806140_26_2","806140_26_25","806140_22_21","806140_27_6","806140_23_25","806140_25_31","806140_29_3" ], "Achievement Printer 2" ],
+[ [ "806140_53_19","806140_68_24","806140_66_0","401190_21_29","806140_63_10","860910_35_3","860910_39_29" ], "Mixed3=ACHPx4_dinoFakeCrocoRB_HentHistorCRY+BeautifulRebel" ],
+[ [ "806140_97_12","806140_97_11","806140_97_10","860910_80_11","806140_97_9","806140_97_8","806140_97_7" ], "HANNIBAL,ACHprinterYellowGFRIEND" ],
+[ [ "860910_39_30","776960_40_21","806140_53_6","401190_24_17","745740_43_31","860910_18_4","806140_48_25" ], "Mixed1=Hentx2,Achpx2,sosi,dinH,reflx" ],
+[ [ "806140_82_13","806140_82_11","806140_82_10","763680_2_2","860910_64_5","806140_82_23","776960_68_8" ], "miscWithMineyTubes" ],
+[ [ "806140_83_18","806140_83_17","806140_82_28","763680_2_3","806140_82_27","806140_82_24","806140_82_22" ], "twiceAchMineyTree" ],
+[ [ "806140_83_16","806140_83_15","806140_83_14","776960_49_8","806140_83_13","806140_83_11","806140_83_10" ], "miscMiscMISC" ],
+[ [ "806140_87_3","818730_22_4","860910_26_6","860910_2_10","860910_53_12","806140_69_19","806140_77_1" ], "miscMiscMISC" ],
+[ [ "806140_89_15","806140_89_14","806140_89_13","745740_31_15","776960_68_10","745740_44_3","745740_44_2" ], "ACH=fromis new +3 || Reflex CatWTF hollyhenry7+6 || sos Allison" ],
+[ [ "818730_22_6","818730_22_4","806140_82_25","763680_2_0","806140_82_12","860910_63_19","776960_66_1" ], "miscWIthMineySmiley" ],
+[ [ "745740_12_0","745740_37_10","776960_15_7","745740_38_3","806140_68_22","860910_39_27","401190_40_3" ], "Mixed2=RefleX3RB_SosiMorgan_AchpWendy_HistorEARS_DinoHuntMadMan" ],
+[ [ "828960_5_15","828960_10_25","745740_26_10","745740_46_12","776960_60_18","776960_63_8","860910_46_31" ], "Bdriver,etc" ],
+[ [ "745740_46_15","745740_19_29","745740_19_27","745740_10_8","745740_48_25","860910_39_28","776960_36_10" ], "Reflex4Pale+Wolf+HentBlue+SosiPink" ],
+[ [ "776960_18_26","776960_18_24","776960_22_28","776960_16_28","776960_1_5","776960_5_23","776960_4_18" ], "Sos Pos 1" ],
+[ [ "776960_10_16","776960_18_25","776960_18_23","776960_6_4","776960_6_18","776960_16_5","776960_28_0" ], "Sos Pos 2" ],
+[ [ "776960_63_9","776960_63_7","776960_63_6","776960_58_11","776960_61_30","776960_61_29","776960_61_28" ], "SOS_SANA" ],
+[ [ "776960_54_24","776960_52_13","776960_52_5","844380_1_25","776960_40_20","776960_39_22","776960_12_30" ], "sosipieosIRLremainders+caveDigger" ],
+[ [ "776960_49_5","776960_49_4","776960_49_2","776960_42_5","776960_49_1","776960_49_0","776960_48_31" ], "sosIPieSos Weeb + rb Paw" ],
+[ [ "745740_46_12","745740_13_18","644560_1_14","1026820_2_10","745740_46_10","745740_31_28","745740_48_0" ], "reflex with mirror and coloring game middle" ],
+[ [ "745740_49_31","745740_49_30","745740_49_29","745740_10_7","745740_49_27","745740_44_5","745740_31_26" ], "Reflex_BBB_AnimalCat+Azn4+fay+iloveu" ],
+[ [ "828960_13_18","828960_13_17","828960_13_16","828960_13_14","828960_13_15","828960_13_13","828960_13_12" ], "blondeDriverColoredAnime" ],
+[ [ "828960_12_2","828960_12_1","828960_12_0","710780_25_20","828960_11_31","828960_11_30","828960_11_28" ], "blonde driver one dalejplotka | cat from skyjump" ],
+[ [ "710780_36_16","710780_36_18","818730_19_0","710780_37_10","710780_36_17","710780_36_15","710780_36_24" ], "skyjump + towerclimber BlonAzn" ],
+[ [ "710780_31_30","710780_31_23","710780_30_29","710780_37_26","710780_36_19","710780_35_25","818730_20_0" ], "skyjump + towerclimber aznr1" ],
+[ [ "710780_37_30","710780_32_5","710780_37_11","710780_32_9","710780_31_25","710780_36_14","776960_38_13" ], "skyjump + sosipieos Green" ],
+[ [ "1000550_1_8","1000550_1_7","1000550_1_6","1000550_1_5","1000550_1_4","1000550_1_3","1000550_1_2" ], "hacking Tests dat new game" ],
+[ [ "855320_1_9","855320_1_5","776960_75_16","860910_80_9","776960_74_31","860910_64_2","806140_90_5" ], "18floorsx2, sos, hannibal, sos, 3018+ach" ],
+[ [ "601980_2_23","601980_2_18","601980_2_22","776340_1_7","601980_2_21","601980_2_12","601980_2_10" ], "DeepFear 1 + Gayworld" ],
+[ [ "601980_2_17","601980_2_14","601980_2_20","776340_1_6","601980_2_19","601980_2_7","601980_2_11" ], "DeepFear 2 + Gayworld" ],
+[ [ "601980_2_9","601980_2_8","601980_2_16","776340_1_5","601980_2_15","601980_2_2","601980_2_4" ], "DeepFear 3 + Gayworld" ],
+[ [ "601980_2_3","601980_2_1","601980_2_13","776340_1_4","601980_2_0","601980_2_6","601980_2_5" ], "DeepFear 4 + Gayworld" ],
+[ [ "629280_58_19","629280_204_0","629280_15_24","525500_1_2","629280_217_27","629280_68_15","629280_227_0" ], "Run Away | Candy Kingdom" ] ],
 //------------------------------------------------------------------------------

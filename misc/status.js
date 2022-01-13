@@ -1,3 +1,8 @@
+//------------------------------------------------------------------------------ 2020FeedSpam
+post_status(accounts[0], "https://steamcommunity.com/sharedfiles/filedetails/?id=" + pool(Object.keys(state.videos)) + " https://steamcommunity.com/sharedfiles/filedetails/?id=" + pool(Object.keys(state.videos)), profile.game_favorite.selection[0].match(/\d+/)[0]))
+post_status = (account, text, appid) =>
+  http_request(account, "my/ajaxpostuserstatus", { status_text: (account.index == 0 ? text : emoticon_convert(text)), appid: appid }, (body, response, err) =>
+    log(account, 'SUCCESS | home: ' + ('https://steamcommunity.com/' + profile_url(account) + '/status/' + body.blotter_html.match(/userstatus_\d+_/)[0].slice(11, -1)).yellow)),
 //------------------------------------------------------------------------------ FunctionalPostsFromCommentArray
 (args) => pool(data.confusion),
 () => "https://steamcommunity.com/sharedfiles/filedetails/?id=" + pool(data.cats)

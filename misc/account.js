@@ -1,3 +1,41 @@
+//------------------------------------------------------------------------------ state-standalone-clean
+state.accounts.forEach(account => delete account.backgrounds)
+state.accounts.forEach(account => delete account.replies)
+state.accounts.forEach(account => delete account.day)
+state.accounts.forEach(account => delete account.last_steamid)
+state.accounts.forEach(account => delete account.replies)
+state.accounts.forEach(account => delete account.subscriptions)
+state.accounts.forEach(account => delete account.wishlist_blacklist)
+state.accounts.forEach(account => delete account.friends_diff)
+state.accounts.forEach(account => delete account.last_friends)
+state.accounts.forEach(account => delete account.post_free)
+//------------------------------------------------------------------------------ GoogleOAuth_2021
+generate_auth_token() => {
+  const readline = require('readline');
+  oAuth2Client = new google.auth.OAuth2(state.google_secret.installed.client_id, state.google_secret.installed.client_secret, 'http://localhost');
+  var token;
+  function getNewToken(oAuth2Client) {
+    const authUrl = oAuth2Client.generateAuthUrl({
+      access_type: 'offline',
+      scope: [ 'https://www.googleapis.com/auth/gmail.readonly' ];,
+    });
+    console.log('Authorize this app by visiting this url:', authUrl);
+    const rl = readline.createInterface({
+      input: process.stdin,
+      output: process.stdout,
+    });
+    rl.question('Enter the code from that page here: ', (code) => {
+      rl.close();
+      oAuth2Client.getToken(code, (err, data) => {
+        token = data;
+        if (err) return console.error('Error retrieving access token', err);
+        oAuth2Client.setCredentials(token);
+        console.dir(token);
+      });
+    });
+  }
+  getNewToken(oAuth2Client);
+}
 //------------------------------------------------------------------------------ Gmail
 base64 = (data) =>
   new Buffer(data).toString('base64'),

@@ -1,3 +1,8 @@
+//------------------------------------------------------------------------------ Tags
+"old_youtube_tags": [ 
+  "HTC","VIVE","VR","STEAM","OCULUS","RIFT","PSVR","VIRTUAL","REALITY","360","GAMING","AR","PC","LINUX","WINDOWS","VULCAN","OPENGL","D3D" ],
+"new_youtube_tags": [
+  "VALVEINDEX","HTCVIVE","VR","STEAMVR","OCULUSRIFT","PSVR","VIRTUALREALITY","360","GAMING","OCULUS","AR","PC","STEAM","VULCAN","OCULUSQUEST" ],
 //------------------------------------------------------------------------------ FindDuplicateKeysInState
 Object.keys(state.videos).length
 Object.keys(state.videos).forEach((video1) =>

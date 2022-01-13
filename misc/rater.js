@@ -1,3 +1,16 @@
+//------------------------------------------------------------------------------ Rater2021Functional
+      : (a % 42 == 0) ? 
+        activity_rater(accounts[0])
+vote = (account, delay = Math.random()*(14000-7000)+7000) =>
+  (account.votes.length > 0) &&
+    setTimeout((account, item = account.votes.shift().split('(')) => (
+      log(account, "SUCCESS | rate: " + ((item[0] + "/" + item[1])
+        .replace("VoteUp/", "https://steamcommunity.com/sharedfiles/filedetails/?id=")
+        .replace("VoteUpCommentThread/'UserReceivedNewGame_", 'https://steamcommunity.com/profiles/')
+        .replace("VoteUpCommentThread/'UserStatusPublished_", 'https://steamcommunity.com/profiles/')
+        .replace("_", () => (item[1].startsWith("\'UserReceived")) ? "/friendactivitydetail/3/" : "/status/")
+        .replace('\'', '').slice(0, -2)).yellow),
+      eval(item[0])(account, item[1])), delay, account),
 //------------------------------------------------------------------------------ Rater2020Functional
 VoteUp = (account, _item_id, item_id = _item_id.slice(0, -2)) =>
   http_request(account, 'sharedfiles/voteup?' + item_id , { id: item_id , appid: 0 }, (body, response, err) =>
@@ -14,10 +27,10 @@ activity_rater = (account) => (
   (!account.votes) ? (
     account.votes = [],
     account.cycles = 0)
-  : (++account.cycles % 8 == 0) && (
+  : (++account.cycles % 5 == 0) && (
     account.blotter_url = ''),
   http_request(account, 'my/ajaxgetusernews/' + account.blotter_url, null, (body, response, err,
-  init = (account.votes.length > 0) ? false : true) => (
+    init = (account.votes.length > 0) ? false : true) => (
     account.blotter_url = body.next_request.substr(body.next_request.indexOf('?')),
     body = Cheerio.load(body.blotter_html),
     body('div.blotter_block').filter((index, element) =>

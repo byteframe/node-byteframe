@@ -1,3 +1,7 @@
+//-------------------------------------------------------------------------------- DeleteStateVideo
+delete_video = (videoid) =>
+  http_request(accounts[0], 'sharedfiles/delete', { id: videoid, appid: 0 }, (body, response, err) =>
+    delete state.videos[videoid]),
 //-------------------------------------------------------------------------------- FriendsStatsLastBroken
 http_request(accounts[0], 'https://steamcommunity.com/id/byteframe', null, (body) => global.body = body);
 body.match(/friendPlayerLevelNum\"\>\d+/)[0].match(/\d+/)[0];
