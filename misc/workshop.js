@@ -129,18 +129,25 @@ smatter.forEach((id, n) =>
     [...Array(Math.floor(Math.random()*(12-8)+8)).keys()].forEach((i) => (
       http_request(a(i), 'sharedfiles/voteup', { "appid": 0, "id": id }),
       http_request(a(i), 'sharedfiles/favorite', { "appid": 0, "id": id }))), 9999*n, id))
-//------------------------------------------------------------------------------ GatherVideos
-temp_videos = {},
-check_videos = (p = 49) =>
+//------------------------------------------------------------------------------ GatherVideosIds
+temp_videos = [],
+(check_videos = (p = 91) =>
   (p > 0) &&
-    http_request(accounts[0], 'my/videos/?p=' + p + '&privacy=8&sort=newestfirst', null, (body, response, err,
-      files = body.match(/OnVideoClicked\( \d+/g)) => (
-      files.forEach((file) =>
-        temp_videos[file.substr(16)] = ''),
-        check_videos(p-1))))()
-        Object.keys(state.videos).forEach((video1) =>
-          (!temp_videos.hasOwnProperty(video1)) &&
-            console.log(video1))
+    http_request(accounts[0], 'my/videos/?p=' + p + '&privacy=2&sort=newestfirst', null, (body, response, err) => (
+      body.match(/OnVideoClicked\( \d+/g).forEach((file) =>
+        temp_videos.push(file.substr(16)),
+        check_videos(p-1)))))()
+//------------------------------------------------------------------------------ GatherVideos1
+get_video_details = (i = 0) =>
+  (i < temp_videos.length) &&
+    (state.videos.hasOwnProperty(temp_videos[i])) ?
+      get_video_details(++i)
+    : http_request(accounts[0], 'sharedfiles/filedetails/?id=' + temp_videos[i], null, (body, response, err) => (
+      state.videos[temp_videos[i]] = [
+        body.match(/workshopItemTitle\"\>.+\</)[0].slice(19, -1)
+        , Cheerio.load(body)('.nonScreenshotDescription').text().slice(1, -1)
+        , body.match(/"appid" value="\d+"/)[0].slice(15, -1) ],
+      setTimeout(get_video_details, 2000, ++i)), true)
 //------------------------------------------------------------------------------ VideoStats
 (videoStats = function() {
   (function request_video_list(p = 1) {

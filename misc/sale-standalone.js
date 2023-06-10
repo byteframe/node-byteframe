@@ -69,14 +69,19 @@ login = (account, delay = 0) =>
 discover = (account, first = false) =>
   http_request(account, 'https://store.steampowered.com/explore/generatenewdiscoveryqueue', { "queuetype": 0 }, (body, reponse, error) => (
     body.queue.forEach((appid, j) =>
-      http_request(account, 'https://store.steampowered.com/app/10', { "appid_to_clear_from_queue": appid }, (XXX) =>
+      http_request(account, 'https://store.steampowered.com/app/10', { "appid_to_clear_from_queue": appid }, () =>
         (j == body.queue.length-1 && first) && discover(account), true)))),
 start_sale_bot = (i, max_index = i) => (
   accounts[i] = { community: new SteamCommunity(), name: state.accounts[i].name, pass: state.accounts[i].pass, mail: state.accounts[i].mail, steamID: state.accounts[i].steamID, index: i, limited: false },
   accounts[i].user = new SteamUser({ "dataDirectory": null, "autoRelogin": false }),
-  accounts[i].user.setSentry(Crypto.createHash('sha1').update(fs.readFileSync('share/' + accounts[i].name + '-ssfn')).digest()),
+  accounts[i].user.setSentry(Crypto.createHash('sha1').update(fs.readFileSync('ssfn/' + accounts[i].name + '-ssfn')).digest()),
   accounts[i].tradeOfferManager = new SteamTradeOfferManager({ "steam": accounts[i].user, "community": accounts[i].community, "dataDirectory": null, "domain": "primarydataloop", "language": "en" }),
   accounts[i].user.once('loginKey', (key) => state.accounts[accounts[i].index].key = key),
+  accounts[i].user.on('error', (err) => (
+    log(accounts[i], 'FAILURE | error: ' + err.message.yellow),
+    (err.message == 'InvalidPassword') && (
+      delete state.accounts[i].key,
+			quit()))),
   accounts[i].user.on('newItems', (count) => log(accounts[i], "SESSION | newItems: " + count)),
   accounts[i].user.on('accountLimitations', (limited, communityBanned, locked, canInviteFriends) =>
     (limited || communityBanned || locked) &&
@@ -86,8 +91,9 @@ start_sale_bot = (i, max_index = i) => (
     accounts[i].community.setCookies(cookies),
     (!trading) ?
       http_request(accounts[i], 'https://store.steampowered.com/points/shop', {}, (body, response, error) =>
-        http_request(accounts[i], 'https://api.steampowered.com/ISaleItemRewardsService/ClaimItem/v1?access_token=' + body.match(/webapi_token\&quot\;\:\&quot\;.*?\&quot\;/)[0].slice(25, -6), {}, (body, response, error) =>
-          discover(accounts[i], true)))
+        http_request(accounts[i], 'https://api.steampowered.com/ISaleItemRewardsService/ClaimItem/v1?access_token=' + body.match(/webapi_token\&quot\;\:\&quot\;.*?\&quot\;/)[0].slice(25, -6), {}, (body, response, error) => (
+          accounts[i].user.gamesPlayed([440]),
+          discover(accounts[i], true))))
     : (i != 96) &&
       run_trade_offer(accounts[i], accounts[96]))),
   login(accounts[i]),
@@ -112,9 +118,10 @@ googleAPIsGmail = google.gmail({ version: 'v1', google_auth }),
 base64toUTF8 = (str) =>
   Buffer.from(str, 'base64').toString('utf8'),
 get_gmail = (account, callback, maxResults = 10, q = 'from:noreply@steampowered.com') =>
-  googleAPIsGmail.users.messages.list({ auth: google_auth, userId: 'me', maxResults: maxResults, q: q + ",to:" + account.mail },(err, response, gmails = []) => (
+  googleAPIsGmail.users.messages.list({ auth: google_auth, userId: 'me', maxResults: maxResults, q: q + ",to:" + account.mail }, (err, response, gmails = []) => (
     (err || !response.data.messages) ? (
-      log(state.accounts[0], 'FAILURE | gmail error: ' + (err ? err : 'no gmail data').yellow),
+      log(account, 'FAILURE | gmail error: ' + (err ? err : 'no gmail data').yellow),
+			console.dir(err),
       callback(true, []))
     :(read_message = (m = 0) =>
       (m == response.data.messages.length) ?
@@ -159,7 +166,7 @@ run_trade_offer = (account, receiver, sending = [], i = 0) =>
           log(account, "SESSION | offer.send: " + ("complete=" + status).yellow)
         : account.community.acceptConfirmationForObject("identitySecret", offer.id, (err) =>
           (get_gmail_confirmation = (attempt = 0) =>
-            get_gmail(mail, (err, gmails, link = search_gmail(gmails, "https://steamcommunity.com/tradeoffer/" + offer.id + "/confirm?accountid=", '"')) => (
+            get_gmail(account, (err, gmails, link = search_gmail(gmails, "https://steamcommunity.com/tradeoffer/" + offer.id + "/confirm?accountid=", '"')) => (
               (link.length <= 1 || !link) ?
                 (attempt == 8) ?
                   log(account, "FAILURE | get_gmail: " + ("noLink=" + offer.id).yellow)
@@ -173,7 +180,35 @@ run_trade_offer = (account, receiver, sending = [], i = 0) =>
                     : offer.getUserDetails((err, me, them) =>
                         offer.accept(false, (err, status) =>
                           log(account, "SUCCESS | offer.accept: " + status + "=" + me.escrowDays + "/" + them.escrowDays + "_days"))))))))()))))()));
-const repl = require('repl');
-repl.start().on('exit', () => (
+quit = () => (
   fs.writeFileSync('./state-standalone.json', JSON.stringify(state, null, 2)),
-  process.exit()));
+  process.exit());
+process.on('SIGINT', (code) => quit());
+generate_auth_token = () => {
+  const readline = require('readline');
+  oAuth2Client = new google.auth.OAuth2(state.google_secret.installed.client_id, state.google_secret.installed.client_secret, 'http://localhost');
+  var token;
+  function getNewToken(oAuth2Client) {
+    const authUrl = oAuth2Client.generateAuthUrl({
+      access_type: 'offline',
+      scope: [ 'https://www.googleapis.com/auth/gmail.readonly' ],
+    });
+    console.log('Authorize this app by visiting this url:', authUrl);
+    const rl = readline.createInterface({
+      input: process.stdin,
+      output: process.stdout,
+    });
+    rl.question('Enter the code from that page here: ', (code) => {
+      rl.close();
+      oAuth2Client.getToken(code, (err, data) => {
+        token = data;
+        if (err) return console.error('Error retrieving access token', err);
+        oAuth2Client.setCredentials(token);
+        console.dir(token);
+      });
+    });
+  }
+  getNewToken(oAuth2Client);
+};
+const repl = require('repl');
+repl.start();

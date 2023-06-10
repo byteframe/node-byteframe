@@ -1,3 +1,19 @@
+//------------------------------------------------------------------------------ WatchdogInLoop
+watchdog = 0,
+timer = setInterval((a = (state.account_index = (state.account_index+1 == accounts.length ? 1 : state.account_index+1))) => (
+  login(accounts[0]),
+  (++watchdog == 60) ? (
+    fs.closeSync(fs.openSync('node-byteframe_stall-' + Date.now(), 'w')),
+    quit())
+timer = setInterval((a = (state.account_index = (state.account_index+1 == accounts.length ? 1 : state.account_index+1))) =>
+  (!accounts[0].user.steamID) ?
+    logon(accounts[0])
+      randomize_profile(accounts[0], profile, () => (
+        watchdog = 0,
+        (accounts[0].comment_check > -1) &&
+          http_request(accounts[0], 'my/commentnotifications', { action: 'markallread' }, (body, response, err) =>
+            accounts[0].comment_check = -1),
+      randomize_profile(accounts[0], profile, () => 
 //------------------------------------------------------------------------------ RenaCommentScript
 var match = "*://steamcommunity.com/profiles/* + *://steamcommunity.com/id/*"
 var comment = `

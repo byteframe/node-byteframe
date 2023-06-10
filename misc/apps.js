@@ -1,3 +1,40 @@
+//------------------------------------------------------------------------------ PortedToJson
+other.concat(sharedconfig).forEach((appid) => { try { console.log("  \"https://steamdb.info/appid/"+appid+" -- "+accounts[0].user.picsCache.apps[appid].appinfo.common.name + (accounts[0].user.picsCache.apps[appid].appinfo.common.type == 'Demo' ? " *** DEMO ***" : "")) } catch (ex) { console.log('fail: ' + appid) } });
+//------------------------------------------------------------------------------ SharedConfigAudit2023
+console.log('UNEXPLAINED REVIEW DUPES');
+console.log(array_duplicates(state.reviewed).join(','));
+console.log('BOOKMARK/FOLLOWED DUPES');
+console.log(array_duplicates(bookmarks.concat(followed)).join(','));
+http_request(accounts[0], 'my/followedgames', null, (body, response, error) => followed = body.match(/data-appid=\"[0-9]*/g).map((i) => parseInt(i.substr(12))))
+sharedconfig.forEach(a => console.log('[' + (state.reviewed.indexOf(a) > -1 ? 'R' : ' ') + '][' + (bookmarks.indexOf(a) > -1 ? 'B' : ' ') + '][' + (followed.indexOf(a) > -1 ? 'F' : ' ') + '] ==== ' + "https://steamdb.info/app/" + a + "\t" + (accounts[0].user.picsCache.apps[a] != undefined && accounts[0].user.picsCache.apps[a].appinfo != undefined && accounts[0].user.picsCache.apps[a].appinfo.common != undefined ? (accounts[0].user.picsCache.apps[a].appinfo.common.type == 'Demo' ? 'DEMO' : '    ') + " https://store.steampowered.com/app/" + a + "/" + accounts[0].user.picsCache.apps[a].appinfo.common.name.replace(/ /g, '_') : '')));
+//------------------------------------------------------------------------------ FindOwnedGameFavorites
+check_me = data.game_favorite.map((game) => parseInt(game.match(/\d+/)[0]))
+appids = Object.keys(accounts[0].user.picsCache.apps)
+check_me.forEach((appid) => (appids.indexOf(appid) > -1) && console.log('owned appid: ' + appid))
+//------------------------------------------------------------------------------ CheckIfAppIsDLC
+checkDlcInterval = 8000;
+(check_app_if_dlc = (i = 0) =>
+  (!(data.game_favorite[i] in state.dlccheck)) ?
+    http_request(accounts[0], 'https://store.steampowered.com/app/' + data.game_favorite[i], null, (body, response, error) => (
+      (error) ?
+        console.log(body)
+      : (body.indexOf('>Downloadable Content</a>') > -1) ?
+          state.dlccheck[data.game_favorite[i]] = true
+        : state.dlccheck[data.game_favorite[i]] = false,
+        console.log("[" + i + "/" + data.game_favorite.length + "] " + data.game_favorite[i] + " is " + state.dlccheck[data.game_favorite[i]]),
+        setTimeout(check_app_if_dlc, checkDlcInterval, i+1)), true)
+  : check_app_if_dlc(i+1))();
+//------------------------------------------------------------------------------ 2022AppHaul
+new_games.forEach((appid) => (data.review.indexOf(+appid.replace(/\/.*/, '')) > -1) && console.log("data.review: " + "https://store.steampowered.com/app/" + appid)); // NO GAMES ALREADY IN REVIEW
+new_games.forEach((appid) => (rgOwnedApps.indexOf(+appid.replace(/\/.*/, '')) > -1) && console.log("rgOwnedApps: " + "https://store.steampowered.com/app/" + appid)); // 311 OWNED_GAMES , 861 UNOWENED
+owned_games = []; unowned_games = []; new_games.forEach((appid) => (rgOwnedApps.indexOf(+appid.replace(/\/.*/, '')) > -1) ? owned_games.push(appid) : unowned_games.push(appid));
+unowned_games.forEach((appid) => (data.game_favorite.indexOf(appid) > -1) && console.log("https://store.steampowered.com/app/" + appid)); // 168 UNOWNED GAMES ALREADY IN DATA.FAVORITE
+unowned_already_favorited = []; unowned_games.forEach((appid) => (data.game_favorite.indexOf(appid) > -1) && unowned_already_favorited.push(appid));
+owned_games.forEach((appid) => (data.game_favorite.indexOf(appid) > -1) && console.log("https://store.steampowered.com/app/" + appid)); // 36 OWNED GAMES IN DATA.FAVORITE
+owned_already_favorited = [];   owned_games.forEach((appid) => (data.game_favorite.indexOf(appid) > -1) &&   owned_already_favorited.push(appid));
+new_games = new_games.filter((appid) => (unowned_already_favorited.indexOf(appid) == -1)); // CULL UNOWNED GAMES ALREADY FAVORITED
+owned_games = []; unowned_games = []; new_games.forEach((appid) => (rgOwnedApps.indexOf(+appid.replace(/\/.*/, '')) > -1) ? owned_games.push(appid) : unowned_games.push(appid));  // REMAKE: OWNED 311, UNOWNED: 693
+console.log("owned: " + owned_games.length + ", unowned: " + unowned_games.length);
 //------------------------------------------------------------------------------ Curation
 : (a % 64 == 0) && (
   wishlister(accounts[0]),
@@ -76,7 +113,7 @@ console.log(array_duplicates(data.avatars.map((avatar) => avatar[0] + "_" + avat
   console.log(array_duplicates(data.game_favorite.map((game) => parseInt(game.match(/\d+/)[0]))
       .concat(data.game_collector[0]).concat(data.game_collector[1])
       .concat(data.game_collector[2]).concat(data.game_collector[3])
-      .concat(data.review[0]))))(),
+      .concat(data.review[0]))))();
 //------------------------------------------------------------------------------ StoreLinksOldAugmented
 jQuery('.apphub_OtherSiteInfo a.btnv6_blue_hoverfade.btn_medium').eq(0).clone().attr('href',
   jQuery('a.btnv6_blue_hoverfade.btn_medium').eq(0).attr('href').replace(

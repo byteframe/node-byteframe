@@ -1,3 +1,21 @@
+//------------------------------------------------------------------------------ OringalNotifcationEvent
+(count) && (
+  accounts[0].comment_check = myItems)),
+(accounts[0].comment_timer == null && count > 0) && (
+   accounts[0].comment_timer = setTimeout(() => (
+     http(accounts[0], 'my/commentnotifications', { action: 'markallread' }),
+     delete accounts[0].comment_timer), 10000))),
+//------------------------------------------------------------------------------ ShelveComplicatedCommentChecker
+(accounts[0].comment_check > 0) &&
+  http_request(accounts[0], 'my/allcomments', null, (_body, response, err, body = Cheerio.load(_body), players = {}) =>
+    body('.commentthread_comment').each((i, element, cid = element.attribs['id'].substr(8),
+      steamid = translate_id(body('#comment_' + cid + " a")[0].attribs['data-miniprofile']),
+      contents = body("#comment_content_" + cid).contents().toString().trim()) =>
+      (!players.hasOwnProperty(steamid)) ?
+        players[steamid] = [ contents ]
+      : (players[steamid].indexOf(contents) == -1) ?
+        players[steamid].push(contents)
+      : http_request(accounts[0], 'comment/Profile/delete/76561197961017729/-1/', { count: 6, feature2: -1, gidcomment: state.comments.shift() }))),
 //------------------------------------------------------------------------------ SelfPostAndDeleteLatterBroken
 http_request(accounts[0], 'my/allcomments', null, (_body, response, err, body = Cheerio.load(_body),
   last = body('.commentthread_comment').last(),

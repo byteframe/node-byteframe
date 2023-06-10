@@ -1,3 +1,21 @@
+//------------------------------------------------------------------------------ wain sha (obsolete)
+http_request(account, (!account.user.playingState.blocked) ? 'https://steamcommunity.com/actions/selectPreviousAvatar' : 'https://steamcommunity.com/games/' + avatar[0] + '/selectAvatar', (!account.user.playingState.blocked) ? { json: 1, sha: pool(data.wain_sha) } : { selectedAvatar: avatar[1] }, (body, response, error) =>
+//------------------------------------------------------------------------------ profile_debug
+http_debug = (endpoint) =>
+  (endpoint == 'my/edit') && (
+    (profile.hasOwnProperty('item_showcase_2720320')) && profile.item_showcase_2720320.selection.forEach((item) => (item != '__') && console.log("  BOOSTERS: https://steamcommunity.com/id/byteframe/inventory/#" + item)),
+    (profile.hasOwnProperty('trade_items_2410599')) && profile.trade_items_2410599.selection.forEach((item) => console.log("  DOTAS: https://steamcommunity.com/id/byteframe/inventory/#" + item)),
+    (profile.hasOwnProperty('trade_items')) && profile.trade_items.selection.forEach((item) => console.log("  TRADE1: https://steamcommunity.com/id/byteframe/inventory/#" + item)),
+    (profile.hasOwnProperty('artwork')) && profile.artwork.selection.forEach((item) => console.log("  ARTWORK1: https://steamcommunity.com/sharedfiles/filedetails/?id=" + item)),
+    (profile.hasOwnProperty('artwork2')) && profile.artwork2.selection.forEach((item) => console.log("  ARTWORK2: https://steamcommunity.com/sharedfiles/filedetails/?id=" + item)),
+    (profile.hasOwnProperty('review')) && profile.review.selection.forEach((item) => console.log("  REVIEW: https://steamcommunity.com/id/byteframe/recommended/" + item)),
+    (profile.hasOwnProperty('guide_favorite')) && profile.guide_favorite.selection.forEach((item) => console.log("   GUIDE: https://steamcommunity.com/sharedfiles/filedetails/?id=" + item)),
+    (profile.hasOwnProperty('guide_collector')) && profile.guide_collector.selection.forEach((item) => console.log("   GUIDE2: https://steamcommunity.com/sharedfiles/filedetails/?id=" + item)),
+    (profile.hasOwnProperty('workshop_collector')) && profile.workshop_collector.selection.forEach((item) => console.log("WORKSHOP1: https://steamcommunity.com/sharedfiles/filedetails/?id=" + item)),
+    (profile.hasOwnProperty('workshop_favorite')) && profile.workshop_favorite.selection.forEach((item) => console.log("WORKSHOP2: https://steamcommunity.com/sharedfiles/filedetails/?id=" + item)),
+    (profile.hasOwnProperty('item_showcase')) && profile.item_showcase.selection.forEach((item) => console.log("https://steamcommunity.com/id/byteframe/inventory/#" + item))),
+//------------------------------------------------------------------------------ Emoticon Strips
+data.emoticons.forEach((index, i) => (console.log(generate_emoticons(31, '', '', [i]) + "\n" + generate_emoticons(31, '', '', [i]))))
 //------------------------------------------------------------------------------ SteamFriends.info
 diff_array = (array1, array2) =>
   array1.filter((i) => array2.indexOf(i) < 0),
@@ -54,14 +72,14 @@ alter_showcase('completionist', 23, (i, element) =>
 //------------------------------------------------------------------------------ WainSelect
 http_request(account, 'https://steamcommunity.com/actions/selectPreviousAvatar', { json: 1, sha: pool(data.wain_sha) }, (body, response, error) =>
 //------------------------------------------------------------------------------ GenerateLinks
-generate_links = (links = shuffle_array(data.links)) =>
+(generate_links = (links = shuffle_array(data.links)) =>
   (pool(data.emoticons[6], 1) + ' ' + links[0] + ' ' + pool(data.emoticons[8], 1) + ' ' +
   links[1] + ' ' + pool(data.emoticons[2], 1) + ' ' +
   links[2] + ' ' + pool(data.emoticons[4], 1) + ' ' +
   links[3] + ' ' + pool(data.emoticons[3], 1) + ' ' +
   links[4] + ' ' + pool(data.emoticons[11], 1) + ' ' +
   links[5] + ' ' + pool(data.emoticons[9], 1) + ' ' +
-  links[6] + ' ' + pool(data.emoticons[5], 1) + ' ' + links[7]).replace(/:/g, 'ː');
+  links[6] + ' ' + pool(data.emoticons[5], 1) + ' ' + links[7]).replace(/:/g, 'ː'))()
 //------------------------------------------------------------------------------ GenerateHalfLife
 generate_halflife = (array, min, max, s = '') => (
   s += pool(array) + " ",
@@ -95,10 +113,10 @@ emoticon_convert = (text) => (
   data.emojis.index = 0,
   text),
 //------------------------------------------------------------------------------ GenerateGreetingsFunction
-generate_greetings = (delimiter = "/", text = '') => (
+(generate_greetings = (delimiter = "/", text = '') => (
   shuffle_array(data.greetings).forEach((greeting) =>
     text += greeting + '[/url] ' + delimiter + ' '),
-  text.trim().slice(0, -2)),
+  text.trim().slice(0, -2)))(),
 //------------------------------------------------------------------------------ FunctonEditors
 edit_group = (account, group, headline, group_form) =>
   http_request(account, 'groups/' + group + '/edit', '&' + group_form.replace(
@@ -877,13 +895,6 @@ alter_showcase2 = (_showcase, callback = '') => {
 "unused_greetings": [
   "[url=https://steamcommunity.com/id/byteframe?l=korean]안녕하세요![/url]",
   "[url=https://steamcommunity.com/id/byteframe?l=japanese]こんにちは![/url]" ],
-"dead_social_links":  [
-  "https://instagib.tv/byteframe",
-  "https://smashcast.tv/byteframe",
-  "https://www.mixer.com/95892684",
-  "https://streamcraft.com/user/2051568140/room",
-  "https://live.loots.com/c/byteframe"
-],
 "steam_dev_days": [
   550781,550766,550782,550767,550783,550768,550784,550769,550770,550771,550772,550773,534615,534613,534614,534629,534630,534631,
   534616,534632,534617,534618,534633,534634,534619,534635,534620,534636,534621,534622,534623,534624,534625,534610,534626,534611,534627,534612,534628,

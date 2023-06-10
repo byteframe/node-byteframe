@@ -1,3 +1,10 @@
+//-------------------------------------------------------------------------------- group/friend event 2023 removal
+account.user.on('groupRelationship', (gid, relationship) =>
+  (relationship == SteamUser.EClanRelationship.Invited) &&
+    account.user.respondToGroupInvite(gid, true))
+accounts[0].user.on('friendRelationship', (steamid, relationship) =>
+(relationship == SteamUser.EFriendRelationship.RequestRecipient) &&
+  state.adds.push(steamid.toString())),
 //-------------------------------------------------------------------------------- DeleteStateVideo
 delete_video = (videoid) =>
   http_request(accounts[0], 'sharedfiles/delete', { id: videoid, appid: 0 }, (body, response, err) =>

@@ -1,3 +1,25 @@
+//------------------------------------------------------------------------------ old login
+Crypto = require('crypto'),
+  (fs.existsSync('share/' + account.name + '-ssfn')) ?
+    account.user.setSentry(Crypto.createHash('sha1').update(fs.readFileSync('share/' + account.name + '-ssfn')).digest())
+  : (fs.existsSync('share/ssfn')) &&
+    account.user.setSentry(Crypto.createHash('sha1').update(fs.readFileSync('share/ssfn')).digest()),
+  account.user.on('sentry', (sentry) =>
+    fs.writeFileSync('share/' + account.name + '-ssfn', sentry)),
+login = (account, delay = 0) =>
+  (!account.user.steamID) &&
+    setTimeout((login_details = { "rememberPassword": (account.index == 0 || account.index == 96 ? true : false), "accountName": account.name }) => (
+      (state.accounts[account.index].key && login_details.rememberPassword == true) ?
+        login_details.loginKey = state.accounts[account.index].key
+      : login_details.password = state.accounts[account.index].pass,
+      account.user.logOn(login_details)), delay),
+login(accounts[0]),
+(accounts.length > 1) &&
+  login(accounts[(state.account_index+1 == accounts.length ? 1 : state.account_index+1)]),
+//------------------------------------------------------------------------------ old get access token
+setTimeout((account) =>
+  http_request(account, 'https://store.steampowered.com/points/shop', {}, (body, response, error) =>
+    account.access_token = body.match(/webapi_token\&quot\;\:\&quot\;.*?\&quot\;/)[0].slice(25, -6)), 5000, account))),
 //------------------------------------------------------------------------------ state-standalone-clean
 state.accounts.forEach(account => delete account.backgrounds)
 state.accounts.forEach(account => delete account.replies)
@@ -9,33 +31,6 @@ state.accounts.forEach(account => delete account.wishlist_blacklist)
 state.accounts.forEach(account => delete account.friends_diff)
 state.accounts.forEach(account => delete account.last_friends)
 state.accounts.forEach(account => delete account.post_free)
-//------------------------------------------------------------------------------ GoogleOAuth_2021
-generate_auth_token() => {
-  const readline = require('readline');
-  oAuth2Client = new google.auth.OAuth2(state.google_secret.installed.client_id, state.google_secret.installed.client_secret, 'http://localhost');
-  var token;
-  function getNewToken(oAuth2Client) {
-    const authUrl = oAuth2Client.generateAuthUrl({
-      access_type: 'offline',
-      scope: [ 'https://www.googleapis.com/auth/gmail.readonly' ];,
-    });
-    console.log('Authorize this app by visiting this url:', authUrl);
-    const rl = readline.createInterface({
-      input: process.stdin,
-      output: process.stdout,
-    });
-    rl.question('Enter the code from that page here: ', (code) => {
-      rl.close();
-      oAuth2Client.getToken(code, (err, data) => {
-        token = data;
-        if (err) return console.error('Error retrieving access token', err);
-        oAuth2Client.setCredentials(token);
-        console.dir(token);
-      });
-    });
-  }
-  getNewToken(oAuth2Client);
-}
 //------------------------------------------------------------------------------ Gmail
 base64 = (data) =>
   new Buffer(data).toString('base64'),

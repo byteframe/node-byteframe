@@ -1,10 +1,10 @@
 fs = require('fs'),
-data = JSON.parse(fs.readFileSync('./data.json', 'utf-8')),
+data = JSON.parse(fs.readFileSync('./data.json', 'utf8')),
 state = JSON.parse(fs.readFileSync('./state.json', 'utf8')),
 Colors = require('colors'),
 Cheerio = require('cheerio'),
-Crypto = require('crypto'),
 SteamUser = require('steam-user'),
+SteamSession = require('steam-session').LoginSession,
 SteamCommunity = require('steamcommunity'),
 RiveScript = require("rivescript"),
 font = (input, f, output = '') => (
@@ -77,6 +77,14 @@ generate_random_response = () => pool([
   () => pool(data.confusion),() => pool(data.confusion),() => pool(data.confusion),
   () => get_reply('', 'ask me a question'),
   () => get_reply('', 'imponderables') ], 1, null)[0](),
+generate_links = (links = shuffle_array(data.links)) =>
+  (pool(data.emoticons[6], 1) + ' ' + links[0] + ' ' + pool(data.emoticons[8], 1) + ' ' +
+  links[1] + ' ' + pool(data.emoticons[2], 1) + ' ' +
+  links[2] + ' ' + pool(data.emoticons[4], 1) + ' ' +
+  links[3] + ' ' + pool(data.emoticons[3], 1) + ' ' +
+  links[4] + ' ' + pool(data.emoticons[11], 1) + ' ' +
+  links[5] + ' ' + pool(data.emoticons[9], 1) + ' ' +
+  links[6] + ' ' + pool(data.emoticons[5], 1) + ' ' + links[7]).replace(/:/g, 'ː'),
 mandelas = data.mandelas1.concat(data.mandelas2),
 comment_messages = [
   (args, index = -1, right, h = (index != -1 ? data.hearts[index] : pool(data.hearts, 1, null)[0]), r = (!right ? h[6] : right)) =>
@@ -133,7 +141,7 @@ comment_messages = [
     + pool(data.emoticons[7], 15, " -- "),
   (args) =>
     pool(data.emoticons[8], 10, " ") + "\n"
-    + ":bundleoftulips: [u][ Calvin and Hobbes Quotes ][/u] :bundleoftulips:[i]\n"
+    + ":bundleoftulips: [u]{ Calvin and Hobbes Quotes }[/u] :bundleoftulips:[i]\n"
     + pool(data.emoticons[6], 10, " ") + "\n"
     + generate_fortune('calvin', 3) + "\n"
     + pool(data.emoticons[10], 10, " "),
@@ -284,7 +292,7 @@ profile = {
   lite: false,
   custom_url: 'byteframe',
   background: { shuffle_slots: [], shuffle_types: [ 0 ], slots: [ [ (account) => pool(accounts[account.index].backgrounds, 1, null)[0] ] ] },
-  showcases: { shuffle_slots: [], shuffle_types: [ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ], slots: [ [ "4_0" ],[ "13_0" ],[ "17_0" ],[ "15_0" ],[ "3_0" ],[ "12_0" ],[ "10_0" ],[ "7_0" ],[ "11_0" ],[ "5_0" ],[ "8_0" ],[ "2_0" ],[ "9_0" ],[ "6_0" ],[ "16_0" ],[ "22_0" ], [ "8_280151" ] ] },
+  showcases: { shuffle_slots: [], shuffle_types: [ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ], slots: [ [ "4_0" ],[ "13_0" ],[ "17_0" ],[ "15_0" ],[ "3_0" ],[ "12_0" ],[ "10_0" ],[ "7_0" ],[ "11_0" ],[ "5_0" ],[ "8_0" ],[ "2_0" ],[ "9_0" ],[ "6_0" ],[ "16_0" ],[ "22_0" ],[ "8_280151" ],[ "4_2410599" ],[ "3_2720320" ], [ "6_2908791" ] ] },
   screenshot: { shuffle_slots: [ 1, 2, 3 ], shuffle_types: [ -1, -1, -1, -1 ], slots: data.screenshot },
   artwork: { shuffle_slots: [ 1, 2, 3 ], shuffle_types: [ -1, -1, -1, -1 ], slots: data.artwork },
   artwork2: { shuffle_slots: [], shuffle_types: [ 0 ], slots: [ [ () => pool(data.artwork2) ] ] },
@@ -296,17 +304,21 @@ profile = {
   workshop_collector: { shuffle_slots: [ 0, 1, 2, 3 ], shuffle_types: [ -1, -1, -1, -1, -1 ], slots: [ data.workshop_collector[0],data.workshop_collector[1],data.workshop_collector[2],data.workshop_collector[3],[ () => pool(data.merchandise) ] ] },
   game_collector: { shuffle_slots: [  0,  1,  2,  3 ], shuffle_types: [ -1, -1, -1, -1 ], slots: data.game_collector },
   game_favorite: { shuffle_slots: [], shuffle_types: [ -1 ], slots: [ data.game_favorite ] },
+  game_favorite_2908791: { shuffle_slots: [], shuffle_types: [ -1 ], slots: [ data.game_favorite_dlc ] },
   badge_collector: { shuffle_slots: [ 1, 2, 3, 4, 5 ], shuffle_types: [ 1, 1, 1, 1, 1, 1 ], slots: data.badge_collector },
   badge_favorite: { shuffle_slots: [], shuffle_types: [ -1 ], slots: [ data.badge_favorite ] },
   review: { shuffle_slots: [], shuffle_types: [ -1 ], slots: [ data.review ] },
   trade_items: { shuffle_slots: [ 0, 1, 2, 3, 4, 5 ], shuffle_types: [ 1, 1, 1, 1, 1, 1 ], slots: data.trade_items },
+  trade_items_2410599: { shuffle_slots: [ 0, 1, 2, 3, 4, 5 ], shuffle_types: [ 1, 1, 1, 1, 1, 1 ], slots: [ [ () => pool(data.trade_items_2410599) ], [ () => pool(data.trade_items_2410599) ], [ () => pool(data.trade_items_2410599) ], [ () => pool(data.trade_items_2410599) ], [ () => pool(data.trade_items_2410599) ], [ () => pool(data.trade_items_2410599) ] ] },
   item_showcase: { shuffle_slots: [], shuffle_types: [ -1, -1, -1, -1, -1, -1,  1,  1,  1,  1 ], slots: data.item_showcase },
+  item_showcase_2720320: { shuffle_slots: [], shuffle_types: [ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ], slots: [ [ "__" ],[ "__" ],[ "__" ],[ "__" ],[ "__" ],[ "__" ], [ () => pool(data.item_showcase_2720320) ], [ () => pool(data.item_showcase_2720320) ], [ ()=> pool(data.item_showcase_2720320) ], [ () => pool(data.item_showcase_2720320) ] ] },
   countries: { shuffle_slots: [], shuffle_types: [ -1 ], slots: [ data.countries ] },
   achievement: { shuffle_slots: [ 0, 1, 2, 4, 5, 6 ], shuffle_types: [ 1, 1, 1, 1, 1, 1, 1 ], slots: [ [], [], [], [], [], [], [] ] },
   persona_name: { shuffle_slots: [], shuffle_types: [ 0 ], slots: [ [
-    (account, lite, text = '¡ byteframe ' + pool(data.smileys) + " is " + pool(data.adjectives).toLowerCase() + " !"
-      , m = encodeURIComponent(text).match(/%[89ABab]/g)) =>
-      (text.length + (m ? m.length : 0) < 33) ?
+    (account, lite, text = '¡ byteframe ' + pool(data.smileys) + " is " + pool(data.adjectives).toLowerCase() + " !" , m = encodeURIComponent(text).match(/%[89ABab]/g)) =>
+      (account.user.playingState.blocked) ?
+        'byteframe'
+      : (text.length + (m ? m.length : 0) < 33) ?
         text
       : profile.persona_name.slots[0][0](account, lite) ] ] },
   real_name: { shuffle_slots: [], shuffle_types: [ 0 ], slots: [ [
@@ -324,42 +336,29 @@ profile = {
     (account, lite, fortune = generate_fortune('all', 1, 512).replace(/\b[A-Z]{2,}\b/g, (word) => word[0] + word.toLowerCase().substr(1))) =>
       insert_emojis(pool(mandelas).trim().split('\n').map((line, i) =>
         line + ((words = split_words(font(fortune, 3).slice(i*54, (i+1)*54))) => " ♡║ YYY " + words[0] + " YYY " + words[1] + " YYY")()).join("\n")) ] ] },
-  information_title_280151: { shuffle_slots: [], shuffle_types: [ 0 ], slots: [ [
-    (account, lite) => "[" + pool(data.emojis_bulk) + "] - " + font(generate_fortune('zippy', 1, 75, 90), 3) ] ] },
-  information_text_280151: { shuffle_slots: [], shuffle_types: [ 0 ], slots: [ [
-    (account, lite, emoticon_index = Math.floor(Math.random()*20)) => "[i]" + generate_fortune('all', 1, 768, 832).replace(/\//g, ' ') + "[/i] [b][strike]" + pool(data.first_male) + " is not " + pool(data.adjectives).toLowerCase() + "[/strike][/b]\n\n[h1]" + font(generate_fortune('all', 1, 55, 55), 4) + "[/h1]\n[b]#" + emoticon_index + ": " + pool(data.emoticons[emoticon_index], 4) + "[/b] / [spoiler]" + pool(data.social_links) + "[/spoiler] - " + shuffle_array(data.chinese.split('')).join('').substr(0, 4) + " - [" + shuffle_array(data.barcode.split('')).join('') + "][hr][/hr]" ] ] },
-  trade_text: { shuffle_slots: [], shuffle_types: [ 0 ], slots: [ [
-    (account, lite, text = ' ') => ' ' + generate_emoticons(33) + "\n\n" + font(generate_fortune('all', 1, 84, 86), 4) ] ] },
-  summary_text: { shuffle_slots: [], shuffle_types: [ 0 ], slots: [ [
-    (account, lite,
+  information_title_280151: { shuffle_slots: [], shuffle_types: [ 0 ], slots: [ [ (account, lite) => "[" + pool(data.emojis_bulk) + "] - " + font(generate_fortune('zippy', 1, 75, 90), 3) ] ] },
+  information_text_280151: { shuffle_slots: [], shuffle_types: [ 0 ], slots: [ [ (account, lite, emoticon_index = Math.floor(Math.random()*20)) => "[i]" + generate_fortune('all', 1, 768, 832).replace(/\//g, ' ') + "[/i] [b][strike]" + pool(data.first_male) + " is not " + pool(data.adjectives).toLowerCase() + "[/strike][/b]\n\n[h1]" + font(generate_fortune('all', 1, 55, 55), 4) + "[/h1]\n[b]#" + emoticon_index + ": " + pool(data.emoticons[emoticon_index], 4) + "[/b] / [spoiler]" + pool(data.social_links) + "[/spoiler] - " + shuffle_array(data.chinese.split('')).join('').substr(0, 4) + " - [" + shuffle_array(data.barcode.split('')).join('') + "][hr][/hr]" ] ] },
+  trade_text: { shuffle_slots: [], shuffle_types: [ 0 ], slots: [ [ (account, lite, text = ' ') => ' ' + generate_emoticons(33) + "\n\n" + font(generate_fortune('all', 1, 84, 86), 4) ] ] },
+  trade_text_2410599: { shuffle_slots: [], shuffle_types: [ 0 ], slots: [ [
+    (account, lite, text = ' ',
       film = pool(data.films).replace(', The', ''),
       show = pool(data.shows).replace(', The', ''),
       artist = pool(data.artists).replace(', The', '')) =>
-      pool(data.emoticons[2], 3) + pool(data.emoticons[3], 3) + pool(data.emoticons[4], 3)
-      + pool(data.emoticons[5], 3) + pool(data.emoticons[6], 3) + pool(data.emoticons[7], 3)
-      + pool(data.emoticons[8], 3) + (!lite ? pool(data.emoticons[9], 3) + '\n' : ":emote1::emote2::emote3:\n")
-      + ((delimiter = "/", text = '') => (
-          shuffle_array(data.greetings).forEach((greeting) =>
-            text += greeting + '[/url] ' + delimiter + ' '),
-          text.trim().slice(0, -2)))() + "\n"
-      + pool(data.emoticons[2], 3) + pool(data.emoticons[3], 3) + pool(data.emoticons[4], 3)
-      + pool(data.emoticons[5], 3) + pool(data.emoticons[6], 3) + pool(data.emoticons[7], 3)
-      + pool(data.emoticons[8], 3) + (!lite ? pool(data.emoticons[9], 3) : ':emote1::emote2::emote3:') + '\n\n'
-      + '[h1]Bestie (' + profile.achievement.selection[3] + ')[/h1]\n'
+      '[b][u]Besties (' + profile.achievement.selection[3] + ')[/u][/b]\n'
       + ((line = '', colors = shuffle_array([2,3,4,5,8,9]), besties = shuffle_array([ 'Sidekick', 'Associate', 'Companion', 'Roommate' ])) => (
         besties.forEach((bestie, index) =>
           line += pool(data.emoticons[colors[index]]) +
             ' [url=steamcommunity.com/profiles/' + Object.keys(account.user.myFriends)[Math.floor(Math.random() * Object.keys(account.user.myFriends).length)] + ']' + bestie + "[/url] "),
         line + pool(data.emoticons[colors[5]]) + "\n\n"))()
-      + '[h1]Wallpaper (' + data.avatars[data.avatars.index-1] + ')[/h1]\n'
+      + '[b][u]Wallpaper (' + data.avatars[data.avatars.index-1] + ')[/u][/b]\n'
       + pool(data.emoticons[1]) + ' [url=steamdb.info/app/' + profile.background.selection[0].appid + ']'
       + profile.background.selection[0].game + '[/url] ' + pool(data.emoticons[1]) + ' [url=steamcommunity.com/id/byteframe/inventory/#753_6_'
       + profile.background.selection[0].id + ']' + profile.background.selection[0].name.replace(' (Profile Background)', '') + '[/url]\n\n'
-      + '[h1]Media (' + profile.game_collector.selection.join() + ')[/h1]\n'
+      + '[b][u]Media (' + profile.game_collector.selection.join() + ')[/u][/b]\n'
       + pool(data.emoticons[0]) + ' [url=imdb.com/find?q=' + film + ']' + film + '[/url]\n'
       + pool(data.emoticons[0]) + ' [url=themoviedb.org/search?query=' + show + ']' + show + '[/url]\n'
       + pool(data.emoticons[0]) + ' [url=discogs.com/search/?q=' + artist + ']' + artist + '[/url]\n\n'
-      + '[h1]Link (' + profile.review.selection[0] + ' | ' + (profile.game_favorite.selection[0]+"").replace(/\/.*/, "") + ') [/h1]\n'
+      + '[b][u]Link (' + profile.review.selection[0] + ' | ' + (profile.game_favorite.selection[0]+"").replace(/\/.*/, "") + ')[/u][/b]\n'
       + pool(data.emoticons[5]) + ' [url=youtube.com/c/byteframe]YouTube[/url]'
       + pool(data.emoticons[10]) + ' [url=twitch.tv/byteframe]Twitch[/url]'
       + pool(data.emoticons[2]) + ' [url=imgur.com/user/byteframe]Imgur[/url]'
@@ -383,7 +382,21 @@ profile = {
       + pool(data.emoticons[4]) + ' [url=pinterest.com/byteframe]Pinterest[/url]\n'
       + pool(data.emoticons[3]) + ' [url=mixer.com/95892684]Mixer[/url]'
       + pool(data.emoticons[2]) + ' [url=photos.app.goo.gl/B4digHC1UdQStf1EA]Photos[/url]'
-      + pool(data.emoticons[5]) + ' [url=sdq.st/u/49520]SideQuest[/url]' ] ] } },
+      + pool(data.emoticons[5]) + ' [url=sdq.st/u/49520]SideQuest[/url]' ] ] },
+  summary_text: { shuffle_slots: [], shuffle_types: [ 0 ], slots: [ [
+    (account, lite) =>
+      pool(data.emoticons[2], 3) + pool(data.emoticons[3], 3) + pool(data.emoticons[4], 3)
+      + pool(data.emoticons[5], 3) + pool(data.emoticons[6], 3) + pool(data.emoticons[7], 2)
+      + pool(data.emoticons[8], 3) + (!lite ? pool(data.emoticons[9], 3) + '\n' : ":emote1::emote2::emote3:\n")
+      + ((delimiter = "/", text = '') => (
+          shuffle_array(data.greetings).forEach((greeting) =>
+            text += greeting + '[/url] ' + delimiter + ' '),
+          text.trim().slice(0, -2)))() + "\n"
+      + pool(data.emoticons[2], 3) + pool(data.emoticons[3], 3) + pool(data.emoticons[4], 3)
+      + pool(data.emoticons[5], 3) + pool(data.emoticons[6], 3) + pool(data.emoticons[7], 2)
+      + pool(data.emoticons[8], 3) + (!lite ? pool(data.emoticons[9], 3) : ':emote1::emote2::emote3:') + "\n\n" +
+      "[i](this profile randomly changes its contents every minute to suit your needs)[/i]\n\n" +
+      "https://wikipedia.org/wiki/" + new Date().toLocaleDateString("en-US", { month: "long", day: "numeric"} ).replace(' ', '_') ] ] } },
 shuffle_array(data.achievement_array).forEach((set, index) =>
   set[0].forEach((element, index) =>
     profile.achievement.slots[index].push(element))),
@@ -399,7 +412,8 @@ log = (account, output) =>
   console_log(output.replace('|', '|' + (account.index == 0 ? pad(account.index, "000").gray.inverse : pad(account.index, "000").gray) + '|')),
 profile_url = (account) =>
   (account.user.vanityURL ? 'id/' + account.user.vanityURL : 'profiles/' + account.steamID),
-http_request = (account, endpoint, form = null, callback = null, force = false, method = (form != null ? 'POST' : 'GET'), retries = 0) => (
+http_debug = () => void 0,
+http = (account, endpoint, form = null, callback = null, force = false, method = (form != null ? 'POST' : 'GET'), retries = 0) => (
   (form != null && typeof form !== 'string') && (
     form.sessionID = account.community.getSessionID(),
     form.sessionid = account.community.getSessionID()),
@@ -436,11 +450,12 @@ http_request = (account, endpoint, form = null, callback = null, force = false, 
       account.user.webLogOn())
     : (success = true,
       result = "SUCCESS | " + result),
-    (!success || state.verbose) &&
-      log(account, result.replace('POST-', 'POST'.inverse + '-')),
+    (!success || state.verbose) && (
+      http_debug(endpoint, body, response, err),
+      log(account, result.replace('POST-', 'POST'.inverse + '-'))),
     (callback !== null && (success || force)) &&
       callback(body, response, err)))),
-prep_randomize_profile = (account, profile, callback = null,
+prep_randomize_profile = (account, profile, callback,
   alter_showcase = (showcase, id = 0, callback = null) =>
     (profile.hasOwnProperty(showcase)) && (
       profile[showcase].selection = [],
@@ -479,11 +494,11 @@ prep_randomize_profile = (account, profile, callback = null,
             (callback != null) &&
               callback(i, element)))()))) =>
   (typeof accounts[account.index].backgrounds == 'undefined') ? (
-    http_request(account, 'https://steamcommunity.com/' + profile_url(account) + '/ajaxgetplayerbackgrounds', {}, (body, response, err) => (
+    http(account, 'https://steamcommunity.com/' + profile_url(account) + '/ajaxgetplayerbackgrounds', {}, (body, response, err) => (
       accounts[account.index].backgrounds = [],
       (body.data.profilebackgroundsowned) &&
         body.data.profilebackgroundsowned.forEach((background) =>
-          (background.name.indexOf('Summer 2019') == -1 || account.index != 0) &&
+          (data.background_blacklist.indexOf(""+background.communityitemid) == -1 || account.index != 0) &&
             accounts[account.index].backgrounds.push({
               id: background.communityitemid,
               appid: background.appid,
@@ -519,6 +534,8 @@ prep_randomize_profile = (account, profile, callback = null,
         account.edit_2 += "&profile_showcase_purchaseid%5B%5D=" + element[1])),
       alter_showcase('trade_items', 4, (i, _element, element = _element.split('_')) =>
         account.edit_2 += "&rgShowcaseConfig%5B4_0%5D%5B" + i + "%5D%5Bappid%5D=" + element[0] + "&rgShowcaseConfig%5B4_0%5D%5B" + i + "%5D%5Bitem_contextid%5D=" + element[1] + "&rgShowcaseConfig%5B4_0%5D%5B" + i + "%5D%5Bitem_assetid%5D=" + element[2]),
+      alter_showcase('trade_items_2410599', 4, (i, _element, element = _element.split('_')) =>
+        account.edit_2 += "&rgShowcaseConfig%5B4_2410599%5D%5B" + i + "%5D%5Bappid%5D=" + element[0] + "&rgShowcaseConfig%5B4_2410599%5D%5B" + i + "%5D%5Bitem_contextid%5D=" + element[1] + "&rgShowcaseConfig%5B4_2410599%5D%5B" + i + "%5D%5Bitem_assetid%5D=" + element[2]),
       alter_showcase('trade_text', 4, (i, element) =>
         account.edit_2 += "&rgShowcaseConfig%5B4_0%5D%5B6%5D%5Bnotes%5D=" + element),
       alter_showcase('artwork', 13, (i, element) =>
@@ -529,6 +546,8 @@ prep_randomize_profile = (account, profile, callback = null,
         account.edit_2 += "&rgShowcaseConfig%5B15_0%5D%5B0%5D%5Bappid%5D=0&rgShowcaseConfig%5B15_0%5D%5B0%5D%5Bpublishedfileid%5D=" + element),
       alter_showcase('item_showcase', 3, (i, _element, element = _element.split('_')) =>
         account.edit_2 += "&rgShowcaseConfig%5B3_0%5D%5B" + i + "%5D%5Bappid%5D=" + element[0] + "&rgShowcaseConfig%5B3_0%5D%5B" + i + "%5D%5Bitem_contextid%5D=" + element[1] + "&rgShowcaseConfig%5B3_0%5D%5B" + i + "%5D%5Bitem_assetid%5D=" + element[2]),
+      alter_showcase('item_showcase_2720320', 3, (i, _element, element = _element.split('_')) =>
+        account.edit_2 += "&rgShowcaseConfig%5B3_2720320%5D%5B" + i + "%5D%5Bappid%5D=" + element[0] + "&rgShowcaseConfig%5B3_2720320%5D%5B" + i + "%5D%5Bitem_contextid%5D=" + element[1] + "&rgShowcaseConfig%5B3_2720320%5D%5B" + i + "%5D%5Bitem_assetid%5D=" + element[2]),
       alter_showcase('workshop_collector', 12, (i, element) =>
         account.edit_2 += "&rgShowcaseConfig%5B12_0%5D%5B" + i + "%5D%5Bappid%5D=0&rgShowcaseConfig%5B12_0%5D%5B" + i + "%5D%5Bpublishedfileid%5D=" + element),
       alter_showcase('review', 10, (i, element) =>
@@ -553,61 +572,68 @@ prep_randomize_profile = (account, profile, callback = null,
       alter_showcase('group_favorite', 9, (i, element) =>
         account.edit_2 += "&rgShowcaseConfig%5B9_0%5D%5B0%5D%5Baccountid%5D=" + element.substr(0,18)),
       alter_showcase('game_favorite', 6, (i, element) =>
-        account.edit_2 += "&rgShowcaseConfig%5B6_0%5D%5B0%5D%5Bappid%5D=" + element.replace(/_.*/, '')),
+        account.edit_2 += "&rgShowcaseConfig%5B6_0%5D%5B0%5D%5Bappid%5D=" + element.replace(/\/.*/, '')),
+      alter_showcase('game_favorite_2908791', 6, (i, element) =>
+        account.edit_2 += "&rgShowcaseConfig%5B6_2908791%5D%5B0%5D%5Bappid%5D=" + element.replace(/\/.*/, '')),
       alter_showcase('guide_collector', 16, (i, element) =>
         account.edit_2 += "&rgShowcaseConfig%5B16_0%5D%5B" + i + "%5D%5Bappid%5D=0&rgShowcaseConfig%5B16_0%5D%5B" + i + "%5D%5Bpublishedfileid%5D=" + element),
+      alter_showcase('trade_text_2410599', 4, (i, element) =>
+        account.edit_2 += "&rgShowcaseConfig%5B4_2410599%5D%5B6%5D%5Bnotes%5D=" + element),
       alter_showcase('artwork2', 22, (i, element) => 
         account.edit_2 += "&rgShowcaseConfig%5B22_0%5D%5B" + i + "%5D%5Bpublishedfileid%5D=" + element)),
     alter_showcase('summary_text', 0, (i, element) =>
       account.edit_1 += "&summary=" + element),
-    (callback != null) &&
-      callback()),
+    callback()),
 avatars_group = fs.readdirSync("./images/group"),
-randomize_profile = (account, profile, callback = null, avatar = pool(data.avatars, 1, null)[0]) =>
-  http_request(account, 'my/edit', account.edit_1, (body, response, err) =>
-    http_request(account, 'my/edit', account.edit_2, (body, response, err) => (
-      http_request(account, (account.user.playingState.blocked) ? 'https://steamcommunity.com/actions/selectPreviousAvatar' : 'https://steamcommunity.com/games/' + avatar[0] + '/selectAvatar', { selectedAvatar: avatar[1], json: 1, sha: pool(data.wain_sha) }, (body, response, error) =>
-        http_request(account, 'https://api.steampowered.com/IPlayerService/SetProfileBackground/v1', { access_token: account.access_token, communityitemid: +profile.background.selection[0].id }, (body, response, error) =>
-          http_request(account, 'https://api.steampowered.com/IPlayerService/SetProfileTheme/v1', { access_token: account.access_token, theme_id: pool(data.profile_themes) }, (body, response, error) =>
-            http_request(account, 'https://api.steampowered.com/IPlayerService/SetFavoriteBadge/v1', {  access_token: account.access_token, communityitemid: profile.badge_favorite.selection[0].substr(16) }, (body, response, error) =>
-              http_request(account, 'https://api.steampowered.com/IPlayerService/SetAvatarFrame/v1', { access_token: account.access_token, communityitemid: pool(data.avatar_frames) }, (body, response, error) =>
-                http_request(account, 'https://api.steampowered.com/IPlayerService/SetEquippedProfileItemFlags/v1', { access_token: account.access_token, communityitemid: +profile.background.selection[0].id, flags: 1 }, (body, response, error) => (
-                  ((group_url = profile.group_favorite.selection[0].substr(19)) =>
-                    http_request(accounts[0], 'groups/' + group_url + '/edit', '&' + data.group_forms[group_url].replace(
-                      /&headline=.*&summary=/, '&headline=' + generate_emoji_fortune(215) + '&summary=')))(),
-                  ((avatar_file = fs.readFileSync("./images/group/" + pool(avatars_group))) =>
-                    accounts[0].community.httpRequestPost({
-                      "uri": "https://steamcommunity.com/actions/FileUploader",
-                      "json": true,
-                      "formData": {
-                        "type": "group_avatar_image", "doSub": 1, "json": 1,
-                        "MAX_FILE_SIZE": avatar_file.length,
-                        "gId": "103582791432273268",
-                        "sessionid": accounts[0].community.getSessionID(),
-                        "avatar": { "value": avatar_file, "options": { "filename": 'avatar.jpg', "contentType": 'image/jpeg' } } }
-                    }, (err, response, body) =>
-                      (err || response.statusCode != 200 || !body || !body.success) ?
-                        log(accounts[0], 'FAILURE | actions/uploadAvatar: ' + (""+avatars_group.index).yellow)
-                      : (state.verbose == 1) &&
-                        log(accounts[0], 'SUCCESS | actions/uploadAvatar: ' + (""+avatars_group.index).yellow)))()))))))),
-      (profile.gamesPlayed) &&
-        profile.gamesPlayed.slots[0][0](account),
-      (callback !== null) &&
-        callback()), true), true),
+randomize_profile = (account, profile, callback = null, avatar = pool(data.avatars, 1, null)[0], date = new Date()) =>
+  http(account, 'https://steamcommunity.com/games/' + avatar[0] + '/selectAvatar', { selectedAvatar: avatar[1] }, (body, response, error) =>
+    http(account, 'https://api.steampowered.com/IPlayerService/SetProfileBackground/v1', { access_token: account.access_token, communityitemid: +profile.background.selection[0].id }, (body, response, error) =>
+      http(account, 'https://api.steampowered.com/IPlayerService/SetMiniProfileBackground/v1', { access_token: account.access_token, communityitemid: pool(data.avatar_backgrounds) }, (body, response, error) =>
+        http(account, 'https://api.steampowered.com/IPlayerService/SetProfileTheme/v1', { access_token: account.access_token, theme_id: pool(data.profile_themes) }, (body, response, error) =>
+          http(account, 'https://api.steampowered.com/IPlayerService/SetFavoriteBadge/v1', {  access_token: account.access_token, communityitemid: profile.badge_favorite.selection[0].substr(16) }, (body, response, error) =>
+            http(account, 'https://api.steampowered.com/IPlayerService/SetAvatarFrame/v1', { access_token: account.access_token, communityitemid: pool(data.avatar_frames) }, (body, response, error) =>
+              http(account, 'https://api.steampowered.com/IPlayerService/SetEquippedProfileItemFlags/v1', { access_token: account.access_token, communityitemid: +profile.background.selection[0].id, flags: 1 }, (body, response, error) =>
+                http(account, 'my/edit', account.edit_2, (body, response, err) => (
+                  http(account, 'my/edit'),
+                  callback(),
+                  (profile.gamesPlayed) &&
+                    profile.gamesPlayed.slots[0][0](account),
+                  (state.date != date.getDate()) ?
+                    http(account, 'my/edit', account.edit_1, () => state.date = date.getDate())
+                  : (!account.user.playingState.blocked) &&
+                    account.user.setPersona(state.accounts[account.index].persona, profile.persona_name.selection[0]),
+                  (date.getMinutes() == 0) && (
+                    ((group_url = profile.group_favorite.selection[0].substr(19)) =>
+                      http(accounts[0], 'groups/' + group_url + '/edit', '&' + data.group_forms[group_url].replace(
+                        /&headline=.*&summary=/, '&headline=' + generate_emoji_fortune(215) + '&summary=')))(),
+                    ((avatar_file = fs.readFileSync("./images/group/" + pool(avatars_group))) =>
+                      accounts[0].community.httpRequestPost({
+                        "uri": "https://steamcommunity.com/actions/FileUploader",
+                        "json": true,
+                        "formData": {
+                          "type": "group_avatar_image", "doSub": 1, "json": 1,
+                          "MAX_FILE_SIZE": avatar_file.length,
+                          "gId": "103582791432273268",
+                          "sessionid": accounts[0].community.getSessionID(),
+                          "avatar": { "value": avatar_file, "options": { "filename": 'avatar.jpg', "contentType": 'image/jpeg' } } }
+                      }, (err, response, body) =>
+                        (err || response.statusCode != 200 || !body || !body.success) ?
+                          log(accounts[0], 'FAILURE | actions/uploadAvatar: ' + (""+avatars_group.index).yellow)
+                        : log(accounts[0], 'SUCCESS | actions/uploadAvatar: ' + (""+avatars_group.index).yellow)))())))))))))),
 post_comment = (account, steamid, text, type = 0, post_id = -1, callback) => (
   (type == 1) ?
     type = 'UserStatusPublished'
   :(type == 2) ?
     type = 'UserReceivedNewGame'
   : type = 'Profile',
-  http_request(account, 'comment/' + type + '/post/' + steamid + '/' + post_id, { comment: text, count: 6 }, (body, response, err) =>
+  http(account, 'comment/' + type + '/post/' + steamid + '/' + post_id, { comment: text, count: 6 }, (body, response, err) =>
     callback(body))),
 byte_length = (str, m = encodeURIComponent(str).match(/%[89ABab]/g)) =>
   str.length + (m ? m.length : 0),
 translate_id = (cid) =>
   '765' + (+cid + 61197960265728),
 friends_list = (account, endpoint, callback) =>
-  http_request(account, endpoint, {}, (body, response, err, steamids = []) => (
+  http(account, endpoint, {}, (body, response, err, steamids = []) => (
     body = body.match(/data-steamid="765611[0-9]*"/g),
     (body) &&
       body.forEach((item, index) =>
@@ -625,7 +651,7 @@ profile_commenter = (account, check_replies = false, friends_only = true,
       profile_commenter(account, check_replies, friends_only, friends)
     : (state.steamid_blacklist.indexOf(steamid[1]) > -1) ?
         post(steamids, unique)
-      : http_request(account, 'profiles/' + steamid[1] + '/allcomments', null, (body, response, err) =>
+      : http(account, 'profiles/' + steamid[1] + '/allcomments', null, (body, response, err) =>
         (body.indexOf('commentthread_textarea') == -1) ?
           post(steamids, unique)
         : ((comments = body.match(/commentthread_author_link" href="https:\/\/.*?"/g)) => (
@@ -664,14 +690,14 @@ profile_commenter = (account, check_replies = false, friends_only = true,
             strangers.push(['', item ])),
         profile_commenter(account, check_replies, friends_only, friends)))
     : (check_replies) ?
-      http_request(account, 'my/allcomments', null, (body, response, err,
+      http(account, 'my/allcomments', null, (body, response, err,
         comments = Cheerio.load(body)('div.commentthread_comment_author').toArray().reverse().map((_item, index, undefined, item = Cheerio.load(_item)) =>
           [ item('a.actionlink')[0].attribs.href.substr(73, 19).match(/\d+/g)[0], translate_id(item('a.commentthread_author_link')[0].attribs['data-miniprofile']) ])) =>
         profile_commenter(account, false, friends_only, comments.filter((item1, index1) =>
           state.accounts[account.index].replies.indexOf(item1[0]) == -1 && comments.findIndex((item2, index2) =>
             index1 < index2 && item1[1] == item2[1]) == -1).concat(friends)))
     : (account.limited || friends_only) ?
-      (friends.length >= state.commenting_threshold) &&
+      (friends.length >= 200) &&
         post(friends)
     : post(strangers, true))),
 ban = (steamid) => (
@@ -684,48 +710,46 @@ find_name = (account, steamid) =>
 accounts = [],
 state.accounts.forEach((account, i) =>
   (i < 1) &&
-    accounts.push({name: account.name, pass: account.pass, mail: account.mail, steamID: account.steamID, index: i})),
+    accounts.push({ user: new SteamUser({ dataDirectory: null, autoRelogin: false , enablePicsCache: (account.index == 0 ? true : false)}), session: new SteamSession(1), community: new SteamCommunity(), name: account.name, steamID: account.steamID, index: i, limited: (i > 120 && i < 200 && i != 133) ? true : false, chats: [] })),
 accounts.forEach((account, i) => (
-  account.user = new SteamUser({ "dataDirectory": null, "promptSteamGuardCode": (account.index == 0 ? true : false), "autoRelogin": false }),
-  (fs.existsSync('share/' + account.name + '-ssfn')) ?
-    account.user.setSentry(Crypto.createHash('sha1').update(fs.readFileSync('share/' + account.name + '-ssfn')).digest())
-  : (fs.existsSync('share/ssfn')) &&
-    account.user.setSentry(Crypto.createHash('sha1').update(fs.readFileSync('share/ssfn')).digest()),
-  account.user.on('sentry', (sentry) =>
-    fs.writeFileSync('share/' + account.name + '-ssfn', sentry)),
-  account.community = new SteamCommunity(),
+  account.session.on('authenticated', () => (
+    state.accounts[account.index].refreshToken = account.session.refreshToken,
+    logon(account))),
+  account.session.on('timeout', () => (
+    account.logon_active = false,
+    log(account, 'SESSION: authenticate timeout'))),
+  account.session.on('error', (err) => (
+    account.logon_active = false,
+    log(account, 'SESSION: authenticate fail ' + err.message.yellow))),
   account.community.on('sessionExpired', (err) => (
     log(account, 'FAILURE | sessionExpired: ' + err),
     account.user.webLogOn())),
-  account.auth_code = '',
   account.user.on('webSession', (sessionID, cookies) => (
     account.community.setCookies(cookies),
     setTimeout((account) =>
-      http_request(account, 'https://store.steampowered.com/points/shop', {}, (body, response, error) =>
+      http(account, 'https://store.steampowered.com/points/shop', {}, (body, response, error) =>
         account.access_token = body.match(/webapi_token\&quot\;\:\&quot\;.*?\&quot\;/)[0].slice(25, -6)), 5000, account))),
   account.user.on('error', (err) => (
     log(account, 'FAILURE | error: ' + err.message.yellow),
     (err.message == 'InvalidPassword') ?
       delete state.accounts[account.index].key
     : (err.message == 'LogonSessionReplaced') &&
-      login(account, 5000))),
-  account.limited = (account.index > 120 && account.index < 200 && account.index != 133) ? true : false,
+      logon(account, 5000))),
   account.user.on('accountLimitations', (limited, communityBanned, locked, canInviteFriends) =>
     (limited || communityBanned || locked) && (
       account.limited = true,
       log(account, "FAILURE | accountLimitations: " + limited + "|" + communityBanned + "|" + locked + "|" + canInviteFriends))),
   account.user.on('loggedOn', (details, parental) => (
+    account.logon_active = false,
     (account.index != 0) && 
       replicant_profile.gamesPlayed.slots[0][0](account),
     (state.verbose) &&
-      log(account, 'SESSION | loggedOn: '+ (account.auth_code + " https://steamcommunity.com/" + profile_url(account) + " #" + i).trim().yellow))),
-  account.user.on('friendRelationship', (steamid, relationship) => (
-    (relationship != 2) &&
-      setTimeout((account) =>
-        log(account, 'SESSION | friend: ' + (SteamUser.EFriendRelationship[relationship].toUpperCase().inverse + "=\"" + find_name(account, steamid) + '", ' + "https://steamcommunity.com/profiles/" + steamid).yellow), 3000, account),
-    (account.index != 0 && relationship == 2) &&
-      account.user.addFriend(steamid))),
-  account.chats = [],
+      log(account, 'SESSION | loggedOn: '+ ("https://steamcommunity.com/" + profile_url(account) + " #" + i).trim().yellow))),
+  account.user.on('friendRelationship', (steamid, relationship) =>
+    (relationship != 2) ?
+      log(account, 'SESSION | friend: ' + (SteamUser.EFriendRelationship[relationship].toUpperCase().inverse + "=\"" + find_name(account, steamid) + '", ' + "https://steamcommunity.com/profiles/" + steamid).yellow)
+    : (account.index != 0) &&
+      account.user.addFriend(steamid)),
   account.user.on('friendMessageEcho', (steamid, msg) => (
     log_chat(steamid, "^^", msg, account.index, find_name(account, steamid)),
     friend_message_echo_handlers.forEach((item) =>
@@ -738,31 +762,25 @@ accounts.forEach((account, i) => (
     (state.steamid_chat_blacklist.indexOf(steamid.toString()) == -1) &&
       friend_message_handlers.forEach((item) =>
         item(steamid, msg, account)))))),
-accounts[0].user.on('loginKey', (key) =>
-  state.accounts[accounts[0].index].key = key),
 accounts[0].user.on('playingState', (blocked, playingApp) =>
   (blocked) &&
-    accounts[0].user.setPersona(0, 'byteframe'));
+    accounts[0].user.setPersona(state.accounts[0].persona, 'byteframe'))
 accounts[0].user.on('newComments', (count, myItems) =>
-  (count) && (
-    accounts[0].comment_check = myItems)),
-accounts[0].user.on('friendRelationship', (steamid, relationship) =>
-  (relationship == SteamUser.EFriendRelationship.RequestRecipient) &&
-    state.adds.push(steamid.toString())),
-accounts[0].user.on('groupRelationship', (gid, relationship) =>
-  (relationship == SteamUser.EClanRelationship.Invited) &&
-    accounts[0].user.respondToGroupInvite(gid, false)),
-login = (account, delay = 0) =>
-  (!account.user.steamID) &&
-    setTimeout((login_details = { "rememberPassword": (account.index == 0 || account.index == 96 ? true : false), "accountName": account.name }) => (
-      (state.accounts[account.index].key && login_details.rememberPassword == true) ?
-        login_details.loginKey = state.accounts[account.index].key
-      : login_details.password = state.accounts[account.index].pass,
-      account.user.logOn(login_details)), delay),
-login(accounts[0]),
-(accounts.length > 1) &&
-  login(accounts[(state.account_index+1 == accounts.length ? 1 : state.account_index+1)]),
+  (accounts[0].comment_timer == null && count > 0) && (
+    accounts[0].comment_timer = setTimeout(() => (
+      http(accounts[0], 'my/commentnotifications', { action: 'markallread' }),
+      delete accounts[0].comment_timer), 10000))),
+logon = async (account) =>
+  (!account.logon_active) && (
+    account.logon_active = true,
+    (!state.accounts[account.index].hasOwnProperty('refreshToken')) ? (
+      account.session_result = await account.session.startWithCredentials({accountName: account.name,	password: state.accounts[account.index].pass,	steamGuardMachineToken: '' }),
+      (account.session_result.actionRequired) &&
+        log(account, 'SESSION | confirm authentication... {*}'))
+    : account.user.logOn({ "refreshToken": state.accounts[account.index].refreshToken })),
 riveScript = new RiveScript(),
+riveScript.loadDirectory('./rivescript', () =>
+  riveScript.sortReplies()),
 log_chat = (steamid, vector, msg, index = 0, player_name = steamid) =>
   console_log("MESSAGE |" + (index == 0 ? '000'.gray.inverse : pad(index, "000").gray) + "| " + vector + " [" + player_name + "] " + vector + " " + msg + ": " + (Date.now().toString() + "|" + steamid).yellow),
 send_chat = (reply = generate_random_response(), account = accounts[0], steamid = account.chats[account.chats.length-1], speed = 80) => (
@@ -772,20 +790,17 @@ send_chat = (reply = generate_random_response(), account = accounts[0], steamid 
     account.active_chat = false,
     account.user.chatMessage(steamid, reply),
     log_chat(steamid, ">>", reply, account.index, find_name(account, steamid))), Math.max(Math.min(reply.length, 75)*speed, 2000)+1000)),
-handle_message_echo = (steamid, msg) =>
-  (msg.indexOf('#!') == 0) ?
-    true
-  : (msg.indexOf('##') == 0) ?
-    !riveScript.setUservar(steamid, 'chat_time', 0)
-  : (msg.indexOf('#$') == 0) ?
-    !riveScript.setUservar(steamid, 'chat_time', Date.now())
-  : false,
 get_reply = (steamid, msg) =>
   (riveScript.reply(steamid, msg).replace(/<oob>.*<\/oob>/, '').replace(
     /  random/g, ' ').replace(/  /g, ' ').replace('}', '').trim().replace(
     'pdlrand', 'PDLRAND').replace(/pdlrand/g, '') || "PDLRAND").replace('PDLRAND', generate_random_response()),
 test_chat_message = (msg) => 
   (msg.search(/http[s]?:\/\//) == -1 && msg != 'Invited you to play a game!' && msg.search(/LINK REMOVED/) == -1),
+handle_message_echo = (steamid, msg) =>
+  (msg.indexOf('#!') == 0) ? true
+  : (msg.indexOf('##') == 0) ? !riveScript.setUservar(steamid, 'chat_time', 0)
+  : (msg.indexOf('#$') == 0) ? !riveScript.setUservar(steamid, 'chat_time', Date.now())
+  : false,
 incoming_message_event = (steamid, msg, account) => (
   msg = msg.replace(/:[a-zAZ0-9_]+:/g, '').replace(
     /([\uE000-\uF8FF]|\uD83C[\uDF00-\uDFFF]|\uD83D[\uDC00-\uDDFF])/g, ''),
@@ -800,65 +815,46 @@ incoming_message_event = (steamid, msg, account) => (
     (Date.now() - riveScript.getUservar(steamid, 'chat_time') > 3600000) &&
       true)
   : false),
-friend_message_echo_handlers = [],
-friend_message_handlers = [ (steamid, msg, account, target = (msg[0] == '^' ? account.chats[+msg.match(/^[^]\d+/)[0].substr(1)] : account.chats[account.chats.length-1])) =>
-  (account.index != 0) && (
-    (msg.indexOf('https://t.co') > -1) ?
-      ban(steamid.toString())
-    : (steamid != accounts[0].steamID && test_chat_message(msg)) ?
-      account.user.chatMessage(accounts[0].steamID, account.chats.indexOf(steamid.toString()) + "| " + find_name(account, steamid) + ": " + msg)
-    : (account.user.chatMessage(target, msg.replace(/^[^]\d+/, '')),
-      handle_message_echo(target, msg))) ],
-console_log("SESSION |" + '000'.gray.inverse + "| loading rivescript: " + ("files=" + fs.readdirSync('./rivescript').length).yellow),
-riveScript.loadDirectory('./rivescript', () => (
-  riveScript.sortReplies(),
-  friend_message_echo_handlers.push((steamid, msg, account) =>
+friend_message_echo_handlers = [
+  (steamid, msg, account) =>
     (handle_message_echo(steamid, msg)) &&
-      send_chat(get_reply(steamid, msg.substr(2)), account, steamid)),
-  friend_message_handlers.push((steamid, msg, account) =>
+      send_chat(get_reply(steamid, msg.substr(2)), account, steamid) ],
+friend_message_handlers = [
+  (steamid, msg, account, target = (msg[0] == '^' ? account.chats[+msg.match(/^[^]\d+/)[0].substr(1)] : account.chats[account.chats.length-1])) =>
+    (account.index != 0) && (
+      (msg.indexOf('https://t.co') > -1) ?
+        ban(steamid.toString())
+      : (steamid != accounts[0].steamID && test_chat_message(msg)) ?
+        account.user.chatMessage(accounts[0].steamID, account.chats.indexOf(steamid.toString()) + "| " + find_name(account, steamid) + ": " + msg)
+      : (account.user.chatMessage(target, msg.replace(/^[^]\d+/, '')),
+        handle_message_echo(target, msg))),
+  (steamid, msg, account) =>
     (steamid != accounts[0].steamID && incoming_message_event(steamid, msg, account, reply = get_reply(steamid, msg))) && (
       send_chat(reply, account, steamid),
-      account.user.chatMessage(accounts[0].steamID, font(reply, 14)))))),
-watchdog = 0,
-timer = setInterval((a = (state.account_index = (state.account_index+1 == accounts.length ? 1 : state.account_index+1))) => (
-  login(accounts[0]),
-  (++watchdog == 60) ? (
-    fs.closeSync(fs.openSync('node-byteframe_stall-' + Date.now(), 'w')),
-    quit())
+      account.user.chatMessage(accounts[0].steamID, font(reply, 14))) ],
+console_log("SESSION |" + '000'.gray.inverse + "| loading rivescript: " + ("files=" + fs.readdirSync('./rivescript').length).yellow),
+timer = setInterval((a = (state.account_index = (state.account_index+1 == accounts.length ? 1 : state.account_index+1))) =>
+  (!accounts[0].user.steamID) ?
+    logon(accounts[0])
   : prep_randomize_profile(accounts[0], profile, () =>
-    randomize_profile(accounts[0], profile, () => (
-      watchdog = 0,
-      (accounts[0].comment_check > -1) && (
-        http_request(accounts[0], 'my/commentnotifications', { action: 'markallread' }, (body, response, err) =>
-          accounts[0].comment_check = -1),
-        (accounts[0].comment_check > 0) &&
-          http_request(accounts[0], 'my/allcomments', null, (_body, response, err, body = Cheerio.load(_body), players = {}) =>
-            body('.commentthread_comment').each((i, element, cid = element.attribs['id'].substr(8),
-              steamid = translate_id(body('#comment_' + cid + " a")[0].attribs['data-miniprofile']),
-              contents = body("#comment_content_" + cid).contents().toString().trim()) =>
-              (!players.hasOwnProperty(steamid)) ?
-                players[steamid] = [ contents ]
-              : (players[steamid].indexOf(contents) == -1) ?
-                players[steamid].push(contents)
-              : http_request(accounts[0], 'comment/Profile/delete/76561197961017729/-1/', { count: 6, feature2: -1, gidcomment: state.comments.shift() })))),
-      (a % 9 == 0 && a % 90 != 0) ?
-        (a % 99 == 0) ?
-          profile_commenter(accounts[0], false, false)
-        : profile_commenter(accounts[0])
-      : (a % 360 == 0) &&
-        save_state_files())))), state.frequency),
+      randomize_profile(accounts[0], profile, () => 
+        (a % 9 == 0 && a % 90 != 0 && state.commenting) ?
+          (a % 99 == 0) ?
+            profile_commenter(accounts[0], false, false)
+          : profile_commenter(accounts[0])
+        : (a % 180 == 0) &&
+          save_state_files())), state.frequency),
 save_state_files = () => (
   fs.renameSync('./state.json', './state-backup.json'),
   fs.writeFileSync('./state.json', JSON.stringify(state, null, 2))),
-exiting = false,
-quit = () =>
-  (!exiting) && (
-    exiting = true,
+quit = () => (
+  quit = () => void 0,
+  console_log('SESSION | ending process... ' + (""+Math.floor(process.uptime()))),
+  save_state_files(),
+  setTimeout(process.exit, 5000, 0),
+  (accounts[0].user.steamID) && (
     accounts[0].user.setPersona(0, 'byteframe@primarydataloop'),
-    http_request(accounts[0], 'https://steamcommunity.com/actions/selectPreviousAvatar', { json: 1, sha: 'db02ac5a0970af2a79cd08d07e4f1a20b4e76133' }, (body, response, error) => (
-      console_log('SESSION | ending process: ' + (""+Math.floor(process.uptime()))),
-      save_state_files(),
-      setTimeout(process.exit, 3000, 0)), true)),
+    http(accounts[0], 'https://steamcommunity.com/actions/selectPreviousAvatar', { json: 1, sha: 'db02ac5a0970af2a79cd08d07e4f1a20b4e76133' })))
 process.on('SIGINT', (code) =>
   quit()),
 process.on('uncaughtException', (err) =>

@@ -1,3 +1,9 @@
+//------------------------------------------------------------------------------
+(hide_video_page = (page = 1) =>
+  http_request(accounts[0], "https://steamcommunity.com/id/byteframe/videos/?p=" + page + "&privacy=8", null, (body, response, error) => (
+    setTimeout(hide_video_page, 8000, page++),
+    body.match(/https:\/\/steamcommunity.com\/sharedfiles\/filedetails\/\?id=[0-9]+/g).forEach((id) =>
+      http_request(accounts[0], 'https://steamcommunity.com/sharedfiles/itemsetvisibility', { visibility: 2, id: id.substr(55)})))))()
 //------------------------------------------------------------------------------ Tags
 "old_youtube_tags": [ 
   "HTC","VIVE","VR","STEAM","OCULUS","RIFT","PSVR","VIRTUAL","REALITY","360","GAMING","AR","PC","LINUX","WINDOWS","VULCAN","OPENGL","D3D" ],
