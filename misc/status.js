@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------ 2020FeedSpam
 post_status(accounts[0], "https://steamcommunity.com/sharedfiles/filedetails/?id=" + pool(Object.keys(state.videos)) + " https://steamcommunity.com/sharedfiles/filedetails/?id=" + pool(Object.keys(state.videos)), profile.game_favorite.selection[0].match(/\d+/)[0]))
 post_status = (account, text, appid) =>
-  http_request(account, "my/ajaxpostuserstatus", { status_text: (account.index == 0 ? text : emoticon_convert(text)), appid: appid }, (body, response, err) =>
+  http(account, "my/ajaxpostuserstatus", { status_text: (account.index == 0 ? text : emoticon_convert(text)), appid: appid }, (body, response, err) =>
     log(account, 'SUCCESS | home: ' + ('https://steamcommunity.com/' + profile_url(account) + '/status/' + body.blotter_html.match(/userstatus_\d+_/)[0].slice(11, -1)).yellow)),
 //------------------------------------------------------------------------------ FunctionalPostsFromCommentArray
 (args) => pool(data.confusion),
@@ -44,7 +44,7 @@ post_status = (account, text, appid) =>
   + generate_emoticons(34)
 //------------------------------------------------------------------------------ PostStatusFunctional
 post_status = (account, text, appid) =>
-  http_request(account, "my/ajaxpostuserstatus", { status_text: (account.index == 0 ? text : emoticon_convert(text)), appid: appid }, (body, response, err) =>
+  http(account, "my/ajaxpostuserstatus", { status_text: (account.index == 0 ? text : emoticon_convert(text)), appid: appid }, (body, response, err) =>
     log(account, 'SUCCESS | ajaxpostuserstatus: ' + ('https://steamcommunity.com/' + profile_url(account) + '/status/' + body.blotter_html.match(/userstatus_\d+_/)[0].slice(11, -1)).yellow)),
 //------------------------------------------------------------------------------
 "cat_apps": [
@@ -101,7 +101,7 @@ run_status_poster = (account, date = new Date()) => {
     running_video_post = true;
     var videos = [];
     (request_video_list = (p = 1) => {
-      account.http_request('my/videos/?p=' + p + '&privacy=8', null, (body, response, err) => {
+      account.http('my/videos/?p=' + p + '&privacy=8', null, (body, response, err) => {
         var links = Cheerio.load(body)('a.profile_media_item');
         if (links.length) {
           links.each((i, element) => videos.push(element.attribs.href));
@@ -114,7 +114,7 @@ run_status_poster = (account, date = new Date()) => {
         if (config.status_poster.last_video !== 0 && config.status_poster.last_video != videos[0]) {
           f = videos.indexOf(config.status_poster.last_video)-1;
         }
-        account.http_request(videos[f], null, (body, response, err) => {
+        account.http(videos[f], null, (body, response, err) => {
           body = Cheerio.load(body)('.nonScreenshotDescription').text().slice(2, -1).split('"')[1];
           var review = body
             , random_heart = Math.floor(Math.random()*byteframe.hearts.length)

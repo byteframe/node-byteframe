@@ -1,3 +1,23 @@
+//------------------------------------------------------------------------------ SortInventoryByNameLength
+accounts[0].inventory.cards.sort((a,b) => b.market_name.length - a.market_name.length).forEach((item) => console.log("https://steamcommunity.com/id/byteframe/inventory/#753_6_" + item.id + "\"" + item.market_name + "\" {CARD}"));
+accounts[0].inventory.boosters.sort((a,b) => b.market_name.length - a.market_name.length).forEach((item) => console.log("https://steamcommunity.com/id/byteframe/inventory/#753_6_" + item.id + "\"" + item.market_name + "\" {BOOSTER}"));
+accounts[0].inventory.backgrounds.sort((a,b) => b.market_name.length - a.market_name.length).forEach((item) => console.log("https://steamcommunity.com/id/byteframe/inventory/#753_6_" + item.id + "\"" + item.market_name + "\" {BACKGROUND}"));
+//------------------------------------------------------------------------------ GetEmoticonsFromInventory
+account.inventory = account.inventory.sort((a, b) => parseInt(a.id) - parseInt(b.id))
+account.inventory.forEach((item)=>(item.tags[2].name == 'Emoticon') && console.dir(item.name))
+emoticons2 = data.emoticons.flat().map((emoticon) => emoticon.toLowerCase());
+emoticons3 = data.item_showcase.flat().map((emoticon_id) => emoticon_id.replace('753_6_', ''));
+emoticons.forEach((emoticon, i) => 
+  (emoticons2.indexOf(emoticon.name.toLowerCase()) == -1) && (
+    console.log(emoticon.name + " ")));
+emoticons.forEach((emoticon, i) => 
+  (emoticons3.indexOf(emoticon.id) == -1) && (
+    console.log("753_6_" + emoticon.id + " " + emoticon.name)));
+//------------------------------------------------------------------------------ GetInventoryOnly
+account.tradeoffer_manager.getInventoryContents('753', '6', true, (err, inventory) =>
+  (err) ?
+    console.dir(err)
+  : account.inventory = inventory)
 //------------------------------------------------------------------------------ RunTradeOfferWithOldSearchGmailFrom
 search_gmail = (gmails, start, end) => {
   for (var i = 0; i < gmails.length; i++) {

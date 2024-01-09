@@ -1,3 +1,6 @@
+//------------------------------------------------------------------------------ HttpDebug
+(typeof http_debug != 'undefined') &&
+  http_debug(h, b, r, x),
 //------------------------------------------------------------------------------ WatchdogInLoop
 watchdog = 0,
 timer = setInterval((a = (state.account_index = (state.account_index+1 == accounts.length ? 1 : state.account_index+1))) => (

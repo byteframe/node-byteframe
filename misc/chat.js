@@ -1,3 +1,82 @@
+//------------------------------------------------------------------------------ HandlerRig
+test_chat_message = (m) => 
+  (m.search(/http[s]?:\/\//) == -1 && m != 'Invited you to play a game!' && m.search(/LINK REMOVED/) == -1),
+handle_message_echo = (f, m) =>
+  (m.indexOf('#!') == 0) ? true
+  : (m.indexOf('##') == 0) ? !riveScript.setUservar(""+f, 'chat_time', 0)
+  : (m.indexOf('#$') == 0) ? !riveScript.setUservar(""+f, 'chat_time', Date.now())
+  : false,
+message_echo_handlers = [
+  (f, m, a) =>
+    (handle_message_echo(f, m)) &&
+      send_chat(reply(f, m.substr(2)), a, f) ],
+incoming_message_event = (f, m, a) => (
+  m = m.replace(/:[a-zAZ0-9_]+:/g, '').replace(
+    /([\uE000-\uF8FF]|\uD83C[\uDF00-\uDFFF]|\uD83D[\uDC00-\uDDFF])/g, ''),
+  (!a.active_chat && m != '' && (a.i == 0 || Math.floor(Math.random()* 15) != 0)
+  && m.search(/[!@#$%^&*]/) != 0 && (a.i == 0 || test_chat_message(m))
+  && !A.find((a) => a.steamID == f)) ? (
+    (riveScript.getUservar(""+f, 'chat_time') == 'undefined') && (
+      [ 'first', 'second', 'third', 'fourth', 'fifth' ].forEach((e) =>
+        riveScript.setUservar(""+f, e, pool(d.chat_topics))),
+      riveScript.setUservar(""+f, 'chat_time', 0),
+      riveScript.setUservar(""+f, 'name', pool(d.chat_names))),
+    (Date.now() - riveScript.getUservar(""+f, 'chat_time') > 3600000) &&
+      true)
+  : false),
+message_handlers = [
+  (f, m, a, target = (m[0] == '^' ? a.chats[+m.match(/^[^]\d+/)[0].substr(1)] : a.chats[a.chats.length-1])) =>
+    (a.i != 0) &&
+      (f != A[0].steamID && test_chat_message(m)) ?
+        a.u.chatMessage(A[0].steamID, a.chats.indexOf(f) + "| " + find_name(a, f) + ": " + m)
+      :(a.u.chatMessage(target, m.replace(/^[^]\d+/, '')),
+        handle_message_echo(target, m)),
+  (f, m, a) =>
+    (f != A[0].steamID && incoming_message_event(f, m, a, n = reply(f, m))) && (
+      send_chat(n, a, f),
+      a.u.chatMessage(A[0].steamID, font(n, 14))) ],
+  a.u.chat.on('friendMessageEcho', (m) => (
+    log_chat(m.steamid_friend, "^^", m.message, a.i, find_name(a, m.steamid_friend)),
+    message_echo_handlers.forEach((e) =>
+      e(m.steamid_friend, m.message, a)))),
+  a.u.chat.on('friendMessage', (m) => (
+    (!a.chats.includes(m.steamid_friend) && m.steamid_friend != A[0].steamID) &&
+      a.chats.push(m.steamid_friend),
+    (a.i != 0 || !A.find((a) => a.steamID == m.steamid_friend)) &&
+      log_chat(m.steamid_friend, "<<", m.message, a.i, find_name(a, m.steamid_friend)),
+    (!s.steamid_chat_blacklist.includes(""+m.steamid_friend)) &&
+      message_handlers.forEach((e) =>
+        e(m.steamid_friend, m.message, a)))),
+//------------------------------------------------------------------------------ OldSpamBlocking
+(m.indexOf('https://t.co') > -1) ?
+  ban(f.toString())
+//------------------------------------------------------------------------------ RiveScript2Attempt
+get_reply = (steamid, m, callback) =>
+  riveScript.reply(steamid, m).then((reply) => callback(
+    (reply.replace(/<oob>.*<\/oob>/, '').replace(/  random/g, ' ').replace(/  /g, ' ').replace('}', '').trim().replace('pdlrand', 'PDLRAND').replace(/pdlrand/g, '') || "PDLRAND").replace('PDLRAND',
+      (Math.random() < 0.5) ? pool(random_responses, 1, null)[0]()
+      : (Math.ceil(Math.random()*4) == 4) ? pool(data.emoticons[Math.floor(Math.random() * data.emoticons.length)])
+      : (Math.ceil(Math.random()*3) == 3) ? generate_fortune('questions')
+      : pool(data.confusion)))),
+friend_message_echo_handlers = [
+  (steamid, m, account) =>
+    (handle_message_echo(steamid, m)) &&
+      get_reply(steamid, m.substr(2), (reply) =>
+        send_chat(reply, account, steamid)) ],
+friend_message_handlers = [
+  (steamid, m, account, target = (m[0] == '^' ? account.chats[+m.match(/^[^]\d+/)[0].substr(1)] : account.chats[account.chats.length-1])) =>
+    (account.index != 0) && (
+      (m.indexOf('https://t.co') > -1) ?
+        ban(steamid.toString())
+      : (steamid != accounts[0].steamID && test_chat_message(m)) ?
+        account.user.chatMessage(accounts[0].steamID, account.chats.indexOf(steamid.toString()) + "| " + find_name(account, steamid) + ": " + m)
+      :(account.user.chatMessage(target, m.replace(/^[^]\d+/, '')),
+        handle_message_echo(target, m))),
+  (steamid, m, account) =>
+    get_reply(steamid, m, (reply) =>
+      (steamid != accounts[0].steamID && incoming_message_event(steamid, m, account)) && (
+        send_chat(reply, account, steamid),
+        account.user.chatMessage(accounts[0].steamID, font(reply, 14)))) ],
 //------------------------------------------------------------------------------ TwitchFailed
 twitchChat.onWhisper((channel, user, message) => (
   console.log(user, message),

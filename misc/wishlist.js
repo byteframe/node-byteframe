@@ -1,4 +1,18 @@
-//------------------------------------------------------------------------------ FinalWishlister
+//------------------------------------------------------------------------------ GameFavoriteMassAdd
+wishlist_index = -1;
+wishlist_timeout = 3000;
+(wishlister2 = () =>
+  http(A[0], 'https://store.steampowered.com/api/addtowishlist', { appid: d.game_favorite[++wishlist_index].match(/\d+/)[0] }, (b, r, x) =>
+    setTimeout(wishlister2, wishlist_timeout), true ))()
+//------------------------------------------------------------------------------ FinalDumbWishlisters
+wishlister = (a, g = profile.game_favorite.selection[0].replace(/\/.*/, "")) =>
+  http(a, 'https://store.steampowered.com/api/removefromwishlist', { appid: g }, (b, r, x) =>
+    http(a, 'https://store.steampowered.com/api/addtowishlist', { appid: g }, (b, r, x) =>
+      log(a, "SUCCESS | addtowishlist: " + ("https://store.steampowered.com/app/"+g).yellow))),
+wishlister = (account, appid = profile.game_favorite.selection[0].replace(/\/.*/, "")) =>
+  http(account, 'https://store.steampowered.com/api/addtowishlist', { appid: appid }, (body, response, err) =>
+    http(account, 'https://store.steampowered.com/api/removefromwishlist', { appid: appid })),
+//------------------------------------------------------------------------------ FinalSmartWishlister
 wishlister = (account) =>
   (!account.wishlist) ?
     http_request(account, 'https://store.steampowered.com/dynamicstore/userdata/', null, (body, response, error) => (

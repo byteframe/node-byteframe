@@ -1,3 +1,9 @@
+//------------------------------------------------------------------------------ barely used ban function
+ban = (steamid) => (
+  accounts.forEach((account) =>
+    account.user.removeFriend(steamid)),
+  (state.steamid_blacklist.indexOf(steamid) == -1) &&
+    state.steamid_blacklist.push(steamid)),
 //------------------------------------------------------------------------------ old login
 Crypto = require('crypto'),
   (fs.existsSync('share/' + account.name + '-ssfn')) ?

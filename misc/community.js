@@ -1,3 +1,13 @@
+//-------------------------------------------------------------------------------- OddUtilityFunctions
+pad = (i, zeros = "00") =>
+  (zeros + i).substr(-zeros.length, zeros.length),
+shuffle = (E) =>
+  E.map((e) => ({ e, sort: Math.random() }))
+    .sort((e, _e) => e.sort - _e.sort)
+    .map(({ e }) => e),
+//-------------------------------------------------------------------------------- GetFriendLevels
+accounts[0].user.getSteamLevels(Object.entries(account.user.myFriends).filter((i) => i[1] == 3).map((i) => i[0]), (err, users) =>
+  console.dir(Object.entries(users).sort((a, b) => a[1] - b[1])))
 //-------------------------------------------------------------------------------- group/friend event 2023 removal
 account.user.on('groupRelationship', (gid, relationship) =>
   (relationship == SteamUser.EClanRelationship.Invited) &&

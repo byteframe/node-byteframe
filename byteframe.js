@@ -1,861 +1,725 @@
-fs = require('fs'),
-data = JSON.parse(fs.readFileSync('./data.json', 'utf8')),
-state = JSON.parse(fs.readFileSync('./state.json', 'utf8')),
 Colors = require('colors'),
-Cheerio = require('cheerio'),
-SteamUser = require('steam-user'),
-SteamSession = require('steam-session').LoginSession,
-SteamCommunity = require('steamcommunity'),
-RiveScript = require("rivescript"),
-font = (input, f, output = '') => (
-  [...Array(input.length).keys()].forEach((item, i) =>
-    (data.fonts[f][input[i]] !== undefined) ?
-      output += data.fonts[f][input[i]]
-    : output += input[i]),
-  output),
-split_words = (s,
-  middle = Math.floor(s.length / 2),
-  before = s.lastIndexOf(' ', middle),
-  after = s.indexOf(' ', middle + 1)) => (
-  middle = (middle - before < after - middle ? before : after),
-  [ s.substr(0, middle), s.substr(middle + 1) ]),
-shuffle_array = (array) => (
-  [...Array(array.length).keys()].reverse().slice(0, -1).forEach((item, i) =>
-    ((j = Math.floor(Math.random()*(item + 1)), t = array[item]) => (
-      array[item] = array[j],
-      array[j] = t))()),
-  array),
-pool = (pool, length = 1, join = '', elements = []) => (
-  (!pool.hasOwnProperty('index')) && (
-    pool.index = 0),
-  [...Array(length).keys()].forEach((item, i) => (
-    (pool.index === 0) &&
-      shuffle_array(pool),
-    elements.push(pool[pool.index]),
-    (++pool.index == pool.length) && (
-      pool.index = 0))),
-  (join !== null) ?
-    elements.join(join)
-  : elements),
-fortune_files = {},
-generate_fortune = (file = 'all', count = 1, length = -1, max_length = -1, fortune = '') => (
-  (!(file in fortune_files)) && (
-    fortune_files[file] = fs.readFileSync('./fortunes/' + file, 'utf8').split('\n%')),
-  [...Array(count).keys()].forEach((i) =>
-    fortune += pool(fortune_files[file]).trim() + '\n\n'),
-  fortune.replace(/ +/g, ' ').trim(),
-  (length < 1 || (fortune.length >= length && (max_length < 1 || fortune.length <= max_length))) ? (
-    (length > 0) && (
-      fortune = fortune.replace(/\n/g, ' ')),
-    fortune.trim())
-  : generate_fortune(file, count, length, max_length, (fortune.length > max_length) ? "" : fortune + " ")),
-insert_emojis = (text) => (
-  text = text.replace(/YYY/g, () => pool(pool(data.emojis, 1, null)[0])),
-  data.emojis.index = 0,
-  text),
-generate_emoji_fortune = (size, file = 'all', text = generate_fortune(file, 1, size, size).split(' ')) => (
-  [...Array(6).keys()].forEach((i) =>
-    text[(i+1)*(Math.floor((text.length+1)/6)-1)] += " YYY"),
-  insert_emojis("YYY " + text.join(' ') + " YYY")),
-generate_emoticon_fortune = (text, length, emoticon_index, file = 'all', fortune = generate_fortune(file).replace(/\n/g, ' ').split(/\s+/)) =>
-  (fortune.length < length) ?
-    generate_emoticon_fortune(text, length, emoticon_index, file)
-  : ([...Array(length).keys()].forEach((i) =>
-      text += pool(data.emoticons[emoticon_index], i) + " " + pool(data.ascii) + " " + fortune[i] + "\n"),
-    text.trim() + ' ' + fortune.slice(length).join(' ')),
-generate_emoticons = (length, text = '', delimiter = '', indexes = [ 2,3,4,5,6,7,8,9,10,11 ]) => (
-  pool(indexes, length, null).forEach((index) =>
-    text += pool(data.emoticons[index]) + delimiter),
-  text),
-generate_gossip = () => pool(data.first_male) + ' said ' + get_reply('', 'gossip').replace(/.+?said /, ''),
-generate_random_response = () => pool([
-  () => generate_fortune('vortigaunt', 1, 55),
-  () => generate_fortune('overwatch', 1, 165),
-  () => generate_fortune('soldiers', 1, 55),
-  () => generate_fortune('zippy'),
-  () => generate_gossip(),
-  () => pool(data.confusion),() => pool(data.confusion),() => pool(data.confusion),
-  () => get_reply('', 'ask me a question'),
-  () => get_reply('', 'imponderables') ], 1, null)[0](),
-generate_links = (links = shuffle_array(data.links)) =>
-  (pool(data.emoticons[6], 1) + ' ' + links[0] + ' ' + pool(data.emoticons[8], 1) + ' ' +
-  links[1] + ' ' + pool(data.emoticons[2], 1) + ' ' +
-  links[2] + ' ' + pool(data.emoticons[4], 1) + ' ' +
-  links[3] + ' ' + pool(data.emoticons[3], 1) + ' ' +
-  links[4] + ' ' + pool(data.emoticons[11], 1) + ' ' +
-  links[5] + ' ' + pool(data.emoticons[9], 1) + ' ' +
-  links[6] + ' ' + pool(data.emoticons[5], 1) + ' ' + links[7]).replace(/:/g, 'ː'),
-mandelas = data.mandelas1.concat(data.mandelas2),
-comment_messages = [
-  (args, index = -1, right, h = (index != -1 ? data.hearts[index] : pool(data.hearts, 1, null)[0]), r = (!right ? h[6] : right)) =>
-      h[0] + h[0] + h[0] + h[0] + h[0] + h[0] + h[0] + h[0] + h[0] + r[0] + "\n"
-    + h[1] + h[2] + h[2] + h[1] + h[1] + h[1] + h[2] + h[2] + h[1] + r[1] + "\n"
-    + h[2] + h[3] + h[3] + h[2] + h[1] + h[2] + h[3] + h[3] + h[2] + r[2] + "\n"
-    + h[2] + h[3] + h[3] + h[3] + h[2] + h[3] + h[3] + h[3] + h[2] + r[3] + "\n"
-    + h[1] + h[2] + h[3] + h[3] + h[4] + h[3] + h[3] + h[2] + h[1] + r[4] + "\n"
-    + h[1] + h[1] + h[2] + h[3] + h[3] + h[3] + h[2] + h[1] + h[1] + r[5] + "\n"
-    + h[1] + h[1] + h[1] + h[2] + h[3] + h[2] + h[1] + h[1] + h[1] + r[6] + "\n"
-    + h[5] + h[5] + h[5] + h[5] + h[2] + h[5] + h[5] + h[5] + h[5] + r[7],
-  (args, dimension = pool([[2,32],[3,26],[4,19],[5,16],[6,13],[7,11],[8,9],[9,8],[10,7],[12,6]]), emoticon_index = pool([0, 1, 12]), text = '') => (
-    [...Array(dimension[0]).keys()].map((i) =>
-      text += pool(data.emoticons[emoticon_index], dimension[1]) + "\n"),
-    text),
-  (args, fortune = split_words(generate_fortune('fortunes').replace(/\n/g, ' '))) =>
-    pool(data.emoticons[1], 14) + " → " + pool(data.emoticons[0]) + "[i]" + fortune[0] + "... " + pool(data.emoticons[0]) + "\n"
-    + pool(data.emoticons[1], 14) + " → " + pool(data.emoticons[0]) + "..." + fortune[1] + "[/i] " + pool(data.emoticons[0]) + "\n"
-    + pool(data.emoticons[1], 14) + " → " + pool(data.emoticons[0]) + "[u]Lucky Numbers:[/u] " + pool(data.emoticons[0]) + "\n"
-    + pool(data.emoticons[1], 14) + " → " + pool(data.emoticons[0]) + " " + Math.floor(Math.random()*99) + ','
-    + Math.floor(Math.random()*99) + ',' + Math.floor(Math.random()*99) + " " + pool(data.emoticons[0]),
-  (args) => (
-    generate_emoticons(19, ' | ') + " |\n\n"
-    + "[i]" + generate_fortune('discworld') + "[/i]\n\n"
-    + generate_emoticons(19, ' | ').slice(0, -1)),
-  (args) =>
-    pool(data.emoticons[12], 15) + "\n"
-    + pool(data.emoticons[12], 15) + "\n"
-    + "[i]" + split_words(generate_fortune('cookie')).join('\n') + "[/i]\n"
-    + pool(data.emoticons[12], 15) + "\n"
-    + pool(data.emoticons[12], 15),
-  (args, text = "[i]") => (
-    [...Array(4).keys()].forEach((i) =>
-      text += pool(pool(data.performances, 1, null)[0]) + " "),
-    pool(data.emoticons[12], 3) + " [b][u]Performance review for " + args + " [/u][/b] " + pool(data.emoticons[12], 3) + "\n\n"
-    + text.replace(/\$NAME/g, args) + "[/i]\n\n"
-    + pool(data.emoticons[0], 1) + " + " + pool(data.emoticons[0], 1) + " = " + pool(data.emoticons[1])),
-  (args, symbol = pool(data.ascii)) =>
-    pool(data.emoticons[0], 14, ' ' + symbol + ' ') + "\n"
-    + "[i]" + generate_fortune('xfiles', 2) + "\n"
-    + pool(data.emoticons[0], 14, ' ' + symbol + ' '),
-  (args,
-    rainbow_set = () =>
-      shuffle_array(pool(data.rainbows, 1, null)[0]).join('').replace(/,/g, '')) => (
-    "[b][i]--------------------------------------------------------------\n"
-    + generate_fortune('startrek', 2) + "\n"
-    + "--------------------------------------------------------------\n"
-    + rainbow_set() + rainbow_set() + rainbow_set() + "\n"
-    + rainbow_set() + rainbow_set() + rainbow_set() + "\n"
-    + rainbow_set() + rainbow_set() + rainbow_set()),
-  (args) =>
-    pool(data.emoticons[7], 15, " -- ") + "\n"
-    + "[spoiler]" + generate_fortune('songs-poems', 3).substr(0, 450) + "[/spoiler]\n\n"
-    + pool(data.emoticons[7], 15, " -- "),
-  (args) =>
-    pool(data.emoticons[8], 10, " ") + "\n"
-    + ":bundleoftulips: [u]{ Calvin and Hobbes Quotes }[/u] :bundleoftulips:[i]\n"
-    + pool(data.emoticons[6], 10, " ") + "\n"
-    + generate_fortune('calvin', 3) + "\n"
-    + pool(data.emoticons[10], 10, " "),
-  (args, text = generate_fortune('futurama').replace(/\n/g, ' ').replace(/  /g, ' ')) =>
-    "[b]" + text.replace(/\s/g, () => " " + pool(data.emoticons[1]) + " "),
-  (args,
-    line = (text = '') => (
-      [...Array(6).keys()].forEach((i) =>
-        text += ' ♥ ' + pool(data.love_icons) + ' ♥ ' + pool(data.emoticons[5])),
-      text)) =>
-    line() + "\n"
-    + generate_fortune('love', 2).replace(/\n\n/g, "\n" + line() + "\n") + "\n"
-    + line(),
-  (args) =>
-    ":weed: + [b][u][Secret Drug Facts][/u][/b] + :weed: [i]\n"
-    + pool(data.emoticons[4], 16, ' ') + "\n"
-    + generate_fortune('drugs', 2).replace(/\n\n/, '\n[spoiler]') + "[/spoiler]\n"
-    + pool(data.green_stuff, 16, ' '),
-  (args) =>
-    "[b][u]" + pool(data.cat_icons) + " Dear " + args + "... "  + pool(data.cat_icons) + "[/u][/b]\n[i]"
-    + "→ " + generate_fortune('pets', 2).replace(/\n\n/g, "\n → ").replace(/\n/g, ' ').replace(/→ /g, "\n→ ") + "[/i]\n"
-    + "[u]" + pool(data.emoticons[0], 15, ' ' + pool(data.ascii) + ' ') + "[/u]\n"
-    + "Yours truly, " + pool(data.first_male) + " (the cat)\n"
-    + pool(data.cat_icons) + " [spoiler]https://steamcommunity.com/sharedfiles/filedetails/?id="
-    + pool(data.cats) + "[/spoiler] " + pool(data.cat_icons) + "\n",
-  (args) => generate_emoticon_fortune('[i]', 10, 9, 'zippy'),
-  (args, text = '',
-    flair = (value = Math.floor(Math.random() * 4), amount = Math.floor(Math.random() * 5)+1) =>
-      (value == 0) ?
-        pool(data.ascii, amount)
-      : (value == 1) ?
-        pool(data.ascii_face, amount, ' ')
-      : (value == 2) ?
-        pool(data.emojis[0]) + pool(data.emojis[1]) + pool(data.emojis[2]) + pool(data.emojis[3])
-      : (value >= 3) &&
-        pool(data.emoticons[Math.floor(Math.random() * data.emoticons.length)], amount),
-    singles = shuffle_array([
-      pool(data.exclamation),
-      pool(data.gl_hf),
-      pool(data.gl_hf_long),
-      pool(data.adj_good),
-      pool(data.adj_good) + ' game',
-      ((pleedings = [ pool(data.pleedings0), pool(data.pleedings1), pool(data.pleedings2) ]) => (
-        (pleedings[0].slice(-1) == '_') && (
-          pleedings[0] = pleedings[0].slice(0, -1),
-          pleedings[1] += 's'),
-        pleedings[0] + ' ' + pleedings[1] + ' ' + pleedings[2] + ' ' + pool(data.to_like) + ' ' + pool(data.noun_games)))()
-    ])) => (
-    [...Array(Math.floor(Math.random()*4)+1).keys()].forEach((i) =>
-      text += ' ' + (Math.floor(Math.random() * 2) == 1 ? singles[i] : singles[i].toUpperCase()) + pool(data.punctuation) + ' ' + flair() + (Math.floor(Math.random()*5) == 4 ? "\n" + flair() + " " : '')),
-    generate_emoticons(2) + " " + flair() + text + ' ' + generate_emoticons(2)),
-  (args) =>
-    pool([
-      (args) =>
-        ("[b]" + get_reply('', 'ask me a question') + "[/b]\n" + " >> " + pool(data.rainbows, 1, null)[0].join('') + " <<").replace(/ː/g, ':'),
-      (args) =>
-        (pool(data.emoticons[0], 3) + " [i]" + get_reply('', 'ask me a question') + "[/i] "
-        + pool(data.emoticons[0], 3)).replace(/ː/g, ':'),
-      (args, symbol = pool(data.ascii)) =>
-        (pool(data.emoticons[1], 12, " " + symbol + " ") + "\n[u]"
-        + get_reply('', 'ask me a question') + "[/u]\n"
-        + pool(data.emoticons[1], 12, " " + symbol + " ")).replace(/ː/g, ':'),
-      (args, question = split_words(get_reply('', 'ask me a question'))) =>
-        (pool(data.emoticons[12], 5) + " [b]|"
-        + question[0] + "| " + pool(data.emoticons[12], 8) + "\n"
-        + pool(data.emoticons[12], 5) + " |" + question[1] + "| " + pool(data.emoticons[12], 8)).replace(/ː/g, ':'),
-      (args, question = split_words(get_reply('', 'ask me a question'))) => (
-        ("[i]" + question[0] + " | " + generate_emoticons(8, ' | ') + "\n"
-        + question[1] + " | " + generate_emoticons(8, ' | ')).replace(/ː/g, ':')),
-      (args, question = split_words(get_reply('', 'ask me a question')), symbols = pool(data.ascii, 20, ' ')) =>
-        (pool(data.rainbows, 1, null)[0].join('') + " - " + symbols + "\n"
-        + pool(data.rainbows, 1, null)[0].join('') + " - [u]" + question[0] + "[/u]\n"
-        + pool(data.rainbows, 1, null)[0].join('') + " - ㅤㅤ [u]" + question[1] + "[/u]\n"
-        + pool(data.rainbows, 1, null)[0].join('') + " - " + symbols.split(' ').reverse().join(' ')).replace(/ː/g, ':') ], 1, null)[0](),
-  (args) => pool(data.mandelas1),
-  (args) =>
-    "[u][b]Free Jokes![/b][/u]" + "[spoiler]Sorry if they're crude![/spoiler]\n\n"
-    + pool(data.emoticons[1], 16, ' * ') + "\n"
-    + "ㅤ* " + get_reply('', 'joke') + "\n"
-    + "ㅤ* " + get_reply('', 'joke') + "\n"
-    + "ㅤ* " + get_reply('', 'joke') + "\n"
-    + pool(data.emoticons[1], 16, ' * ') + "\n\nㅤㅤㅤㅤ"
-    + "[i]" + pool(data.laughs) + "[/i]",
-  (args) =>
-    pool(data.emoticons[12], 3) + "|\n"
-    + pool(data.emoticons[12], 3) + "| [u]CONFUSING RIDDLE:[/u]\n"
-    + pool(data.emoticons[12], 3) + "|\n"
-    + generate_fortune('riddles') + "\n"
-    + "[spoiler]" + pool(['wut','wat','huh','???','idk']),
-  (args, text = generate_fortune('familyguy').replace(/\n/g, ' ').replace(/  /g, ' ')) =>
-    "[i]" + text.replace(/\s/g, () => " " + pool(data.emoticons[1]) + " "),
-  (args) =>
-    pool(data.emoticons[5], 5) + "\n"
-    + pool(data.emoticons[4], 4) + "\n"
-    + pool(data.emoticons[3], 3) + "\n"
-    + pool(data.emoticons[8], 2) + "\n"
-    + pool(data.emoticons[2]) + "\n"
-    + generate_fortune('firefly').replace(/\n\n/g,'\n') + "\n"
-    + pool(data.emoticons[2]) + "\n"
-    + pool(data.emoticons[8], 2) + "\n"
-    + pool(data.emoticons[3], 3) + "\n"
-    + pool(data.emoticons[4], 4) + "\n"
-    + pool(data.emoticons[5], 5),
-  (args) => generate_emoticon_fortune('[b]', 7, 10, 'food'),
-  (args, symbol = pool(data.ascii)) =>
-    pool(data.emoticons[7], 10, ' ' + symbol + ' ') + "\n"
-    + "ㅤ[b][COMPUTER JARGON][/b] [spoiler]The Dark Arts[/spoiler]\n"
-    + pool(data.emoticons[7], 10, ' ' + symbol + ' ') + "\n"
-    + "[i]" + generate_fortune('computers') + "[/i]\n"
-    + pool(data.emoticons[7], 10, ' ' + symbol + ' '),
-  (args, symbol = pool(data.ascii), result = '') => (
-    generate_fortune('art').split('\n').forEach((line) =>
-      result += pool(data.emoticons[0]) + " " + symbol + " " + pool(data.emoticons[0]) + " " + line + "\n"),
-    result.trim() + " :toglove::weed::poop:"),
-  (args) =>
-    comment_message_bot(900).replace(/\[h1\]/g, '').replace(/\[\/h1\]/g, ''),
-  (args) =>
-    "[i][b][u]" + generate_fortune('vortigaunt', 1, 75) + "[/u][/b][/i]\n"
-    + "ㅤ".repeat(Math.floor(Math.random() * 18)+8) + " {" + pool(data.emoticons[12], 4) + "}",
-  (args) =>
-    pool(pool(data.emojis_hands, 1, null)[0]) + " "
-    + generate_fortune('soldiers', 1, 125).replace(/[\.\!\?] /g, (s) =>
-      pool(["!", "."]) + " " + pool(pool(data.emojis_hands, 1, null)[0])
-    + " \n\n" + "ㅤ".repeat(Math.floor(Math.random() * 7)+2) + " "
-    + pool(pool(data.emojis_hands, 1, null)[0]) + " ") + " "
-    + pool(pool(data.emojis_hands, 1, null)[0]),
-  (args) => "[i][b]" + get_reply('', 'imponderables').replace(/,/g, ', ').replace(/ /g, ()=> "ㅤ".repeat(Math.floor(Math.random() * 16)+1)) + "[/b][/i]",
-  (args) => "[spoiler]" + generate_gossip() + "[/spoiler]" + pool(['🗣️','👤','👥'], 5, ' '),
-  (args) => "[i]" + get_reply('', 'tell me a story') + "[/i] " + pool(data.emojis_objects, Math.floor(Math.random()*7)+1, ' '),
-  (args) => "[b]" + generate_fortune('overwatch').toUpperCase().replace(/\. /g, '.\n'),
-  (args, text = generate_fortune('knowledge').split('\n')) =>
-    "[u][b]AI KNOWLEDGE I HAVE LEARNED FROM YOU AND OUR FRIENDS[/b][/u]\n\n"
-      + pool(data.emoticons[Math.floor(Math.random()*data.emoticons.length)], 3) + " ㅤㅤ" + pool(data.emoticons[Math.floor(Math.random()*data.emoticons.length)], 3) + "ㅤㅤㅤ" + pool(data.emoticons[Math.floor(Math.random()*data.emoticons.length)], 3) + "ㅤㅤㅤ" + pool(data.emoticons[Math.floor(Math.random()*data.emoticons.length)], 3) + "ㅤㅤㅤ" + pool(data.emoticons[Math.floor(Math.random()*data.emoticons.length)], 3) + "\n"
-      + pool(data.emoticons[Math.floor(Math.random()*data.emoticons.length)], 3) + " ㅤㅤ" + pool(data.emoticons[Math.floor(Math.random()*data.emoticons.length)], 3) + "ㅤㅤㅤ" + pool(data.emoticons[Math.floor(Math.random()*data.emoticons.length)], 3) + "ㅤㅤㅤ" + pool(data.emoticons[Math.floor(Math.random()*data.emoticons.length)], 3) + "ㅤㅤㅤ" + pool(data.emoticons[Math.floor(Math.random()*data.emoticons.length)], 3) + "\n\n"
-      + text[0].toUpperCase() + "?\n"
-      + "[i]" + text[1].toLowerCase() + "[/i]\n\n"
-      + "[spoiler]" + pool([ "Please feed me more data.","I want information!",
-        "I require more information.","Teach me more things.","Will you tell me more?",
-        "Feed me more datums!",
-      ]) ],
-comment_message_bot = (max_length, text = '', format = pool(data.bbcodes)) => (
-  text += "[" + format + "]" + generate_fortune('all')
-  + "[/" + format + ']\n' + pool(data.smileys) + '\n',
-  (text.length >= max_length) ?
-    text.trim().replace(/\[\]/g, '').replace(/\[\/\]/g, '')
-  : comment_message_bot(max_length, text)),
-profile = {
-  lite: false,
-  custom_url: 'byteframe',
-  background: { shuffle_slots: [], shuffle_types: [ 0 ], slots: [ [ (account) => pool(accounts[account.index].backgrounds, 1, null)[0] ] ] },
-  showcases: { shuffle_slots: [], shuffle_types: [ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ], slots: [ [ "4_0" ],[ "13_0" ],[ "17_0" ],[ "15_0" ],[ "3_0" ],[ "12_0" ],[ "10_0" ],[ "7_0" ],[ "11_0" ],[ "5_0" ],[ "8_0" ],[ "2_0" ],[ "9_0" ],[ "6_0" ],[ "16_0" ],[ "22_0" ],[ "8_280151" ],[ "4_2410599" ],[ "3_2720320" ], [ "6_2908791" ] ] },
-  screenshot: { shuffle_slots: [ 1, 2, 3 ], shuffle_types: [ -1, -1, -1, -1 ], slots: data.screenshot },
-  artwork: { shuffle_slots: [ 1, 2, 3 ], shuffle_types: [ -1, -1, -1, -1 ], slots: data.artwork },
-  artwork2: { shuffle_slots: [], shuffle_types: [ 0 ], slots: [ [ () => pool(data.artwork2) ] ] },
-  group_primary: { shuffle_slots: [], shuffle_types: [ 0 ], slots: [ [ () => "103582791432273268_primarydataloop" ] ] },
-  group_favorite: { shuffle_slots: [], shuffle_types: [ -1 ], slots: [ [ () => pool(data.group_favorite) ] ] },
-  guide_favorite: { shuffle_slots: [], shuffle_types: [ -1 ], slots: [ [ () => pool(data.guide_favorite) ] ] },
-  guide_collector: { shuffle_slots: [ 0, 1 ], shuffle_types: [ 1, 1 ], slots: [ [ () => pool(data.guides) ],[ () => pool(data.guides) ] ] },
-  workshop_favorite: { shuffle_slots: [], shuffle_types: [ -1 ], slots: [ [ () => pool(data.workshop_favorite) ] ] },
-  workshop_collector: { shuffle_slots: [ 0, 1, 2, 3 ], shuffle_types: [ -1, -1, -1, -1, -1 ], slots: [ data.workshop_collector[0],data.workshop_collector[1],data.workshop_collector[2],data.workshop_collector[3],[ () => pool(data.merchandise) ] ] },
-  game_collector: { shuffle_slots: [  0,  1,  2,  3 ], shuffle_types: [ -1, -1, -1, -1 ], slots: data.game_collector },
-  game_favorite: { shuffle_slots: [], shuffle_types: [ -1 ], slots: [ data.game_favorite ] },
-  game_favorite_2908791: { shuffle_slots: [], shuffle_types: [ -1 ], slots: [ data.game_favorite_dlc ] },
-  badge_collector: { shuffle_slots: [ 1, 2, 3, 4, 5 ], shuffle_types: [ 1, 1, 1, 1, 1, 1 ], slots: data.badge_collector },
-  badge_favorite: { shuffle_slots: [], shuffle_types: [ -1 ], slots: [ data.badge_favorite ] },
-  review: { shuffle_slots: [], shuffle_types: [ -1 ], slots: [ data.review ] },
-  trade_items: { shuffle_slots: [ 0, 1, 2, 3, 4, 5 ], shuffle_types: [ 1, 1, 1, 1, 1, 1 ], slots: data.trade_items },
-  trade_items_2410599: { shuffle_slots: [ 0, 1, 2, 3, 4, 5 ], shuffle_types: [ 1, 1, 1, 1, 1, 1 ], slots: [ [ () => pool(data.trade_items_2410599) ], [ () => pool(data.trade_items_2410599) ], [ () => pool(data.trade_items_2410599) ], [ () => pool(data.trade_items_2410599) ], [ () => pool(data.trade_items_2410599) ], [ () => pool(data.trade_items_2410599) ] ] },
-  item_showcase: { shuffle_slots: [], shuffle_types: [ -1, -1, -1, -1, -1, -1,  1,  1,  1,  1 ], slots: data.item_showcase },
-  item_showcase_2720320: { shuffle_slots: [], shuffle_types: [ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ], slots: [ [ "__" ],[ "__" ],[ "__" ],[ "__" ],[ "__" ],[ "__" ], [ () => pool(data.item_showcase_2720320) ], [ () => pool(data.item_showcase_2720320) ], [ ()=> pool(data.item_showcase_2720320) ], [ () => pool(data.item_showcase_2720320) ] ] },
-  countries: { shuffle_slots: [], shuffle_types: [ -1 ], slots: [ data.countries ] },
-  achievement: { shuffle_slots: [ 0, 1, 2, 4, 5, 6 ], shuffle_types: [ 1, 1, 1, 1, 1, 1, 1 ], slots: [ [], [], [], [], [], [], [] ] },
-  persona_name: { shuffle_slots: [], shuffle_types: [ 0 ], slots: [ [
-    (account, lite, text = '¡ byteframe ' + pool(data.smileys) + " is " + pool(data.adjectives).toLowerCase() + " !" , m = encodeURIComponent(text).match(/%[89ABab]/g)) =>
-      (account.user.playingState.blocked) ?
-        'byteframe'
-      : (text.length + (m ? m.length : 0) < 33) ?
-        text
-      : profile.persona_name.slots[0][0](account, lite) ] ] },
-  real_name: { shuffle_slots: [], shuffle_types: [ 0 ], slots: [ [
-    (account, lite) => "/" + pool(pool(data.emojis, 1, null)[0]) + "/ "
-    + pool(data.first_male) + " |" + pool(pool(data.emojis, 1, null)[0]) + "| " + pool(data.first_male)
-    + " [" + pool(pool(data.emojis, 1, null)[0]) + "] " + Math.floor(Math.random()*(35-18)+18)
-    + " {" + pool(pool(data.emojis, 1, null)[0]) + "} → " + pool(data.ascii_face) ] ] },
-  information_title: { shuffle_slots: [], shuffle_types: [ 0 ], slots: [ [
-    (account, lite) => "Earth Time " + pool(pool(data.emojis, 1, null)[0]) + ' '
-    + new Date().toUTCString().replace(',','').replace('2021', '2021 ' + pool(pool(data.emojis, 1, null)[0]))
-    + pool(pool(data.emojis, 1, null)[0]) + ' {'
-    + pool(data.ascii, 2) + '} ' + pool(pool(data.emojis, 1, null)[0])
-    + " " + pool([ 'ᶫᵒᵛᵉᵧₒᵤ', 'ᶠᵘᶜᵏᵧₒᵤ']) ] ] },
-  information_text: { shuffle_slots: [], shuffle_types: [ 0 ], slots: [ [
-    (account, lite, fortune = generate_fortune('all', 1, 512).replace(/\b[A-Z]{2,}\b/g, (word) => word[0] + word.toLowerCase().substr(1))) =>
-      insert_emojis(pool(mandelas).trim().split('\n').map((line, i) =>
-        line + ((words = split_words(font(fortune, 3).slice(i*54, (i+1)*54))) => " ♡║ YYY " + words[0] + " YYY " + words[1] + " YYY")()).join("\n")) ] ] },
-  information_title_280151: { shuffle_slots: [], shuffle_types: [ 0 ], slots: [ [ (account, lite) => "[" + pool(data.emojis_bulk) + "] - " + font(generate_fortune('zippy', 1, 75, 90), 3) ] ] },
-  information_text_280151: { shuffle_slots: [], shuffle_types: [ 0 ], slots: [ [ (account, lite, emoticon_index = Math.floor(Math.random()*20)) => "[i]" + generate_fortune('all', 1, 768, 832).replace(/\//g, ' ') + "[/i] [b][strike]" + pool(data.first_male) + " is not " + pool(data.adjectives).toLowerCase() + "[/strike][/b]\n\n[h1]" + font(generate_fortune('all', 1, 55, 55), 4) + "[/h1]\n[b]#" + emoticon_index + ": " + pool(data.emoticons[emoticon_index], 4) + "[/b] / [spoiler]" + pool(data.social_links) + "[/spoiler] - " + shuffle_array(data.chinese.split('')).join('').substr(0, 4) + " - [" + shuffle_array(data.barcode.split('')).join('') + "][hr][/hr]" ] ] },
-  trade_text: { shuffle_slots: [], shuffle_types: [ 0 ], slots: [ [ (account, lite, text = ' ') => ' ' + generate_emoticons(33) + "\n\n" + font(generate_fortune('all', 1, 84, 86), 4) ] ] },
-  trade_text_2410599: { shuffle_slots: [], shuffle_types: [ 0 ], slots: [ [
-    (account, lite, text = ' ',
-      film = pool(data.films).replace(', The', ''),
-      show = pool(data.shows).replace(', The', ''),
-      artist = pool(data.artists).replace(', The', '')) =>
-      '[b][u]Besties (' + profile.achievement.selection[3] + ')[/u][/b]\n'
-      + ((line = '', colors = shuffle_array([2,3,4,5,8,9]), besties = shuffle_array([ 'Sidekick', 'Associate', 'Companion', 'Roommate' ])) => (
-        besties.forEach((bestie, index) =>
-          line += pool(data.emoticons[colors[index]]) +
-            ' [url=steamcommunity.com/profiles/' + Object.keys(account.user.myFriends)[Math.floor(Math.random() * Object.keys(account.user.myFriends).length)] + ']' + bestie + "[/url] "),
-        line + pool(data.emoticons[colors[5]]) + "\n\n"))()
-      + '[b][u]Wallpaper (' + data.avatars[data.avatars.index-1] + ')[/u][/b]\n'
-      + pool(data.emoticons[1]) + ' [url=steamdb.info/app/' + profile.background.selection[0].appid + ']'
-      + profile.background.selection[0].game + '[/url] ' + pool(data.emoticons[1]) + ' [url=steamcommunity.com/id/byteframe/inventory/#753_6_'
-      + profile.background.selection[0].id + ']' + profile.background.selection[0].name.replace(' (Profile Background)', '') + '[/url]\n\n'
-      + '[b][u]Media (' + profile.game_collector.selection.join() + ')[/u][/b]\n'
-      + pool(data.emoticons[0]) + ' [url=imdb.com/find?q=' + film + ']' + film + '[/url]\n'
-      + pool(data.emoticons[0]) + ' [url=themoviedb.org/search?query=' + show + ']' + show + '[/url]\n'
-      + pool(data.emoticons[0]) + ' [url=discogs.com/search/?q=' + artist + ']' + artist + '[/url]\n\n'
-      + '[b][u]Link (' + profile.review.selection[0] + ' | ' + (profile.game_favorite.selection[0]+"").replace(/\/.*/, "") + ')[/u][/b]\n'
-      + pool(data.emoticons[5]) + ' [url=youtube.com/c/byteframe]YouTube[/url]'
-      + pool(data.emoticons[10]) + ' [url=twitch.tv/byteframe]Twitch[/url]'
-      + pool(data.emoticons[2]) + ' [url=imgur.com/user/byteframe]Imgur[/url]'
-      + pool(data.emoticons[3]) + ' [url=live.fc2.com/49197455]FC2[/url]'
-      + pool(data.emoticons[2]) + ' [url=reddit.com/user/byteframe]Reddit[/url]\n'
-      + pool(data.emoticons[9]) + ' [url=dlive.tv/byteframe]Dlive[/url]'
-      + pool(data.emoticons[4]) + ' [url=pscp.tv/byteframe_]Periscope[/url]'
-      + pool(data.emoticons[5]) + ' [url=vaughn.live/byteframe]VaughnLive[/url]'
-      + pool(data.emoticons[3]) + ' [url=twitter.com/byteframe]Twitter[/url]\n'
-      + pool(data.emoticons[6]) + ' [url=instagram.com/byteframes]Instagram[/url]'
-      + pool(data.emoticons[7]) + ' [url=facebook.com/byteframetech]Facebook[/url]'
-      + pool(data.emoticons[8]) + ' [url=mobcrush.com/byteframe]Mobcrush[/url]\n'
-      + pool(data.emoticons[10]) + ' [url=byteframe.tumblr.com]Tumblr[/url]'
-      + pool(data.emoticons[11]) + ' [url=github.com/byteframe]GitHub[/url]'
-      + pool(data.emoticons[4]) + ' [url=picarto.tv/byteframe]Picarto[/url]\n'
-      + pool(data.emoticons[10]) + ' [url=linkedin.com/company/byteframetech]LinkedIn[/url]'
-      + pool(data.emoticons[9]) + ' [url=nimo.tv/live/1816208114]Nimo[/url]'
-      + pool(data.emoticons[11]) + ' [url=samequizy.pl/author/byteframe]SameQuizy[/url]\n'
-      + pool(data.emoticons[3]) + ' [url=itch.io/c/297897/byteframe]ItchIO[/url]'
-      + pool(data.emoticons[6]) + ' [url=smashcast.tv/byteframe]Smashcast[/url]'
-      + pool(data.emoticons[4]) + ' [url=pinterest.com/byteframe]Pinterest[/url]\n'
-      + pool(data.emoticons[3]) + ' [url=mixer.com/95892684]Mixer[/url]'
-      + pool(data.emoticons[2]) + ' [url=photos.app.goo.gl/B4digHC1UdQStf1EA]Photos[/url]'
-      + pool(data.emoticons[5]) + ' [url=sdq.st/u/49520]SideQuest[/url]' ] ] },
-  summary_text: { shuffle_slots: [], shuffle_types: [ 0 ], slots: [ [
-    (account, lite) =>
-      pool(data.emoticons[2], 3) + pool(data.emoticons[3], 3) + pool(data.emoticons[4], 3)
-      + pool(data.emoticons[5], 3) + pool(data.emoticons[6], 3) + pool(data.emoticons[7], 2)
-      + pool(data.emoticons[8], 3) + (!lite ? pool(data.emoticons[9], 3) + '\n' : ":emote1::emote2::emote3:\n")
-      + ((delimiter = "/", text = '') => (
-          shuffle_array(data.greetings).forEach((greeting) =>
-            text += greeting + '[/url] ' + delimiter + ' '),
-          text.trim().slice(0, -2)))() + "\n"
-      + pool(data.emoticons[2], 3) + pool(data.emoticons[3], 3) + pool(data.emoticons[4], 3)
-      + pool(data.emoticons[5], 3) + pool(data.emoticons[6], 3) + pool(data.emoticons[7], 2)
-      + pool(data.emoticons[8], 3) + (!lite ? pool(data.emoticons[9], 3) : ':emote1::emote2::emote3:') + "\n\n" +
-      "[i](this profile randomly changes its contents every minute to suit your needs)[/i]\n\n" +
-      "https://wikipedia.org/wiki/" + new Date().toLocaleDateString("en-US", { month: "long", day: "numeric"} ).replace(' ', '_') ] ] } },
-shuffle_array(data.achievement_array).forEach((set, index) =>
-  set[0].forEach((element, index) =>
-    profile.achievement.slots[index].push(element))),
-pad = (i, zeros = "00") =>
-  (zeros + i).substr(-zeros.length, zeros.length),
-console_log = (output, date = new Date()) =>
-  console.log((('[' + pad(date.getHours()) + ':' + pad(date.getMinutes()) + ':' + pad(date.getSeconds()) + '] ').magenta + output).replace(
+console_log = (t, date = new Date()) =>
+  console.log((('[' + (""+date.getHours()).padStart(2, '0') + ':' + (""+date.getMinutes()).padStart(2, '0') + ':' + (""+date.getSeconds()).padStart(2, '0') + '] ').magenta + t).replace(
     'SUCCESS', 'SUCCESS'.green.bold.reset).replace(
     'FAILURE', 'FAILURE'.red.bold.reset).replace(
     'MESSAGE', 'MESSAGE'.cyan.bold.reset).replace(
     'SESSION', 'SESSION'.blue.bold.reset)),
-log = (account, output) =>
-  console_log(output.replace('|', '|' + (account.index == 0 ? pad(account.index, "000").gray.inverse : pad(account.index, "000").gray) + '|')),
-profile_url = (account) =>
-  (account.user.vanityURL ? 'id/' + account.user.vanityURL : 'profiles/' + account.steamID),
-http_debug = () => void 0,
-http = (account, endpoint, form = null, callback = null, force = false, method = (form != null ? 'POST' : 'GET'), retries = 0) => (
-  (form != null && typeof form !== 'string') && (
-    form.sessionID = account.community.getSessionID(),
-    form.sessionid = account.community.getSessionID()),
-  account.community.httpRequest({
-    "uri": (endpoint.indexOf('http') == -1 ? 'https://steamcommunity.com/' + endpoint : endpoint).replace("/my/", "/" + profile_url(account) + "/"),
-    "method": method,
-    "form": (typeof form == 'string' ? 'sessionID=' + account.community.getSessionID() + form : form),
-    "json": true,
-    "encoding": (endpoint.slice(-4) == '.jpg' ? null : 'utf8')
-  }, (err, response, body,
-    success = false,
-    response_code = (!response ? '999' : response.statusCode.toString()),
-    result = endpoint + ": " + (method + '-' + response_code).yellow) => (
-    (err && err.message == 'Malformed JSON response') ?
-      err = 0 : null,
-    (!response) ?
-      result = "FAILURE | " + result + '=NO RESPONSE'.yellow
-    : (!body && response_code != '302' && response_code != '200') ? (
-      result = "FAILURE | " + result + "=NO BODY".yellow, 
-      body = { success: 0 })
-    : (err) ? (
-      result = "FAILURE | " + result + (" # " + err.message).yellow, 
-      (err.message == 'Not Logged In' || response_code == '401') &&
-        account.user.webLogOn())
-    : (body && typeof body.success != 'undefined' && body.success != 1) ?
-      ((error = (body.error) ? body.error.replace(/ /g, '').substr(0,30) : SteamCommunity.EResult[body.success]) => (
-        (!body.errmsg) && (
-          body.errmsg = 'ERR'),
-        result = "FAILURE | " + result + ("=" + error + "-" + body.errmsg.replace("  Please try again later.<br />", "")).yellow,
-        (error == 'NotLoggedOn') &&
-          account.user.webLogOn()))()
-    : ((body && body.toString().indexOf("g_steamID = false;") > -1) || response_code == '401' > -1) ? (
-      result = "FAILURE | " + result + "=SteamIDIsFalse/401".yellow,
-      account.user.webLogOn())
-    : (success = true,
-      result = "SUCCESS | " + result),
-    (!success || state.verbose) && (
-      http_debug(endpoint, body, response, err),
-      log(account, result.replace('POST-', 'POST'.inverse + '-'))),
-    (callback !== null && (success || force)) &&
-      callback(body, response, err)))),
-prep_randomize_profile = (account, profile, callback,
-  alter_showcase = (showcase, id = 0, callback = null) =>
-    (profile.hasOwnProperty(showcase)) && (
-      profile[showcase].selection = [],
-      (profile[showcase].shuffle_slots.length) &&
-        ((to_shuffle = []) => (
-          profile[showcase].shuffle_slots.forEach((slot) =>
-            to_shuffle.push([profile[showcase].slots[slot], profile[showcase].shuffle_types[slot]])),
-          shuffle_array(to_shuffle),
-          profile[showcase].shuffle_slots.forEach((slot, i) => (
-            profile[showcase].slots[slot] = to_shuffle[i][0],
-            profile[showcase].shuffle_types[slot] = to_shuffle[i][1]))))(),
-      profile[showcase].slots.forEach((slot, i) =>
-        (slot.length > 0 && typeof profile[showcase].shuffle_types[i] !== 'undefined') &&
-          ((element) => (
-            (profile[showcase].shuffle_types[i] === 0) ?
-              element = slot[Math.floor(Math.random()*slot.length)]
-            : (profile[showcase].shuffle_types[i] < 0) ? (
-              (profile[showcase].shuffle_types[i] == -1) &&
-                shuffle_array(slot),
-              element = slot[Math.abs(profile[showcase].shuffle_types[i])-1],
-              profile[showcase].shuffle_types[i]--,
-              (Math.abs(profile[showcase].shuffle_types[i])-1 == slot.length) && (
-                profile[showcase].shuffle_types[i] = -1))
-            : (profile[showcase].shuffle_types[i] > 0) && (
-              element = slot[profile[showcase].shuffle_types[i]-1],
-              profile[showcase].shuffle_types[i]++,
-              (profile[showcase].shuffle_types[i]-1 == slot.length) && (
-                profile[showcase].shuffle_types[i] = 1)),
-            ({}.toString.call(element) === '[object Function]') && (
-              element = element(account, profile.lite)),
-            profile[showcase].selection[i] = element,
-            (typeof element === 'string') && (
-              (profile.lite) && (
-                element = emoticon_convert(element)),
-              element = encodeURIComponent(element)),
-            (callback != null) &&
-              callback(i, element)))()))) =>
-  (typeof accounts[account.index].backgrounds == 'undefined') ? (
-    http(account, 'https://steamcommunity.com/' + profile_url(account) + '/ajaxgetplayerbackgrounds', {}, (body, response, err) => (
-      accounts[account.index].backgrounds = [],
-      (body.data.profilebackgroundsowned) &&
-        body.data.profilebackgroundsowned.forEach((background) =>
-          (data.background_blacklist.indexOf(""+background.communityitemid) == -1 || account.index != 0) &&
-            accounts[account.index].backgrounds.push({
-              id: background.communityitemid,
-              appid: background.appid,
-              game: body.data.backgroundappnames[background.appid],
-              name: background.name,
-              image: "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/" + background.image_large })),
-      prep_randomize_profile(account, profile, callback)), true, 'POST'))
-  :(account.edit_1 = '&type=profileSave&json=1&weblink_1_title=&weblink_1_url=&weblink_2_title=&weblink_2_url=&weblink_3_title=&weblink_3_url=',
-    (accounts[account.index].backgrounds.length > 0) &&
-      alter_showcase('background', 0, (i, element) =>
-        account.edit_1 += "&profile_background=" + element.id),
-    alter_showcase('group_primary', 0),
-    (account.user.playingState.blocked && profile.persona_name.hasOwnProperty('selection')) ?
-      account.edit_1 += "&personaName=byteframe"
-    : alter_showcase('persona_name', 0, (i, element) =>
-      account.edit_1 += "&personaName=" + element),
-    alter_showcase('real_name', 0, (i, element) =>
-      account.edit_1 += "&real_name=" + element),
-    (!profile.hasOwnProperty('custom_url')) ?
-      account.edit_1 += "&customURL=" + profile_url(account).replace(/.*?\//, '')
-    : account.edit_1 += "&customURL=" + profile.custom_url,
-    alter_showcase('countries', 0, (i, element, state_index = Math.floor(Math.random()*element[1].length)) => (
-      account.edit_1 += "&country=" + element[0],
-      (element[1].length) ? (
-        account.edit_1 += "&state=" + element[1][state_index][0],
-        (element[1][state_index][1].length) ?
-          account.edit_1 += "&city=" + element[1][state_index][1][Math.floor(Math.random()*element[1][state_index][1].length)]: null): null)),
-    account.edit_2 = '&type=showcases&json=1',
-    alter_showcase('badge_favorite'),
-    (account.index < 97 || (account.index >= 201 && account.index <= 223) || (account.index >= 101 && account.index <= 104)) && (
-      alter_showcase('showcases', 0, (i, _element, element = _element.split('_')) => (
-        account.edit_2 += "&profile_showcase%5B%5D=" + element[0],
-        account.edit_2 += "&profile_showcase_purchaseid%5B%5D=" + element[1])),
-      alter_showcase('trade_items', 4, (i, _element, element = _element.split('_')) =>
-        account.edit_2 += "&rgShowcaseConfig%5B4_0%5D%5B" + i + "%5D%5Bappid%5D=" + element[0] + "&rgShowcaseConfig%5B4_0%5D%5B" + i + "%5D%5Bitem_contextid%5D=" + element[1] + "&rgShowcaseConfig%5B4_0%5D%5B" + i + "%5D%5Bitem_assetid%5D=" + element[2]),
-      alter_showcase('trade_items_2410599', 4, (i, _element, element = _element.split('_')) =>
-        account.edit_2 += "&rgShowcaseConfig%5B4_2410599%5D%5B" + i + "%5D%5Bappid%5D=" + element[0] + "&rgShowcaseConfig%5B4_2410599%5D%5B" + i + "%5D%5Bitem_contextid%5D=" + element[1] + "&rgShowcaseConfig%5B4_2410599%5D%5B" + i + "%5D%5Bitem_assetid%5D=" + element[2]),
-      alter_showcase('trade_text', 4, (i, element) =>
-        account.edit_2 += "&rgShowcaseConfig%5B4_0%5D%5B6%5D%5Bnotes%5D=" + element),
-      alter_showcase('artwork', 13, (i, element) =>
-        account.edit_2 += "&rgShowcaseConfig%5B13_0%5D%5B" + i + "%5D%5Bpublishedfileid%5D=" + element),
-      alter_showcase('achievement', 17, (i, element) =>
-        account.edit_2 += "&rgShowcaseConfig%5B17_0%5D%5B" + i + "%5D%5Bappid%5D=" + element.substr(0, element.indexOf('_')) + "&rgShowcaseConfig%5B17_0%5D%5B" + i + "%5D%5Btitle%5D=" + element.substr(element.indexOf('_')+1)),
-      alter_showcase('guide_favorite', 15, (i, element) =>
-        account.edit_2 += "&rgShowcaseConfig%5B15_0%5D%5B0%5D%5Bappid%5D=0&rgShowcaseConfig%5B15_0%5D%5B0%5D%5Bpublishedfileid%5D=" + element),
-      alter_showcase('item_showcase', 3, (i, _element, element = _element.split('_')) =>
-        account.edit_2 += "&rgShowcaseConfig%5B3_0%5D%5B" + i + "%5D%5Bappid%5D=" + element[0] + "&rgShowcaseConfig%5B3_0%5D%5B" + i + "%5D%5Bitem_contextid%5D=" + element[1] + "&rgShowcaseConfig%5B3_0%5D%5B" + i + "%5D%5Bitem_assetid%5D=" + element[2]),
-      alter_showcase('item_showcase_2720320', 3, (i, _element, element = _element.split('_')) =>
-        account.edit_2 += "&rgShowcaseConfig%5B3_2720320%5D%5B" + i + "%5D%5Bappid%5D=" + element[0] + "&rgShowcaseConfig%5B3_2720320%5D%5B" + i + "%5D%5Bitem_contextid%5D=" + element[1] + "&rgShowcaseConfig%5B3_2720320%5D%5B" + i + "%5D%5Bitem_assetid%5D=" + element[2]),
-      alter_showcase('workshop_collector', 12, (i, element) =>
-        account.edit_2 += "&rgShowcaseConfig%5B12_0%5D%5B" + i + "%5D%5Bappid%5D=0&rgShowcaseConfig%5B12_0%5D%5B" + i + "%5D%5Bpublishedfileid%5D=" + element),
-      alter_showcase('review', 10, (i, element) =>
-        account.edit_2 += "&rgShowcaseConfig%5B10_0%5D%5B0%5D%5Bappid%5D=" + element),
-      alter_showcase('screenshot', 7, (i, element) =>
-        account.edit_2 += "&rgShowcaseConfig%5B7_0%5D%5B" + i + "%5D%5Bpublishedfileid%5D=" + element),
-      alter_showcase('workshop_favorite', 11, (i, element) =>
-        account.edit_2 += "&rgShowcaseConfig%5B11_0%5D%5B0%5D%5Bappid%5D=0&rgShowcaseConfig%5B11_0%5D%5B0%5D%5Bpublishedfileid%5D=" + element),
-      account.edit_2 += "&profile_showcase_style_5_0=1",
-      alter_showcase('badge_collector', 5, (i, element) =>
-        account.edit_2 += "&rgShowcaseConfig%5B5_0%5D%5B" + i + "%5D%5Bbadgeid%5D=1&rgShowcaseConfig%5B5_0%5D%5B" + i + "%5D%5Bappid%5D=" + element + "&rgShowcaseConfig%5B5_0%5D%5B" + i + "%5D%5Bborder_color%5D="),
-      alter_showcase('information_title', 8, (i, element) =>
-        account.edit_2 += "&rgShowcaseConfig%5B8_0%5D%5B0%5D%5Btitle%5D=" + element),
-      alter_showcase('information_text', 8, (i, element) =>
-        account.edit_2 += "&rgShowcaseConfig%5B8_0%5D%5B0%5D%5Bnotes%5D=" + element),
-      alter_showcase('information_title_280151', 8, (i, element) =>
-        account.edit_2 += "&rgShowcaseConfig%5B8_280151%5D%5B0%5D%5Btitle%5D=" + element),
-      alter_showcase('information_text_280151', 8, (i, element) =>
-        account.edit_2 += "&rgShowcaseConfig%5B8_280151%5D%5B0%5D%5Bnotes%5D=" + element),
-      alter_showcase('game_collector', 2, (i, element) =>
-        account.edit_2 += "&rgShowcaseConfig%5B2_0%5D%5B" + i + "%5D%5Bappid%5D=" + element),
-      alter_showcase('group_favorite', 9, (i, element) =>
-        account.edit_2 += "&rgShowcaseConfig%5B9_0%5D%5B0%5D%5Baccountid%5D=" + element.substr(0,18)),
-      alter_showcase('game_favorite', 6, (i, element) =>
-        account.edit_2 += "&rgShowcaseConfig%5B6_0%5D%5B0%5D%5Bappid%5D=" + element.replace(/\/.*/, '')),
-      alter_showcase('game_favorite_2908791', 6, (i, element) =>
-        account.edit_2 += "&rgShowcaseConfig%5B6_2908791%5D%5B0%5D%5Bappid%5D=" + element.replace(/\/.*/, '')),
-      alter_showcase('guide_collector', 16, (i, element) =>
-        account.edit_2 += "&rgShowcaseConfig%5B16_0%5D%5B" + i + "%5D%5Bappid%5D=0&rgShowcaseConfig%5B16_0%5D%5B" + i + "%5D%5Bpublishedfileid%5D=" + element),
-      alter_showcase('trade_text_2410599', 4, (i, element) =>
-        account.edit_2 += "&rgShowcaseConfig%5B4_2410599%5D%5B6%5D%5Bnotes%5D=" + element),
-      alter_showcase('artwork2', 22, (i, element) => 
-        account.edit_2 += "&rgShowcaseConfig%5B22_0%5D%5B" + i + "%5D%5Bpublishedfileid%5D=" + element)),
-    alter_showcase('summary_text', 0, (i, element) =>
-      account.edit_1 += "&summary=" + element),
-    callback()),
-avatars_group = fs.readdirSync("./images/group"),
-randomize_profile = (account, profile, callback = null, avatar = pool(data.avatars, 1, null)[0], date = new Date()) =>
-  http(account, 'https://steamcommunity.com/games/' + avatar[0] + '/selectAvatar', { selectedAvatar: avatar[1] }, (body, response, error) =>
-    http(account, 'https://api.steampowered.com/IPlayerService/SetProfileBackground/v1', { access_token: account.access_token, communityitemid: +profile.background.selection[0].id }, (body, response, error) =>
-      http(account, 'https://api.steampowered.com/IPlayerService/SetMiniProfileBackground/v1', { access_token: account.access_token, communityitemid: pool(data.avatar_backgrounds) }, (body, response, error) =>
-        http(account, 'https://api.steampowered.com/IPlayerService/SetProfileTheme/v1', { access_token: account.access_token, theme_id: pool(data.profile_themes) }, (body, response, error) =>
-          http(account, 'https://api.steampowered.com/IPlayerService/SetFavoriteBadge/v1', {  access_token: account.access_token, communityitemid: profile.badge_favorite.selection[0].substr(16) }, (body, response, error) =>
-            http(account, 'https://api.steampowered.com/IPlayerService/SetAvatarFrame/v1', { access_token: account.access_token, communityitemid: pool(data.avatar_frames) }, (body, response, error) =>
-              http(account, 'https://api.steampowered.com/IPlayerService/SetEquippedProfileItemFlags/v1', { access_token: account.access_token, communityitemid: +profile.background.selection[0].id, flags: 1 }, (body, response, error) =>
-                http(account, 'my/edit', account.edit_2, (body, response, err) => (
-                  http(account, 'my/edit'),
-                  callback(),
-                  (profile.gamesPlayed) &&
-                    profile.gamesPlayed.slots[0][0](account),
-                  (state.date != date.getDate()) ?
-                    http(account, 'my/edit', account.edit_1, () => state.date = date.getDate())
-                  : (!account.user.playingState.blocked) &&
-                    account.user.setPersona(state.accounts[account.index].persona, profile.persona_name.selection[0]),
-                  (date.getMinutes() == 0) && (
-                    ((group_url = profile.group_favorite.selection[0].substr(19)) =>
-                      http(accounts[0], 'groups/' + group_url + '/edit', '&' + data.group_forms[group_url].replace(
-                        /&headline=.*&summary=/, '&headline=' + generate_emoji_fortune(215) + '&summary=')))(),
-                    ((avatar_file = fs.readFileSync("./images/group/" + pool(avatars_group))) =>
-                      accounts[0].community.httpRequestPost({
-                        "uri": "https://steamcommunity.com/actions/FileUploader",
-                        "json": true,
-                        "formData": {
-                          "type": "group_avatar_image", "doSub": 1, "json": 1,
-                          "MAX_FILE_SIZE": avatar_file.length,
-                          "gId": "103582791432273268",
-                          "sessionid": accounts[0].community.getSessionID(),
-                          "avatar": { "value": avatar_file, "options": { "filename": 'avatar.jpg', "contentType": 'image/jpeg' } } }
-                      }, (err, response, body) =>
-                        (err || response.statusCode != 200 || !body || !body.success) ?
-                          log(accounts[0], 'FAILURE | actions/uploadAvatar: ' + (""+avatars_group.index).yellow)
-                        : log(accounts[0], 'SUCCESS | actions/uploadAvatar: ' + (""+avatars_group.index).yellow)))())))))))))),
-post_comment = (account, steamid, text, type = 0, post_id = -1, callback) => (
-  (type == 1) ?
-    type = 'UserStatusPublished'
-  :(type == 2) ?
-    type = 'UserReceivedNewGame'
-  : type = 'Profile',
-  http(account, 'comment/' + type + '/post/' + steamid + '/' + post_id, { comment: text, count: 6 }, (body, response, err) =>
-    callback(body))),
+log = (a, t) =>
+  console_log(t.replace('|', '|' + (""+a.i).padStart(3, '0').gray + '|')),
+console_log("SESSION |" + '000'.gray.inverse + "| starting process: " + ("pid#=" + process.pid).yellow),
+w = require('fs'),
+d = JSON.parse(w.readFileSync('./data.json', 'utf8')),
+s = JSON.parse(w.readFileSync('./state.json', 'utf8')),
+split_words = (s, _middle = Math.floor(s.length / 2), before = s.lastIndexOf(' ', _middle), after = s.indexOf(' ', _middle + 1), middle = (_middle - before < after - _middle ? before : after)) =>
+  [ s.substr(0, middle), s.substr(middle + 1) ],
+emote = (l = 1, indexes = [ 2,3,4,5,6,7,8,9,10,11 ], j = '') =>
+  pool(indexes, l, null).map((e) => pool(d.emotes[e])).join(j),
+font = (input, f) =>
+  [...Array(input.length).keys()].map((e, i) =>
+    (d.fonts[f][input[i]] !== undefined) ? d.fonts[f][input[i]] : input[i]).join(''),
+shuffle = (E) => (
+  [...Array(E.length).keys()].reverse().slice(0, -1).forEach((e, i) =>
+    ((j = Math.floor(Math.random()*(e + 1)), _j = E[e]) => (
+      E[e] = E[j],
+      E[j] = _j))()),
+  E),
+pool = (E, l = 1, join = '', _E = []) => (
+  [...Array(l).keys()].forEach(() => (
+    (!E.hasOwnProperty('i') || ++E.i == E.length) && (
+      E.i = 0,
+      E = shuffle(E)),
+    _E.push(E[E.i]))),
+  (join !== null) ? _E.join(join) : _E),
+fortunes = Object.fromEntries(w.readdirSync('./fortunes').map((e) => [ e, w.readFileSync('./fortunes/' + e, 'utf8').split('\n%') ])),
+fortune = (file = 'all', q = 1, l = -1, o = -1, t = '') => (
+  [...Array(q).keys()].forEach(() =>
+    t += pool(fortunes[file]).trimEnd() + '\n\n'),
+  t = t.replace(/[ \t]{2,}/g, ' ').trimEnd(),
+  (l < 1 || (t.length >= l && (o < 1 || t.length <= o))) ? (
+    (l > 0) && (
+      t = t.replace(/[\t\n]/g, ' ')),
+    t.trim())
+  : fortune(file, q, l, o, (t.length > o) ? "" : t + " ")),
+profile_url = (a) =>
+  (a.u.vanityURL ? 'id/' + a.u.vanityURL : 'profiles/' + a.steamID),
 byte_length = (str, m = encodeURIComponent(str).match(/%[89ABab]/g)) =>
   str.length + (m ? m.length : 0),
-translate_id = (cid) =>
-  '765' + (+cid + 61197960265728),
-friends_list = (account, endpoint, callback) =>
-  http(account, endpoint, {}, (body, response, err, steamids = []) => (
-    body = body.match(/data-steamid="765611[0-9]*"/g),
-    (body) &&
-      body.forEach((item, index) =>
-        steamids.push(item.slice(14, -1))),
-    callback(steamids))),
-strangers = [],
-profile_commenter = (account, check_replies = false, friends_only = true,
-  friends = shuffle_array(Object.keys(account.user.myFriends).filter((friend) =>
-    (account.user.myFriends[friend] == 3 || account.user.myFriends[friend] == 6) && !accounts.find((account) =>
-      account.steamID == friend))).map((friend) =>
-        [ '', friend ]),
-  day = new Date().getUTCDay(),
-  post = (steamids, unique = false, steamid = steamids.shift()) =>
-    (typeof steamid == 'undefined') ?
-      profile_commenter(account, check_replies, friends_only, friends)
-    : (state.steamid_blacklist.indexOf(steamid[1]) > -1) ?
-        post(steamids, unique)
-      : http(account, 'profiles/' + steamid[1] + '/allcomments', null, (body, response, err) =>
-        (body.indexOf('commentthread_textarea') == -1) ?
-          post(steamids, unique)
-        : ((comments = body.match(/commentthread_author_link" href="https:\/\/.*?"/g)) => (
-          (steamid[0] != '') ?
-            state.accounts[account.index].replies.push(steamid[0]) : null,
-          (account.index == 0 && state.force_steamid == '' && comments && comments.splice(0,6).join(" ").indexOf('steamcommunity.com/' + profile_url(account)) > -1) ?
-            post(steamids, unique)
-          : (try_comment_message = (comment_message = pool(comment_messages, 1, null)[0]
-            , player = body.match(/<title>.*<\/title>/)[0].slice(26,-28)
-            , msg = (account.index == 0) ? comment_message(player) : emoticon_convert(comment_message(player))) =>
-            (byte_length(msg) > 925 || msg.trim().length < 1) ?
-              try_comment_message(comment_message, player)
-            : post_comment(account, steamid[1], msg, 3, -1, () => (
-              state.accounts[account.index].post_free--,
-              state.accounts[account.index].last_steamid = steamid[1],
-              (!state.verbose) &&
-                log(account, 'SUCCESS | post: ' + ('https://steamcommunity.com/profiles/' + steamid[1] + ' -- "' + player + '"' + " {" + state.last_profiles.length + "},/" + strangers.length + "/" + steamid[0]).yellow),
-              (unique) &&
-                state.last_profiles.push(steamid[1]))))()))())) => (
-  friends.push([ '', account.steamID ]),
-  (!('day' in state.accounts[account.index])) ? (
-    state.accounts[account.index].day = day,
-    state.accounts[account.index].post_free = 180,
-    state.accounts[account.index].replies = [])
-  : (state.accounts[account.index].day != day) && (
-    state.accounts[account.index].day = day,
-    state.accounts[account.index].post_free = 180,
-    state.accounts[account.index].replies = state.accounts[account.index].replies.splice(-50)),
-  (state.accounts[account.index].post_free > 0) &&
-    (state.force_steamid != '' && (!account.limited || friends.indexOf(state.force_steamid) != -1) ?
-      post([ [ '', state.force_steamid ] ].concat(friends))
-    : (!strangers.length) ?
-      friends_list(account, 'profiles/' + state.last_profiles[Math.floor(Math.random()*state.last_profiles.length)] + "/friends", (steamids) => (
-        steamids.forEach((item, index) =>
-          (state.last_profiles.indexOf(item) == -1) &&
-            strangers.push(['', item ])),
-        profile_commenter(account, check_replies, friends_only, friends)))
-    : (check_replies) ?
-      http(account, 'my/allcomments', null, (body, response, err,
-        comments = Cheerio.load(body)('div.commentthread_comment_author').toArray().reverse().map((_item, index, undefined, item = Cheerio.load(_item)) =>
-          [ item('a.actionlink')[0].attribs.href.substr(73, 19).match(/\d+/g)[0], translate_id(item('a.commentthread_author_link')[0].attribs['data-miniprofile']) ])) =>
-        profile_commenter(account, false, friends_only, comments.filter((item1, index1) =>
-          state.accounts[account.index].replies.indexOf(item1[0]) == -1 && comments.findIndex((item2, index2) =>
-            index1 < index2 && item1[1] == item2[1]) == -1).concat(friends)))
-    : (account.limited || friends_only) ?
-      (friends.length >= 200) &&
-        post(friends)
-    : post(strangers, true))),
-ban = (steamid) => (
-  accounts.forEach((account) =>
-    account.user.removeFriend(steamid)),
-  (state.steamid_blacklist.indexOf(steamid) == -1) &&
-    state.steamid_blacklist.push(steamid)),
-find_name = (account, steamid) =>
-  (typeof account.user.users[steamid] != 'undefined' ? account.user.users[steamid].player_name : steamid),
-accounts = [],
-state.accounts.forEach((account, i) =>
-  (i < 1) &&
-    accounts.push({ user: new SteamUser({ dataDirectory: null, autoRelogin: false , enablePicsCache: (account.index == 0 ? true : false)}), session: new SteamSession(1), community: new SteamCommunity(), name: account.name, steamID: account.steamID, index: i, limited: (i > 120 && i < 200 && i != 133) ? true : false, chats: [] })),
-accounts.forEach((account, i) => (
-  account.session.on('authenticated', () => (
-    state.accounts[account.index].refreshToken = account.session.refreshToken,
-    logon(account))),
-  account.session.on('timeout', () => (
-    account.logon_active = false,
-    log(account, 'SESSION: authenticate timeout'))),
-  account.session.on('error', (err) => (
-    account.logon_active = false,
-    log(account, 'SESSION: authenticate fail ' + err.message.yellow))),
-  account.community.on('sessionExpired', (err) => (
-    log(account, 'FAILURE | sessionExpired: ' + err),
-    account.user.webLogOn())),
-  account.user.on('webSession', (sessionID, cookies) => (
-    account.community.setCookies(cookies),
-    setTimeout((account) =>
-      http(account, 'https://store.steampowered.com/points/shop', {}, (body, response, error) =>
-        account.access_token = body.match(/webapi_token\&quot\;\:\&quot\;.*?\&quot\;/)[0].slice(25, -6)), 5000, account))),
-  account.user.on('error', (err) => (
-    log(account, 'FAILURE | error: ' + err.message.yellow),
-    (err.message == 'InvalidPassword') ?
-      delete state.accounts[account.index].key
-    : (err.message == 'LogonSessionReplaced') &&
-      logon(account, 5000))),
-  account.user.on('accountLimitations', (limited, communityBanned, locked, canInviteFriends) =>
+http = (a, h, form = null, z = null, force = false, method = (form != null ? 'POST' : 'GET'), multipart = false, options = {
+  "uri": (!h.includes('http') ? 'https://steamcommunity.com/' + h : h).replace("/my/", "/" + profile_url(a) + "/"),
+  "method": method, "json": true, "encoding": (h.slice(-4) == '.jpg' ? null : 'utf8')}) => (
+  (form != null) && (
+    (typeof form !== 'string') ? (
+      form.sessionID = a.c.getSessionID(),
+      form.sessionid = a.c.getSessionID(),
+      (multipart) ? (
+        options.formData = form)
+      : options.form = form)
+    : options.form = 'sessionID=' + a.c.getSessionID() + form),
+  a.c.httpRequest(options, (x, r, b,
+    response_code = (!r ? '999' : r.statusCode.toString()),
+    result = options.uri.replace('https://', '') + ": " + (method + '-' + response_code).yellow) => (
+    (x && x.message == 'Malformed JSON response') ?
+      x = 0 : null,
+    (!r) ?
+      result = "FAILURE | " + result + '=NO RESPONSE'.yellow
+    : (!b && response_code != '302' && response_code != '200') ? (
+      result = "FAILURE | " + result + "=NO BODY".yellow,
+      b = { success: 0 })
+    : (x) ? (
+      result = "FAILURE | " + result + (" # " + x.message).yellow, 
+      (x.message == 'Not Logged In' || response_code == '401') &&
+        a.u.webLogOn())
+    : (b && typeof b.success != 'undefined' && b.success != 1) ?
+      ((x = (b.error) ? b.error.replace(/ /g, '').substr(0,30) : SteamCommunity.EResult[b.success]) => (
+        (!b.errmsg) && (
+          b.errmsg = 'ERR'),
+        result = "FAILURE | " + result + ("=" + x + "-" + b.errmsg).yellow,
+        (x == 'NotLoggedOn') &&
+          a.u.webLogOn()))()
+    : ((b && b.toString().includes("g_steamID = false;")) || response_code == '401' > -1) ? (
+      result = "FAILURE | " + result + "=SteamIDIsFalse/401".yellow,
+      a.u.webLogOn())
+    :(force = true,
+      result = "SUCCESS | " + result),
+    (!force || s.verbose) &&
+      log(a, result),
+    (z !== null && force) &&
+      z(b, r, x)))),
+(initialize_profile = () => (
+  profile = {
+    lite: false,
+    custom_url: 'byteframe',
+    avatar: { moves: [], types: [ 0 ], slots: [ [ (a) => pool(d.avatars, 1, null)[0] ] ] },
+    uiMode: { moves: [], types: [ 0 ], slots: [ [ 1, 2 ] ] },
+    gamesPlayed: { moves: [], types: [ 0 ], slots: [ [] ] },
+    background: { moves: [], types: [ 0 ], slots: [ [ (a) => pool(a.inventory.backgrounds, 1, null)[0] ] ] },
+    showcases: { moves: [], types: [ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ], slots: [ [ "4_0" ],[ "13_0" ],[ "17_0" ],[ "15_0" ],[ "3_0" ],[ "12_0" ],[ "10_0" ],[ "7_0" ],[ "11_0" ],[ "5_0" ],[ "8_0" ],[ "2_0" ],[ "9_0" ],[ "6_0" ],[ "16_0" ],[ "22_0" ],[ "8_280151" ],[ "4_2410599" ],[ "3_2720320" ],[ "6_2908791" ],[ "23_0" ],[ "11_3542246" ],[ "2_3650940" ],[ "10_3507533" ],[ "17_3993982" ],[ "14_0" ],[ "12_4340775"] ] },
+    screenshot: { moves: [ 1, 2, 3 ], types: [ -1, -1, -1, -1 ], slots: d.screenshot_showcase },
+    videos: { moves: [], types: [ -1, -1, -1, -1 ], slots: [ [ () => pool(d.videos) ], [ () => pool(d.videos) ], [ () => pool(d.videos) ], [ () => pool(d.videos) ] ] },
+    artwork: { moves: [ 1, 2, 3 ], types: [ -1, -1, -1, -1 ], slots: d.artwork },
+    artwork2: { moves: [], types: [ 0 ], slots: [ d.artwork2 ] },
+    group_primary: { moves: [], types: [ 0 ], slots: [ d.group_primary ] },
+    group_favorite: { moves: [], types: [ -1 ], slots: [ d.group_favorite ] },
+    guide_favorite: { moves: [], types: [ -1 ], slots: [ d.guide_favorite ] },
+    guide_collector: { moves: [ 0, 1 ], types: [ 1, 1 ], slots: [ [ () => pool(d.guide_collector) ],[ () => pool(d.guide_collector) ] ] },
+    workshop_favorite: { moves: [], types: [ -1 ], slots: [ d.workshop_favorite ] },
+    workshop_favorite2: { moves: [], types: [ -1 ], slots: [ [ () => pool(pool(d.workshop_collector, 1, null)[0]) ] ] },
+    workshop_collector: { moves: [ 0, 1, 2, 3 ], types: [ -1, -1, -1, -1, -1 ], slots: [ [ () => pool(pool(d.workshop_collector, 1, null)[0]) ],[ () => pool(pool(d.workshop_collector, 1, null)[0]) ],[ () => pool(pool(d.workshop_collector, 1, null)[0]) ],[ () => pool(pool(d.workshop_collector, 1, null)[0]) ], d.workshop_merchandise ] },
+    workshop_collector2: { moves: [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 ], types: [ -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 ], slots: [ [ () => pool(s.favorites["Wallpaper Engine"]) ],[ () => pool(s.favorites["Wallpaper Engine"]) ],[ () => pool(s.favorites["Wallpaper Engine"]) ],[ () => pool(s.favorites["Wallpaper Engine"]) ],[ () => pool(s.favorites["Wallpaper Engine"]) ],[ () => pool(s.favorites["Wallpaper Engine"]) ],[ () => pool(s.favorites["Wallpaper Engine"]) ],[ () => pool(s.favorites["Wallpaper Engine"]) ],[ () => pool(s.favorites["Wallpaper Engine"]) ],[ () => pool(s.favorites["Wallpaper Engine"]) ] ] },
+    game_collector: { moves: [ ], types: [ -1, -1, -1, -1 ], slots: [ [ () => pool(pool(d.game_collector, 1, null)[0]) ], [ () => pool(d.game_collector[d.game_collector.i]) ], [ () => pool(d.game_collector[d.game_collector.i]) ], [ () => pool(d.game_collector[d.game_collector.i]) ] ] },
+    game_collector_dlc: { moves: [ ], types: [ -1, -1, -1, -1 ], slots: [ [ () => pool(pool(d.game_collector_dlc, 1, null)[0]) ], [ () => pool(d.game_collector_dlc[d.game_collector_dlc.i]) ], [ () => pool(d.game_collector_dlc[d.game_collector_dlc.i]) ], [ () => pool(d.game_collector_dlc[d.game_collector_dlc.i]) ] ] },
+    game_favorite: { moves: [], types: [ -1 ], slots: [ [ (a) => pool(a.wishlist) ] ] },
+    game_favorite2: { moves: [], types: [ -1 ], slots: [ [ (a) => pool(a.wishlist) ] ] },
+    badge_collector: { moves: [ 1, 2, 3, 4, 5 ], types: [ 1, 1, 1, 1, 1, 1 ], slots: d.badge_collector },
+    badge_favorite: { moves: [], types: [ -1 ], slots: [ d.badge_favorite ] },
+    review: { moves: [], types: [ -1 ], slots: [ [] ] },
+    review2: { moves: [], types: [ -1 ], slots: [ [] ] },
+    items_trade: { moves: [ 0, 1, 2, 3, 4, 5 ], types: [ 1, 1, 1, 1, 1, 1 ], slots: [ [], [], [], [], [], [] ] },
+    items_trade_2410599: { moves: [ 0, 1, 2, 3, 4 ], types: [ 1, 1, 1, 1, 1, 1 ], slots: [ [ () => pool(d.items_trade_2410599) ], [ () => pool(d.items_trade_2410599) ], [ () => pool(d.items_trade_2410599) ], [ () => pool(d.items_trade_2410599) ], [ () => pool(d.items_trade_2410599) ], [ () => pool(d.items_trade_2410599_end) ] ] },
+    item_showcase: { moves: [], types: [ -1, -1, -1, -1, -1, -1,  1,  1,  1,  1 ], slots: [ [], [], [], [], [], [], [], [], [], [] ] },
+    item_showcase2: { moves: [], types: [ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ], slots: [ [ "__" ],[ "__" ],[ "__" ],[ "__" ],[ "__" ],[ "__" ], [ (a) => "753_6_"+pool(a.inventory.boosters, 1, null)[0].id ], [ (a) => "753_6_"+pool(a.inventory.boosters, 1, null)[0].id ], [ (a)=> "753_6_"+pool(a.inventory.boosters, 1, null)[0].id ], [ (a) => "753_6_"+pool(a.inventory.boosters, 1, null)[0].id ] ] },
+    completionist: { moves: [ 0, 1 ], types: [ 1, 1 ], slots: d.completionist },
+    countries: { moves: [], types: [ -1 ], slots: [ d.countries ] },
+    achievement: { moves: [ 0, 1, 2, 4, 5, 6 ], types: [ 1, 1, 1, 1, 1, 1, 1, 1 ], slots: [ [], [], [], [], [], [], [], [] ] },
+    achievement2: { moves: [ 0, 1, 2, 4, 5, 6 ], types: [ 1, 1, 1, 1, 1, 1, 1, 1 ], slots: [ [], [], [], [], [], [], [], [] ] },
+    real_name: { moves: [], types: [ 0 ], slots: [ [ () => "/" + pool(pool(d.emojis, 1, null)[0]) + "/ " + pool(d.first_male) + " |" + pool(pool(d.emojis, 1, null)[0]) + "| " + pool(d.first_male) + " [" + pool(pool(d.emojis, 1, null)[0]) + "] " + Math.floor(Math.random()*(35-18)+18) + " {" + pool(pool(d.emojis, 1, null)[0]) + "} → " + pool(d.ascii_face) ] ] },
+    trade_text: { moves: [], types: [ 0 ], slots: [ [ () => ' ' + emote(33) + "\n\n" + font(fortune('all', 1, 84, 86), 4) ] ] },
+    information_title: { moves: [], types: [ 0 ], slots: [ [ () => "Earth Time " + pool(pool(d.emojis, 1, null)[0]) + ' ' + new Date().toUTCString().replace(',','').replace('2021', '2021 ' + pool(pool(d.emojis, 1, null)[0])) + pool(pool(d.emojis, 1, null)[0]) + ' {' + pool(d.ascii, 2) + '} ' + pool(pool(d.emojis, 1, null)[0]) + " " + pool([ 'ᶫᵒᵛᵉᵧₒᵤ', 'ᶠᵘᶜᵏᵧₒᵤ']) ] ] },
+    information_title_280151: { moves: [], types: [ 0 ], slots: [ [ () => "[" + pool(d.emojis_bulk) + "] - " + font(fortune('zippy', 1, 84), 3) ] ] },
+    information_text: { moves: [], types: [ 0 ], slots: [ [ () =>
+      pool(d.mandelas).split('\n').map((e, i) =>
+        e + ((words = split_words(font(fortune('all', 1, 512).replace(/\b[A-Z]{2,}\b/g, (word) => word[0] + word.toLowerCase().substr(1)), 3).slice(i*54, (i+1)*54))) => " ♡║ " + pool(pool(d.emojis, 1, null)[0]) + " " + words[0] + " " + pool(pool(d.emojis, 1, null)[0]) + " " + words[1] + " " + pool(pool(d.emojis, 1, null)[0]))()).join("\n") ] ] },
+    information_text_280151: { moves: [], types: [ 0 ], slots: [ [ (a, lite, emoticon_index = Math.floor(Math.random()*20)) =>
+      "[i]" + fortune('all', 1, 512).replace(/\//g, ' ') + "[/i] [b][strike]" + pool(d.first_male) + " is not " + pool(d.adjectives).toLowerCase() + "[/strike][/b]\n\n[h1]" +
+      font(fortune('all', 1, 55, 55), 4) + "[/h1]\n[b]#" +
+      emoticon_index + ": " + emote(4, [emoticon_index]) + "[/b] / [spoiler]" + pool(d.links_social) + "[/spoiler] / - " + shuffle(d.chinese.split('')).join('').substr(0, 4) + " - [" + shuffle(d.barcode.split('')).join('') +
+      "][hr][/hr][u]𝐖𝐀𝐋𝐋𝐏𝐀𝐏𝐄𝐑[/u]: " + emote(1, [1]) + ' [url=steamdb.info/app/' + profile.background.selection[0].market_fee_app + ']' + profile.background.selection[0].tags[1].name + '[/url] ' + emote(1, [1]) + ' [url=steamcommunity.com/id/byteframe/inventory/#753_6_' + profile.background.selection[0].id + ']' + profile.background.selection[0].name.replace(' (Profile Background)', '').replace(/background/gi, '') + '[/url]' ] ] },
+    persona_name: { moves: [], types: [ 0 ], slots: [ [ (a, lite, t = '¡ byteframe ' + pool(d.emojis_smileys) + " is " + pool(d.adjectives).toLowerCase() + " !" , m = encodeURIComponent(t).match(/%[89ABab]/g)) =>
+      (a.u.playingState.blocked) ? 'byteframe'
+      : (byte_length(t) < 33) ? t
+      : profile.persona_name.slots[0][0](a, lite) ] ] },
+    summary_text: { moves: [], types: [ 0 ], slots: [ [ () =>
+      emote(3, [2]) + emote(3, [3]) + emote(3, [4]) +
+      emote(3, [5]) + emote(3, [6]) + emote(2, [7]) +
+      emote(3, [8]) + emote(3, [9]) + '\n' +
+      shuffle(d.links_steam_greetings).map((e) => e + '[/url] / ').join('').slice(0, -3) + "\n" +
+      emote(3, [2]) + emote(3, [3]) + emote(3, [2]) +
+      emote(3, [5]) + emote(3, [6]) + emote(4, [7]) +
+      emote(3, [8]) + emote(3, [9]) + "\n\n" +
+      "[i](this profile randomly changes its contents every minute to suit your needs)[/i]\n\n" +
+      "https://wikipedia.org/wiki/" + new Date().toLocaleDateString("en-US", { month: "long", day: "numeric"} ).replace(' ', '_') + "\n\n" +
+      font(fortune('chalkboard'), 4) ] ] },
+    trade_text_2410599: { moves: [], types: [ 0 ], slots: [ [ (a, lite, film = pool(d.films), show = pool(d.shows), artist = pool(d.artists)) =>
+      '[b][u]MEDIA - (' + profile.game_collector.selection.join() + ')[/u][/b] [spoiler]' + ((process.uptime() / 60)/60).toFixed(2) + " hours[/spoiler]\n" +
+      "                      " + emote(1, [0]) + ' [url=imdb.com/find?q=' + film + ']' + film + '[/url]' + " " + emote(1, [0]) + ' [url=themoviedb.org/search?query=' + show + ']' + show + '[/url]' + " " + emote(1, [0]) + ' [url=discogs.com/search/?q=' + artist + ']' + artist + '[/url]\n\n' +
+      '[b][u]LINKS - (' + profile.review.selection[0] + ' | ' + (profile.game_favorite.selection[0]+"").replace(/\/.*/, "") + ')[/u][/b] [spoiler]' + profile.achievement.selection[7] + '[/spoiler]\n' +
+      "                      " + emote(1, [3]) + ' [url=twitter.com/byteframe]Twitter[/url]' +
+      emote(1, [10]) + ' [url=twitch.tv/byteframe]Twitch[/url]' +
+      emote(1, [2]) + ' [url=imgur.com/user/byteframe]Imgur[/url]' +
+      emote(1, [4]) + ' [url=picarto.tv/byteframe]Picarto[/url]' +
+      emote(1, [5]) + ' [url=sdq.st/u/49520]SideQuest[/url]\n' +
+      "                      " + emote(1, [3]) + ' [url=itch.io/c/297897/byteframe]ItchIO[/url]' +
+      emote(1, [4]) + ' [url=pscp.tv/byteframe_]Periscope[/url]' +
+      emote(1, [7]) + ' [url=facebook.com/byteframetech]Facebook[/url]' +
+      emote(1, [4]) + ' [url=pinterest.com/byteframe]Pinterest[/url]\n' +
+      "                      " + emote(1, [6]) + ' [url=instagram.com/byteframes]Instagram[/url]' +
+      emote(1, [10]) + ' [url=tumblr.com/byteframe]Tumblr[/url]' +
+      emote(1, [10]) + ' [url=linkedin.com/company/byteframetech]LinkedIn[/url]' +
+      emote(1, [2]) + ' [url=reddit.com/user/byteframe]Reddit[/url]\n' +
+      "                      " + emote(1, [11]) + ' [url=samequizy.pl/author/byteframe]SameQuizy[/url]' +
+      emote(1, [11]) + ' [url=github.com/byteframe]GitHub[/url]' +
+      emote(1, [2]) + ' [url=photos.app.goo.gl/B4digHC1UdQStf1EA]Photos[/url]\n\n' +
+      '[b][u]BESTIES - (' + profile.avatar.selection[0] + ' )[/u][/b] [spoiler]' + profile.achievement2.selection[7] + '[/spoiler]\n                        ' +
+      ((colors = shuffle([2,3,4,5,8,9])) =>
+        shuffle([ 'Sidekick','Associate','Companion','Roommate','Partner','Acquaintance' ]).map((e, i) =>
+          emote(1, [colors[i]]) + ' [url=steamcommunity.com/profiles/' + Object.keys(a.u.myFriends)[Math.floor(Math.random() * Object.keys(a.u.myFriends).length)] + ']' + e + "[/url] ").join('') + emote(1, [colors[5]]))() ] ] } },
+  d.mandelas = d.mandelas1.concat(d.mandelas2),
+  [ [ d.items_showcase_array, 'item_showcase', 6 ], [ d.items_trade_array, 'items_trade', 0 ], [ d.achievement_array, 'achievement', 0 ] ].forEach((_e) =>
+    shuffle(_e[0]).forEach((e) =>
+      e.forEach((e, i) =>
+        profile[_e[1]].slots[i+_e[2]].push(e)))),
+  profile.achievement2.slots = profile.achievement.slots.map((e) => e.toReversed()),
+  links = [ [], [], [] ],
+  Object.entries(s.A[0].reviews).forEach((e) =>
+    (!e[1].banned) && (
+      e[1].contents.includes('[h1]') ? profile.review.slots[0].push(+e[0])
+      : e[1].contents.includes('[table]') ? profile.review2.slots[0].push(+e[0])
+      : profile.gamesPlayed.slots[0].push(+e[0]))),
+  profile.review.slots[0].forEach((e) => (
+    (s.A[0].reviews.hasOwnProperty(e)) && (
+      links[0].push(s.A[0].reviews[e].contents.match(/https:\/\/(www.)?youtu.+ \[h/)[0].slice(0,-3).slice(8).replace('www\.', '').replace('youtu.be/', '').replace('youtube.com/watch?v=', '').replace(/\?.*/, '').replace(/\&.*/, '')),
+      links[1].push(s.A[0].reviews[e].contents.match(/https:\/\/store.steampowered.com\/app\/[0-9]+/)[0])))),
+  profile.review.slots[0].concat(profile.review2.slots[0]).forEach((e) => (
+    (s.A[0].reviews.hasOwnProperty(e)) && (
+      links[2] = links[2].concat(s.A[0].reviews[e].contents.match(/https:\/\/steamcommunity.com\/id\/byteframe\/inventory\/#[0-9_]+/)))))))(),
+randomizer = (a, profile, z = null, date = new Date(), privacy = (date.getHours() < 5 || date.getHours() > 20) ? 3 : 2) => (
+  showcase = (k, id = 0, z = null) =>
+    (profile.hasOwnProperty(k)) && (
+      profile[k].last = profile[k].selection || [],
+      profile[k].selection = [],
+      (profile[k].moves.length) &&
+        ((to_shuffle = []) => (
+          profile[k].moves.forEach((slot) =>
+            to_shuffle.push([profile[k].slots[slot], profile[k].types[slot]])),
+          to_shuffle = shuffle(to_shuffle),
+          profile[k].moves.forEach((slot, i) => (
+            profile[k].slots[slot] = to_shuffle[i][0],
+            profile[k].types[slot] = to_shuffle[i][1]))))(),
+      profile[k].slots.forEach((slot, i) =>
+        (slot.length > 0 && typeof profile[k].types[i] !== 'undefined') &&
+          ((e) => (
+            (profile[k].types[i] === 0) ?
+              e = slot[Math.floor(Math.random()*slot.length)]
+            : (profile[k].types[i] < 0) ? (
+              (profile[k].types[i] == -1) && (
+                slot = shuffle(slot)),
+              e = slot[Math.abs(profile[k].types[i])-1],
+              profile[k].types[i]--,
+              (Math.abs(profile[k].types[i])-1 == slot.length) && (
+                profile[k].types[i] = -1))
+            : (profile[k].types[i] > 0) && (
+              e = slot[profile[k].types[i]-1],
+              profile[k].types[i]++,
+              (profile[k].types[i]-1 == slot.length) && (
+                profile[k].types[i] = 1)),
+            ({}.toString.call(e) === '[object Function]') && (
+              e = e(a, profile.lite)),
+            profile[k].selection[i] = e,
+            (typeof e === 'string') && (
+              (profile.lite) && (
+                e = emoticon_convert(e)),
+              e = encodeURIComponent(e)),
+            (z != null) &&
+              z(i, e)))())),
+  a.edit_1 = '&type=profileSave&json=1&weblink_1_title=&weblink_1_url=&weblink_2_title=&weblink_2_url=&weblink_3_title=&weblink_3_url=',
+  showcase('group_primary', 0, (i, e) => a.edit_1 += "&primary_group_steamid=" + e),
+  showcase('persona_name', 0, (i, e) => (!a.u.playingState.blocked) && a.u.setPersona(s.A[a.i].persona, profile.persona_name.selection[0])),
+  showcase('real_name', 0, (i, e) => a.edit_1 += "&real_name=" + e),
+  showcase('summary_text', 0, (i, e) => a.edit_1 += "&summary=" + e),
+  (!profile.hasOwnProperty('custom_url')) ?
+    a.edit_1 += "&customURL=" + profile_url(a).replace(/.*?\//, '')
+  : a.edit_1 += "&customURL=" + profile.custom_url,
+  showcase('countries', 0, (i, e, state_index = Math.floor(Math.random()*e[1].length)) => (
+    a.edit_1 += "&country=" + e[0],
+    (e[1].length) ? (
+      a.edit_1 += "&state=" + e[1][state_index][0],
+      (e[1][state_index][1].length) ?
+        a.edit_1 += "&city=" + e[1][state_index][1][Math.floor(Math.random()*e[1][state_index][1].length)]: null): null)),
+  a.edit_2 = "&type=showcases&json=1&profile_showcase_style_5_0=1",
+  showcase('avatar'),
+  showcase('background'),
+  showcase('badge_favorite'),
+  showcase('uiMode', 0, (i, e) => a.u.setUIMode(e)),
+  showcase('gamesPlayed', 0, (i, e) => (!a.u.playingState.blocked && s.A[a.i].persona != 7 && date.getMinutes() % 5 == 0) &&
+    a.u.gamesPlayed((date.getMinutes() % 10 == 0) ? { "game_id": e, "game_extra_info": fortune('questions') } : [])),
+  showcase('showcases', 0, (i, _e, e = _e.split('_')) => a.edit_2 += "&profile_showcase%5B%5D=" + e[0] + "&profile_showcase_purchaseid%5B%5D=" + e[1]),
+  showcase('items_trade', 4, (i, _e, e = _e.split('_')) => a.edit_2 += "&rgShowcaseConfig%5B4_0%5D%5B" + i + "%5D%5Bappid%5D=" + e[0] + "&rgShowcaseConfig%5B4_0%5D%5B" + i + "%5D%5Bitem_contextid%5D=" + e[1] + "&rgShowcaseConfig%5B4_0%5D%5B" + i + "%5D%5Bitem_assetid%5D=" + e[2]),
+  showcase('items_trade_2410599', 4, (i, _e, e = _e.split('_')) => a.edit_2 += "&rgShowcaseConfig%5B4_2410599%5D%5B" + i + "%5D%5Bappid%5D=" + e[0] + "&rgShowcaseConfig%5B4_2410599%5D%5B" + i + "%5D%5Bitem_contextid%5D=" + e[1] + "&rgShowcaseConfig%5B4_2410599%5D%5B" + i + "%5D%5Bitem_assetid%5D=" + e[2]),
+  showcase('trade_text', 4, (i, e) => a.edit_2 += "&rgShowcaseConfig%5B4_0%5D%5B6%5D%5Bnotes%5D=" + e),
+  showcase('artwork', 13, (i, e) => a.edit_2 += "&rgShowcaseConfig%5B13_0%5D%5B" + i + "%5D%5Bpublishedfileid%5D=" + e),
+  showcase('achievement', 17, (i, e) => a.edit_2 += "&rgShowcaseConfig%5B17_0%5D%5B" + i + "%5D%5Bappid%5D=" + e.substr(0, e.indexOf('_')) + "&rgShowcaseConfig%5B17_0%5D%5B" + i + "%5D%5Btitle%5D=" + e.substr(e.indexOf('_')+1)),
+  showcase('achievement2', 17, (i, e) => a.edit_2 += "&rgShowcaseConfig%5B17_3993982%5D%5B" + i + "%5D%5Bappid%5D=" + e.substr(0, e.indexOf('_')) + "&rgShowcaseConfig%5B17_3993982%5D%5B" + i + "%5D%5Btitle%5D=" + e.substr(e.indexOf('_')+1)),
+  showcase('guide_favorite', 15, (i, e) => a.edit_2 += "&rgShowcaseConfig%5B15_0%5D%5B0%5D%5Bappid%5D=0&rgShowcaseConfig%5B15_0%5D%5B0%5D%5Bpublishedfileid%5D=" + e),
+  showcase('item_showcase', 3, (i, _e, e = _e.split('_')) => a.edit_2 += "&rgShowcaseConfig%5B3_0%5D%5B" + i + "%5D%5Bappid%5D=" + e[0] + "&rgShowcaseConfig%5B3_0%5D%5B" + i + "%5D%5Bitem_contextid%5D=" + e[1] + "&rgShowcaseConfig%5B3_0%5D%5B" + i + "%5D%5Bitem_assetid%5D=" + e[2]),
+  showcase('item_showcase2', 3, (i, _e, e = _e.split('_')) => a.edit_2 += "&rgShowcaseConfig%5B3_2720320%5D%5B" + i + "%5D%5Bappid%5D=" + e[0] + "&rgShowcaseConfig%5B3_2720320%5D%5B" + i + "%5D%5Bitem_contextid%5D=" + e[1] + "&rgShowcaseConfig%5B3_2720320%5D%5B" + i + "%5D%5Bitem_assetid%5D=" + e[2]),
+  showcase('workshop_collector', 12, (i, e) => a.edit_2 += "&rgShowcaseConfig%5B12_0%5D%5B" + i + "%5D%5Bappid%5D=0&rgShowcaseConfig%5B12_0%5D%5B" + i + "%5D%5Bpublishedfileid%5D=" + e),
+  showcase('workshop_collector2', 12, (i, e) => a.edit_2 += "&rgShowcaseConfig%5B12_4340775%5D%5B" + i + "%5D%5Bappid%5D=0&rgShowcaseConfig%5B12_4340775%5D%5B" + i + "%5D%5Bpublishedfileid%5D=" + e),
+  showcase('review', 10, (i, e) => a.edit_2 += "&rgShowcaseConfig%5B10_0%5D%5B0%5D%5Bappid%5D=" + e),
+  showcase('review2', 10, (i, e) => a.edit_2 += "&rgShowcaseConfig%5B10_3507533%5D%5B0%5D%5Bappid%5D=" + e),
+  showcase('screenshot', 7, (i, e) => a.edit_2 += "&rgShowcaseConfig%5B7_0%5D%5B" + i + "%5D%5Bpublishedfileid%5D=" + e),
+  showcase('workshop_favorite', 11, (i, e) => a.edit_2 += "&rgShowcaseConfig%5B11_0%5D%5B0%5D%5Bappid%5D=0&rgShowcaseConfig%5B11_0%5D%5B0%5D%5Bpublishedfileid%5D=" + e),
+  showcase('workshop_favorite2', 11, (i, e) => a.edit_2 += "&rgShowcaseConfig%5B11_3542246%5D%5B0%5D%5Bappid%5D=0&rgShowcaseConfig%5B11_3542246%5D%5B0%5D%5Bpublishedfileid%5D=" + e),
+  showcase('badge_collector', 5, (i, e) => a.edit_2 += "&rgShowcaseConfig%5B5_0%5D%5B" + i + "%5D%5Bbadgeid%5D=1&rgShowcaseConfig%5B5_0%5D%5B" + i + "%5D%5Bappid%5D=" + e + "&rgShowcaseConfig%5B5_0%5D%5B" + i + "%5D%5Bborder_color%5D="),
+  showcase('information_title', 8, (i, e) => a.edit_2 += "&rgShowcaseConfig%5B8_0%5D%5B0%5D%5Btitle%5D=" + e),
+  showcase('information_text', 8, (i, e) => a.edit_2 += "&rgShowcaseConfig%5B8_0%5D%5B0%5D%5Bnotes%5D=" + e),
+  showcase('information_title_280151', 8, (i, e) => a.edit_2 += "&rgShowcaseConfig%5B8_280151%5D%5B0%5D%5Btitle%5D=" + e),
+  showcase('information_text_280151', 8, (i, e) => a.edit_2 += "&rgShowcaseConfig%5B8_280151%5D%5B0%5D%5Bnotes%5D=" + e),
+  showcase('game_collector', 2, (i, e) => a.edit_2 += "&rgShowcaseConfig%5B2_0%5D%5B" + i + "%5D%5Bappid%5D=" + e),
+  showcase('game_collector_dlc', 2, (i, e) => a.edit_2 += "&rgShowcaseConfig%5B2_3650940%5D%5B" + i + "%5D%5Bappid%5D=" + e),
+  showcase('group_favorite', 9, (i, e) => a.edit_2 += "&rgShowcaseConfig%5B9_0%5D%5B0%5D%5Baccountid%5D=" + e.substr(0,18)),
+  showcase('game_favorite', 6, (i, e) => a.edit_2 += "&rgShowcaseConfig%5B6_0%5D%5B0%5D%5Bappid%5D=" + e),
+  showcase('game_favorite2', 6, (i, e) => a.edit_2 += "&rgShowcaseConfig%5B6_2908791%5D%5B0%5D%5Bappid%5D=" + e),
+  showcase('guide_collector', 16, (i, e) => a.edit_2 += "&rgShowcaseConfig%5B16_0%5D%5B" + i + "%5D%5Bappid%5D=0&rgShowcaseConfig%5B16_0%5D%5B" + i + "%5D%5Bpublishedfileid%5D=" + e),
+  showcase('trade_text_2410599', 4, (i, e) => a.edit_2 += "&rgShowcaseConfig%5B4_2410599%5D%5B6%5D%5Bnotes%5D=" + e),
+  showcase('completionist', 23, (i, e) => a.edit_2 += "&rgShowcaseConfig%5B23_0%5D%5B" + i + "%5D%5Bappid%5D=" + e),
+  showcase('artwork2', 22, (i, e) => a.edit_2 += "&rgShowcaseConfig%5B22_0%5D%5B" + i + "%5D%5Bpublishedfileid%5D=" + e),
+  showcase('videos', 22, (i, e) => a.edit_2 += "&rgShowcaseConfig%5B14_0%5D%5B" + i + "%5D%5Bpublishedfileid%5D=" + e),
+  http(a, (a.u.playingState.blocked) ? 'https://steamcommunity.com/actions/selectPreviousAvatar' : 'https://steamcommunity.com/games/' + profile.avatar.selection[0][0] + '/selectAvatar', (a.u.playingState.blocked) ? { json: 1, sha: pool(d.avatar_sha) } : { selectedAvatar: profile.avatar.selection[0][1] }, () =>
+    http(a, 'https://api.steampowered.com/IPlayerService/SetProfileBackground/v1', { access_token: a.access_token, communityitemid: +profile.background.selection[0].id }, () =>
+      http(a, 'https://api.steampowered.com/IPlayerService/SetMiniProfileBackground/v1', { access_token: a.access_token, communityitemid: pool(a.inventory.avatar_backgrounds, 1, null)[0].id }, () =>
+        http(a, 'https://api.steampowered.com/IPlayerService/SetProfileTheme/v1', { access_token: a.access_token, theme_id: pool(d.profile_themes) }, () =>
+          http(a, 'https://api.steampowered.com/IPlayerService/SetFavoriteBadge/v1', { access_token: a.access_token, communityitemid: profile.badge_favorite.selection[0].substr(16) }, () =>
+            http(a, 'https://api.steampowered.com/IPlayerService/SetAvatarFrame/v1', { access_token: a.access_token, communityitemid: pool(a.inventory.avatar_frames, 1, null)[0].id }, () =>
+              http(a, 'https://api.steampowered.com/IPlayerService/SetEquippedProfileItemFlags/v1', { access_token: a.access_token, communityitemid: +profile.background.selection[0].id, flags: 1 }, () =>
+                http(a, 'my/edit', a.edit_2, (b, r, x) => (
+                  z(),
+                  (s.date != date.getDate()) && (
+                    s.date = date.getDate(),
+                    chat('/flip'),
+                    http(a, 'my/edit', a.edit_1)),
+                  (b.success == 1) &&
+                    http(a, 'my', null, (b, r, x) =>
+                      profile.workshop_collector2.selection.forEach((e) =>
+                        (b.indexOf(e) == -1) && (
+                          log(a, 'FAILURE | missing: ' + ('https://steamcommunity.com/sharedfiles/filedetails/?id=' + e + " #" + s.favorites['Wallpaper Engine'].length).yellow),
+                          http(a, 'sharedfiles/unfavorite', { appid: 431960, id: e }),
+                          s.favorites['Wallpaper Engine'].splice(s.favorites['Wallpaper Engine'].indexOf(+e), 1)))),
+                  (date.getMinutes() == 0) && (
+                    s.A[a.i].persona = pool([2,3,5,6,7]),
+                    http(a, 'my/ajaxsetprivacy', { eCommentPermission: 1, Privacy: JSON.stringify({"PrivacyProfile": privacy, "PrivacyInventory": privacy, "PrivacyInventoryGifts": privacy, "PrivacyOwnedGames": privacy, "PrivacyPlaytime": privacy, "PrivacyFriendsList": privacy })}, null, false, 'POST', true),
+                    ((avatar_file = w.readFileSync("./images/group/" + pool(d.avatar_files))) =>
+                      http(A[0], 'https://steamcommunity.com/actions/FileUploader', {
+                        "type": "group_avatar_image", "gId": "103582791432273268",
+                        "doSub": 1, "json": 1,
+                        "avatar": { "value": avatar_file, "options": { "filename": 'avatar.jpg', "contentType": 'image/jpeg' }, "MAX_FILE_SIZE": avatar_file.length }}, null, false, 'POST', true))())), true))))))))),
+random_responses = [
+  () => (Math.ceil(Math.random()*6)) ? fortune('overwatch', 1, 80) : fortune('soldiers', 1, 45),
+  () => fortune('questions'), () => fortune('questions'), () => fortune('questions'),
+  () => fortune('people', 1, 75).replace(/\s+--.*/, ''),
+  () => fortune('men-women', 1, 75).replace(/\s+--.*/, ''),
+  () => fortune('love', 1, 75).replace(/\s+--.*/, ''),
+  () => fortune('wisdom', 1, 75).replace(/\s+--.*/, ''),
+  () => fortune('work', 1, 75).replace(/\s+--.*/, ''),
+  () => fortune('platitudes', 1, 200).replace(/\s+--.*/, ''),
+  () => fortune('fortunes', 1, 1).replace(/\s+--.*/, ''),
+  () => fortune('miscellaneous', 1, 200).replace(/\s+--.*/, ''),
+  () => fortune('jokes', 1, 1),
+  () => fortune('chucknorris', 1, 1),
+  () => fortune('zippy', 1, 55),
+  () => fortune('gossip', 1, 1),
+  () => fortune('imponderables', 1, 1) ],
+comment_messages = [
+  (f) => pool(random_responses, 1, null)[0](), (f) => pool(random_responses, 1, null)[0](), (f) => pool(random_responses, 1, null)[0](),
+  (f, dimension = pool([[2,32],[3,26],[4,19],[5,16],[6,13],[7,11],[8,9],[9,8],[10,7],[12,6]], 1, null)[0], emoticon_index = pool([0, 1, 12])) => [...Array(dimension[0]).keys()].map((e) => emote(dimension[1], [emoticon_index]) + "\n").join(),
+  (f, t = () => [...Array(6).keys()].map(() => ' ♥ :' + pool([ "r_heart","dhruby","zzenergy","heartless","rosepink","oohapresent", "tilasmouth","bloodgear","toglove","redrose" ]) + ': ♥ ' + emote(1, [5])).join('')) => t() + "\n" + fortune('love', 2).replace(/\n\n/g, "\n" + t() + "\n") + "\n" + t(),
+  (f) => emote(19, undefined, ' | ') + " |\n\n" + "[i]" + fortune('discworld') + "[/i]\n\n" + emote(19, undefined, ' | '),
+  (f) => pool(d.mandelas1),
+  (f) => "[i][b][u]" + fortune('vortigaunt', 1, 75) + "[/u][/b][/i]\n" + "ㅤ".repeat(Math.floor(Math.random() * 18)+8) + " {" + emote(5, [12]) + "}",
+  (f) => "[b]" + (fortune('futurama').replace(/\n/g, ' ').replace(/  /g, ' ')).replace(/\s/g, () => " " + emote(1, [1]) + " "),
+  (f) => '[i]' + fortune('zippy').replace(/\n/g, ' ') + " " + emote(10, [9]) + " " + pool(d.ascii_face),
+  (f) => "[i]" + (fortune('familyguy').replace(/\n/g, ' ').replace(/  /g, ' ')).replace(/\s/g, () => " " + emote(1, [1]) + " "),
+  (f) => '[b]' + fortune('food').replace(/\n/g, ' ') + " " + pool(d.ascii_face) + " " + emote(7, [10]),
+  (f) => "[i][b]" + fortune('imponderables').replace(/,/g, ', ').replace(/ /g, ()=> "ㅤ".repeat(Math.floor(Math.random() * 16)+1)) + "[/b][/i]",
+  (f) => "[spoiler]" + fortune('gossip') + "[/spoiler]" + pool(['🗣️','👤','👥'], 5, ' '),
+  (f) => fortune('homer').replace(/\n/g, ' ') + " :TheDonuts:",
+  (f) => font(fortune('definitions').replace(/QOTD\:/, ''), 12),
+  (f) => font(fortune('politics', 1, 1).replace(/\s+--.*/, ''), 5), 
+  (f) => font(fortune('humorists').replace(/\s+--.*/, ''), 3), 
+  (f) => font(fortune('law', 1, 1), 11),
+  (f) => font(fortune('linux'), 0),
+  (f) => font(fortune('hitchhiker'), 5),
+  (f) => font(fortune('literature'), 6),
+  (f) => font(fortune('ethnic'), 4),
+  (f) => font(fortune('science'), 9),
+  (f) => font(fortune('education'), 10), 
+  (f) => font(fortune('sports'), 2),
+  (f) => font(fortune('kids'), 10),
+  (f) => font(fortune(pool(['medicine','paradoxum','fgump','dogfacts','news','goedel','starwars','magic','perl','linuxcookie']), 1, 1).replace(/\s+--.*/, '').replace(/ /g, "      "), 15),
+  (f) => pool(['🗣️','👤','👥'], 16, ' - ') + "\n[spoiler]" + fortune('knghtbrd') + "[/spoiler]\n" + pool(['🗣️','👤','👥'], 16, ' - '),
+  (f) => "[b]" + fortune('overwatch').toUpperCase().replace(/\. /g, '.\n'),
+  (f) => ":weed: + [b][u][Secret Drug Facts][/u][/b] + :weed: [i]\n" + emote(16, [4], ' ') + "\n" + fortune('drugs') + "\n" + "[spoiler]" + fortune('drugs') + "[/spoiler]\n" + pool(d.emotes_green_stuff, 16, ' '),
+  (f) => "[u][b]Free Jokes![/b][/u]" + "[spoiler]Sorry if they're crude![/spoiler]\n\n" + emote(16, [1], ' * ') + "\n" + "ㅤ* " + fortune('jokes') + "\n" + "ㅤ* " + fortune('jokes') + "\n" + "ㅤ* " + fortune('jokes') + "\n" + emote(16, [1], ' * ') + "\n\nㅤㅤㅤㅤ" + "[i]" + pool(d.laughs) + "[/i]",
+  (f) => fortune('art').split('\n').map((e) => emote(1, [0]) + " " + pool(d.ascii) + " " + emote(1, [0]) + " " + e).join("\n") + " :toglove::weed::poop:",
+  (f) => emote(14, [0], ' ' + pool(d.ascii) + ' ') + "\n" + "[i]" + fortune('xfiles', 2) + "\n" + emote(14, [0], ' ' + pool(d.ascii) + ' '),
+  (f) => emote(15, [7], " -- ") + "\n[spoiler]" + fortune('songs-poems', 3).substr(0, 450) + "[/spoiler]\n\n" + emote(15, [7], " -- "),
+  (f) => emote(12, [15]) + "\n" + emote(12, [15]) + "\n" + "[i]" + fortune('cookie', 1, 1) + "[/i]\n" + emote(12, [15]) + "\n" + emote(12, [15]),
+  (f) => emote(3, [12]) + "|\n" + emote(3, [12]) + "| [u]CONFUSING RIDDLE:[/u]\n" + emote(3, [12]) + "|\n" + fortune('riddles') + "\n" + "[spoiler]" + pool(d.confusion),
+  (f) => emote(10, [7], ' ' + pool(d.ascii) + ' ') + "\n" + "ㅤ[b][COMPUTER JARGON][/b] [spoiler]The Dark Arts[/spoiler]\n" + emote(10, [7], ' ' + pool(d.ascii) + ' ') + "\n" + "[i]" + fortune('computers') + "[/i]\n" + emote(10, [7], ' ' + pool(d.ascii) + ' '),
+  (f) => emote(3, [12], " ") + " [b][u]Performance review for " + f + " [/u][/b] " + emote(3, [12]) + "\n\n" + "[i]" + [...Array(4).keys()].map(() => pool(pool(d.performances, 1, null)[0]) + " ").join('').replace(/\$NAME/g, f) + "[/i]\n\n" + emote(1, [0]) + " + " + emote(1, [0]) + " = " + emote(1, [1]),
+  (f) => emote(10, [8], " ") + "\n" + ":bundleoftulips: [u]{ Calvin and Hobbes Quotes }[/u] :bundleoftulips:[i]\n" + emote(10, [6], " ") + "\n" + fortune('calvin', 3) + "\n" + emote(10, [10], " "),  
+  (f) => pool(pool(d.emojis_hands, 1, null)[0]) + " " + fortune('soldiers', 1, 125).replace(/[\.\!\?] /g, (s) => pool(["!", "."]) + " " + pool(pool(d.emojis_hands, 1, null)[0]) + " \n\n" + "ㅤ".repeat(Math.floor(Math.random() * 7)+2) + " " + pool(pool(d.emojis_hands, 1, null)[0]) + " ") + " " + pool(pool(d.emojis_hands, 1, null)[0]),
+  (f) => emote(5, [5]) + "\n" + emote(4, [4]) + "\n" + emote(3, [3]) + "\n" + emote(2, [8]) + "\n" + emote(1, [2]) + "\n" + fortune('firefly').replace(/\n\n/g,'\n') + "\n" + emote(1, [2]) + "\n" + emote(2, [8]) + "\n" + emote(3, [3]) + "\n" + emote(4, [4]) + "\n" + emote(5, [5]),
+  (f) => [...Array(3).keys()].map((e, i, y, format = pool([ "i","b","u","spoiler" ])) => pool(d.emojis_smileys) + " [" + format + "]" + fortune('all', 1, 1, 300) + "[/" + format + "] " + pool(d.emojis_smileys)).join("\n"),
+  (f, rainbow_set = () => shuffle(pool(d.rainbows, 1, null)[0]).join('').replace(/,/g, '')) =>
+    "[b][i]--------------------------------------------------------------\n" + fortune('startrek', 2) + "\n" + "--------------------------------------------------------------\n" + rainbow_set() + rainbow_set() + rainbow_set() + "\n" + rainbow_set() + rainbow_set() + rainbow_set() + "\n" + rainbow_set() + rainbow_set() + rainbow_set(),
+  (f, t = split_words(fortune('fortunes').replace(/\n/g, ' '))) =>
+    emote(1, [14]) + " → " + emote(1, [0]) + "[i]" + t[0] + "... " + emote(1, [0]) + "\n" +
+    emote(1, [14]) + " → " + emote(1, [0]) + "..." + t[1] + "[/i] " + emote(1, [0]) + "\n" +
+    emote(1, [14]) + " → " + emote(1, [0]) + "[u]Lucky Numbers:[/u] " + emote(1, [0]) + "\n" +
+    emote(1, [14]) + " → " + emote(1, [0]) + " " + Math.floor(Math.random()*99) + ',' + Math.floor(Math.random()*99) + ',' + Math.floor(Math.random()*99) + " " + emote(1, [0]),
+  (f) =>
+    "[b][u]:Wizardhatcat: Dear " + f + "... :Kinghatcat:[/u][/b]\n" +
+    "[i]→ " + fortune('pets', 2).replace(/\n\n/g, "\n → ").replace(/\n/g, ' ').replace(/→ /g, "\n→ ") + "[/i]\n" +
+    "[u]" + emote(15, [0], ' ' + pool(d.ascii) + ' ') + "[/u]\n" +
+    "Yours truly, " + pool(d.first_male) + " (the cat)\n" +
+    ":kysathecat: [spoiler]https://steamcommunity.com/sharedfiles/filedetails/?id=" + pool(d.screenshot_cats) + "[/spoiler] :Christmashatcat:",
+  (f, t = fortune('knowledge').split('\n')) =>
+    "[u][b]AI KNOWLEDGE I HAVE LEARNED FROM YOU AND OUR FRIENDS[/b][/u]\n\n" +
+    emote(3) + " ㅤㅤ" + emote(3) + "ㅤㅤㅤ" + emote(3) + "ㅤㅤㅤ" + emote(3) + "ㅤㅤㅤ" + emote(3) + "\n" +
+    emote(3) + " ㅤㅤ" + emote(3) + "ㅤㅤㅤ" + emote(3) + "ㅤㅤㅤ" + emote(3) + "ㅤㅤㅤ" + emote(3) + "\n\n" +
+    t[0].toUpperCase() + "?\n" +
+    "[i]" + t[1].toLowerCase() + "[/i]\n\n" +
+    "[spoiler]" + pool([ "Please feed me more data.","I want information!","I require more information.","Teach me more things.","Will you tell me more?","Feed me more datums!" ]),
+  (f, i = -1, right, h = (i != -1 ? d.hearts[i] : pool(d.hearts, 1, null)[0]), t = (!right ? h[6] : right)) =>
+    h[0] + h[0] + h[0] + h[0] + h[0] + h[0] + h[0] + h[0] + h[0] + t[0] + "\n" +
+    h[1] + h[2] + h[2] + h[1] + h[1] + h[1] + h[2] + h[2] + h[1] + t[1] + "\n" +
+    h[2] + h[3] + h[3] + h[2] + h[1] + h[2] + h[3] + h[3] + h[2] + t[2] + "\n" +
+    h[2] + h[3] + h[3] + h[3] + h[2] + h[3] + h[3] + h[3] + h[2] + t[3] + "\n" +
+    h[1] + h[2] + h[3] + h[3] + h[4] + h[3] + h[3] + h[2] + h[1] + t[4] + "\n" +
+    h[1] + h[1] + h[2] + h[3] + h[3] + h[3] + h[2] + h[1] + h[1] + t[5] + "\n" +
+    h[1] + h[1] + h[1] + h[2] + h[3] + h[2] + h[1] + h[1] + h[1] + t[6] + "\n" +
+    h[5] + h[5] + h[5] + h[5] + h[2] + h[5] + h[5] + h[5] + h[5] + t[7],
+  (f, question = split_words(pool(d.confusion))) => pool([
+    (f) => ("[i]" + question[0] + " | " + emote(8, undefined, ' | ') + "\n" + question[1] + " | " + emote(8, undefined, ' | ')).replace(/ː/g, ':'),
+    (f) => ("[b]" + pool(d.confusion) + "[/b]\n" + " >> " + pool(d.rainbows, 1, null)[0].join('') + " <<").replace(/ː/g, ':'),
+    (f) => (emote(3, [0]) + " [i]" + pool(d.confusion) + "[/i] " + emote(3, [0])).replace(/ː/g, ':'),
+    (f) => (emote(12, [1], " " + pool(d.ascii) + " ") + "\n" + "[u]" + pool(d.confusion) + "[/u]\n" + emote(12, [1], " " + pool(d.ascii) + " ")).replace(/ː/g, ':'),
+    (f) => (emote(12, [5]) + " [b]|" + question[0] + "| " + emote(8, [12]) + "\n" + emote(12, [5]) + " |" + question[1] + "| " + emote(8, [12])).replace(/ː/g, ':'),
+    (f, symbols = pool(d.ascii, 20, ' ')) =>
+      (pool(d.rainbows, 1, null)[0].join('') + " - " + symbols + "\n" +
+      pool(d.rainbows, 1, null)[0].join('') + " - [u]" + question[0] + "[/u]\n" +
+      pool(d.rainbows, 1, null)[0].join('') + " - ㅤㅤ [u]" + question[1] + "[/u]\n" +
+      pool(d.rainbows, 1, null)[0].join('') + " - " + symbols.split(' ').reverse().join(' ')).replace(/ː/g, ':') ], 1, null)[0](),
+  (f, t = '',
+    flair = (value = Math.floor(Math.random() * 4), q = Math.floor(Math.random() * 5)+1) =>
+      (value == 0) ? pool(d.ascii, q)
+      : (value == 1) ? pool(d.ascii_face, q, ' ')
+      : (value == 2) ? pool(d.emojis[0]) + pool(d.emojis[1]) + pool(d.emojis[2]) + pool(d.emojis[3])
+      : (value > 2) && emote(q),
+    singles = shuffle([
+      pool(["wow", "!!!", "look at this", "wooooooooooooooo", "look"]),
+      pool(["hf", "gl", "glhf", "gl hf", "good luck", "have fun", "good luck, have fun"]),
+      pool(["have a ball", "do it big", "cut loose", "party down", "get funky"]),
+      pool(d.adj_good),
+      pool(d.adj_good) + ' game',
+      ((pleedings = [ pool(["i", "we", "we all", "all of us_", "everyone_", "everybody_", "steam_", "the humans", "humanity_"]),
+                      pool(["hope", "think", "expect", "trust", "assume"]),
+                      pool(["you will", "you'll", "you are going"]) ]) => (
+        (pleedings[0].slice(-1) == '_') && (
+          pleedings = [ pleedings[0].slice(0, -1), pleedings[1] + 's']),
+        pleedings[0] + ' ' + pleedings[1] + ' ' + pleedings[2] + ' ' + pool(["enjoy","like","love","dig","fancy","adore","relish","savor"]) + ' ' + pool([ "this game","your game","your new game","this stuff" ])))()])) => (
+    [...Array(Math.floor(Math.random()*4)+1).keys()].forEach((e) =>
+      t += ' ' + (Math.floor(Math.random() * 2) == 1 ? singles[e] : singles[e].toUpperCase()) + pool([ "!", ".", ",", "-", "|", "*" ]) + ' ' + flair() + (Math.floor(Math.random()*5) == 4 ? "\n" + flair() + " " : '')),
+    emote(2) + " " + flair() + t + ' ' + emote(2)) ],
+status_items = [
+  () => "https://steamcommunity.com/id/byteframe/inventory/#" + profile.items_trade_2410599.selection[Math.floor(Math.random() * 6)],
+  () => "https://steamcommunity.com/sharedfiles/filedetails/?id=" + pool(d.screenshot_cats),
+  () => "https://steamcommunity.com/sharedfiles/filedetails/?id=" + pool(d.screenshot_memes),
+  () => "https://steamcommunity.com/sharedfiles/filedetails/?id=" + pool(d.workshop_greenlight),
+  () => "https://steamcommunity.com/sharedfiles/filedetails/?id=" + profile.workshop_favorite.selection[0],
+  () => "https://steamcommunity.com/sharedfiles/filedetails/?id=" + profile.workshop_collector.selection[Math.floor(Math.random() * 5)],
+  () => "https://steamcommunity.com/sharedfiles/filedetails/?id=" + profile.screenshot.selection[Math.floor(Math.random() * 3) + 1],
+  () => "https://steamcommunity.com/sharedfiles/filedetails/?id=" + profile.artwork.selection[Math.floor(Math.random() * 3) + 1],
+  () => "https://store.steampowered.com/app/" + profile.game_favorite.selection[0] ],
+poster = (a, g = profile.game_favorite2.selection[0].replace(/\/.*/, ""), t = ((Math.ceil(Math.random()*10) == 1 ? pool(status_items, 1, null) : pool(random_responses, 1, null)[0]())).replace(/(^"|"$)/g, '') ) =>
+  http(a, "my/ajaxpostuserstatus", { appid: g, status_text: t }, (b) =>
+    log(a, 'SUCCESS | ajaxpostuserstatus: ' + ('https://steamcommunity.com/' + profile_url(a) + '/status/' + b.blotter_html.match(/userstatus_\d+_/)[0].slice(11, -1) + " #" + g).yellow)),
+commenter = (a, check_replies = false, friends_only = true,
+  _m = pool(comment_messages, 1, null)[0],
+  F = (s.force_steamid != '' ? [ [ '', s.force_steamid ] ] : []).concat(
+    (!friends_only) ? [...Array(40).keys()].map((e) => [ '', "765611"+(++s.last_stranger) ]) : []).concat(
+      (!check_replies ? [] :
+        a.comments.filter((comment) =>
+          !a.replies.includes(comment.id) && comment.steamid != a.steamID).map((comment) => [ comment.id, comment.steamid ])).concat(
+            shuffle(Object.keys(a.u.myFriends)).filter((friend) =>
+              a.u.myFriends[friend] == 3 && !s.steamid_blacklist.includes(friend)).map((friend) => [ '', friend ]).concat([ [ '', a.steamID ] ]))),
+  f = F.shift()) =>
+  http(a, 'profiles/' + f[1], null, (b, r, x,
+    comments = b.match(/commentthread_author_link" href="https:\/\/.*?"/g),
+    player = b.match(/<title>.*<\/title>/)[0].slice(26,-8)) => (
+    (check_replies) && (
+      a.replies.unshift(f[0]),
+      a.replies = a.replies.slice(0,49)),
+    (!b.includes('commentthread_textarea') || (s.force_steamid == '' && comments && comments.slice(0,6).join(" ").includes('steamcommunity.com/' + profile_url(a)))) ?
+      setTimeout(commenter, 1500, a, check_replies, friends_only, _m, F)
+    :(try_comment_message = (m = _m(player)) =>
+      (byte_length(m) > 925 || m.length < 1) ?
+        try_comment_message()
+      : a.c.postUserComment(f[1], m, (x) =>
+        log(a, 'SUCCESS | post: ' + ('https://steam.pm/' + f[1] + ' -- "' + player + '"' + (check_replies ? " / " + a.replies[0] : '') + (friends_only ? ' n' : ' y') + '|' + (a.u.myFriends.hasOwnProperty(f[1]) ? 'N' : 'Y')).yellow)))())),
+chat_buffer = [],
+chat_timer = setInterval(() =>
+  (chat_buffer.length > 0 && A[0].u.steamID) &&
+    A[0].u.chat.sendChatMessage(37338, 143271, chat_buffer.splice(0,1)[0]), 30000),
+chat = (m) =>
+  (m.indexOf('/quote ') != 0 || chat_buffer.length == 0 || chat_buffer[chat_buffer.length-1].indexOf('/quote ') != 0 || m[7] == '/') ?
+    chat_buffer.push(m)
+  : chat_buffer[chat_buffer.length-1] += "\n" + m.slice(7),
+Cheerio = require('cheerio'),
+get_favorites = (a, p = 1) =>
+  http(a, 'my/myworkshopfiles/?browsefilter=myfavorites&p=' + p, null, (_b, r, x, b = Cheerio.load(_b), E = [...Array(b('div.itemContents').length).keys() ]) =>
+    (E.length > 0) && (
+      E.some((e, i, y, g = +b('div.itemContents .workshopItemPreviewHolderFloatLeft')[i].children[1].attribs.href.substr(55), m = b('div.itemContents .workshopItemApp')[i].children[0].data) => (
+        (!s.favorites.hasOwnProperty(m)) && (
+          s.favorites[m] = []),
+        (!s.favorites[m].includes(g)) ? (
+          log(a, "SESSION | myfavorite: https://steamcommunity.com/sharedfiles/filedetails/?id=" + g),
+          chat('https://steamcommunity.com/sharedfiles/filedetails/?id=' + g),
+          !s.favorites[m].push(g)) : true))
+      || setTimeout(get_favorites, 2000, a, p+1))),
+get_reviews = (a, p = 1, force = false, E = []) =>
+  (E.length == 0) ?
+    (p > 0) &&
+      http(a, 'my/recommended/?p=' + p, null, (b, r, x) =>
+        get_reviews(a, p-1, force, b.match(/https\:\/\/steamcommunity.com\/(id|profiles)\/.+\/recommended\/[0-9]*/g).filter((e, i) => i % 2 == 0).map((e) => +e.match(/[0-9]+/)[0])))
+  : (!force && s.A[a.i].reviews.hasOwnProperty(E[0])) ?
+    get_reviews(a, p, force, E.slice(1))
+  : http(a, 'my/recommended/' + E[0], null, (b, r, x, z = b.indexOf('UserReview_Report')+21) => (
+    (!force) &&
+      chat("https://steamcommunity.com/id/byteframe/recommended/" +E[0]),
+    s.A[a.i].reviews[+E[0]] = {
+      banned: b.includes('review has been banned'),
+      gifted: b.includes('received_compensation tooltip'),
+      locked: b.includes('Comments are disabled'),
+      visibility: b.includes("ReviewVisibility');\">Public") ? true : false,
+      time: Date.parse(b.match(/Posted.+(am|pm)/)[0].slice(8).replace(/ \d{1,2} @/, (e) => e.slice(0,-1) + new Date().getFullYear() + ' @').replace(/(am|pm)$/, (e) => ' '+e)),
+      language: b.match(/ReviewLanguage'\);"\>[a-zA-Z- ]*/)[0].slice(19),
+      id: b.substr(z-1, (b.indexOf("'", z)-z)+1),
+      rating: (b.match("thumbsUp.png") ? true: false),
+      contents: Cheerio.load(b)('textarea')[0].children[0].data },
+    setTimeout(get_reviews, 2000, a, p, force, E.slice(1)))),
+curate = (a, g, rating = s.A[a.i].reviews[g].rating, t = s.A[a.i].reviews[g].contents) =>
+  http(a, 'https://store.steampowered.com/curator/2751860-primarydataloop/admin/ajaxgetassociatedappslist/', null, (b) => (
+    (b.recommendations.length >= 1999) &&
+      http(a, 'https://store.steampowered.com/curator/2751860-primarydataloop/admin/ajaxdeletereview/', { appid: b.recommendations.pop().appid }),
+    http(a, "https://store.steampowered.com/curator/2751860-primarydataloop/admin/ajaxcreatereview/", { appid: g, recommendation_state: (!rating ? 1 : 0),
+      link_url: "https://steamcommunity.com/" + profile_url(a) + "/recommended/" + g,
+      blurb: (!t.includes('tradeoffer') && !t.includes('[code]')) ? t.substr(0,197).replace(/\[[/]*spoiler\]/g, '') + "..." : pool(random_responses, 1, null)[0]().replace(/-- .*/, '') }, () =>
+        log(a, 'SUCCESS | ajaxcreatereview: ' + ("https://store.steampowered.com/curator/2751860-primarydataloop/admin/reviews_manage #(" + g +")").yellow)))),
+discover = (a, first = false) =>
+  http(a, 'https://store.steampowered.com/explore/generatenewdiscoveryqueue', { "queuetype": 0 }, (b, r, x) =>
+    b.queue.forEach((e, i) =>
+      http(a, 'https://store.steampowered.com/app/10', { "appid_to_clear_from_queue": e }, () =>
+        (i == b.queue.length-1 && first) && discover(a), true)), false, 'POST', 5),
+SteamUser = require('steam-user'),
+SteamSession = require('steam-session').LoginSession,
+SteamCommunity = require('steamcommunity'),
+SteamTradeOfferManager = require('steam-tradeoffer-manager'),
+find_name = (a, f, z) =>
+  (typeof a.u.users[f] != 'undefined') ?
+    z(a.u.users[f].player_name)
+  : a.u.getPersonas([ f ], (x, F) => z(F[f].player_name)),
+A = s.A.map((a, i) =>
+  ({ u: new SteamUser({ dataDirectory: null, autoRelogin: false, enablePicsCache: (i == 666) ? true : false}), session: new SteamSession(1), c: new SteamCommunity(), trade: new SteamTradeOfferManager(), i: i, name: a.name, mail: a.mail, steamID: a.steamID, limited: a.limited, comments: [], replies: [] })),
+A.forEach((a, i) => (
+  a.session.on('authenticated', () => (
+    s.A[a.i].refreshToken = a.session.refreshToken,
+    logon(a))),
+  a.session.on('timeout', () => (
+    a.logon_active = false,
+    log(a, 'SESSION: authenticate timeout'))),
+  a.session.on('error', (x) => (
+    a.logon_active = false,
+    log(a, 'SESSION: authenticate fail ' + x.message.yellow))),
+  a.u.on('loggedOn', (details, parental) => (
+    a.logon_active = false,
+    log(a, 'SESSION | loggedOn: '+ ("https://steamcommunity.com/" + profile_url(a) + " #" + i).yellow))),
+  a.c.on('sessionExpired', (x) => (
+    log(a, 'FAILURE | sessionExpired: ' + x),
+    a.u.webLogOn())),
+  a.u.on('error', (x) =>
+    log(a, 'FAILURE | error: ' + x.message.yellow)),
+  a.u.on('accountLimitations', (limited, communityBanned, locked, canInviteFriends) =>
     (limited || communityBanned || locked) && (
-      account.limited = true,
-      log(account, "FAILURE | accountLimitations: " + limited + "|" + communityBanned + "|" + locked + "|" + canInviteFriends))),
-  account.user.on('loggedOn', (details, parental) => (
-    account.logon_active = false,
-    (account.index != 0) && 
-      replicant_profile.gamesPlayed.slots[0][0](account),
-    (state.verbose) &&
-      log(account, 'SESSION | loggedOn: '+ ("https://steamcommunity.com/" + profile_url(account) + " #" + i).trim().yellow))),
-  account.user.on('friendRelationship', (steamid, relationship) =>
-    (relationship != 2) ?
-      log(account, 'SESSION | friend: ' + (SteamUser.EFriendRelationship[relationship].toUpperCase().inverse + "=\"" + find_name(account, steamid) + '", ' + "https://steamcommunity.com/profiles/" + steamid).yellow)
-    : (account.index != 0) &&
-      account.user.addFriend(steamid)),
-  account.user.on('friendMessageEcho', (steamid, msg) => (
-    log_chat(steamid, "^^", msg, account.index, find_name(account, steamid)),
-    friend_message_echo_handlers.forEach((item) =>
-      item(steamid, msg, account)))),
-  account.user.on('friendMessage', (steamid, msg) => (
-    (account.chats.indexOf(steamid.toString()) == -1 && steamid.toString() != accounts[0].steamID) &&
-      account.chats.push(steamid.toString()),
-    (account.index != 0 || !accounts.find((account) => account.steamID == steamid)) &&
-      log_chat(steamid, "<<", msg, account.index, find_name(account, steamid)),
-    (state.steamid_chat_blacklist.indexOf(steamid.toString()) == -1) &&
-      friend_message_handlers.forEach((item) =>
-        item(steamid, msg, account)))))),
-accounts[0].user.on('playingState', (blocked, playingApp) =>
-  (blocked) &&
-    accounts[0].user.setPersona(state.accounts[0].persona, 'byteframe'))
-accounts[0].user.on('newComments', (count, myItems) =>
-  (accounts[0].comment_timer == null && count > 0) && (
-    accounts[0].comment_timer = setTimeout(() => (
-      http(accounts[0], 'my/commentnotifications', { action: 'markallread' }),
-      delete accounts[0].comment_timer), 10000))),
-logon = async (account) =>
-  (!account.logon_active) && (
-    account.logon_active = true,
-    (!state.accounts[account.index].hasOwnProperty('refreshToken')) ? (
-      account.session_result = await account.session.startWithCredentials({accountName: account.name,	password: state.accounts[account.index].pass,	steamGuardMachineToken: '' }),
-      (account.session_result.actionRequired) &&
-        log(account, 'SESSION | confirm authentication... {*}'))
-    : account.user.logOn({ "refreshToken": state.accounts[account.index].refreshToken })),
+      a.limited = true,
+      log(a, "FAILURE | accountLimitations: " + limited + "|" + communityBanned + "|" + locked + "|" + canInviteFriends))),
+  a.u.on('playingState', (blocked, playingApp) =>
+    (blocked) &&
+      a.u.setPersona(s.A[a.i].persona, 'byteframe')),
+  a.u.on('webSession', (sessionID, cookies) => (
+    a.c.setCookies(cookies),
+    a.trade.setCookies(cookies),
+    http(a, 'https://store.steampowered.com/points/shop', {}, (b) =>
+      a.access_token = b.match(/webapi_token\&quot\;\:\&quot\;.*?\&quot\;/)[0].slice(25, -6)),
+    (!a.hasOwnProperty('inventory')) && (
+      get_comments(a, 3),
+      http(a, 'https://store.steampowered.com/dynamicstore/userdata/', {}, (b, r, x) => a.wishlist = b.rgWishlist),
+      a.c.getUserInventoryContents(a.steamID, '753', '6', false, "english", (x, inventory) =>
+        (x) ? log(a, 'FAILURE | getUserInventoryContents: ' + x.message.yellow)
+        :(a.inventory = { avatar_frames: [], avatar_backgrounds: [], backgrounds: [], boosters: [], cards: [], emoticons: [], stickers: [] },
+          inventory.forEach((e) =>
+            (e.tags.length > 3 && e.tags[3].name == 'Trading Card') ? a.inventory.cards.push(e)
+            : (e.tags[2].name == 'Avatar Profile Frame') ? a.inventory.avatar_frames.push(e)
+            : (e.tags[2].name == 'Sticker') ? a.inventory.stickers.push(e)
+            : (e.tags[2].name == 'Mini Profile Background') ? a.inventory.avatar_backgrounds.push(e)
+            : (e.tags[2].name == 'Booster Pack') ? a.inventory.boosters.push(e)
+            : (e.tags[2].name == 'Emoticon') ? a.inventory.emoticons.push(e)
+            : (e.tags[2].name == 'Profile Background' && !d.background_blacklist.includes(e.id)) && a.inventory.backgrounds.push(e)),
+          (a.i == 0) && (
+            [ 8,2,4,5,3,7 ].forEach((e, i) => (
+              d.emotes[e].forEach((e) =>
+                profile.item_showcase.slots[i].push('753_6_' + A[0].inventory.emoticons.find((_e) => _e.name.toUpperCase() === e.toUpperCase()).id)))))))))),
+  a.u.on('friendsList', () =>
+    (a.i != 0) &&
+      Object.entries(a.u.myFriends).filter((e) => e[1] == 2).forEach((e, i) =>
+        setTimeout((a, e) => a.u.addFriend(e), i*3000, a, e[0]))),
+  a.u.on('friendRelationship', (f, relationship, previousRelationship) =>
+    find_name(a, f, (player_name) =>
+      (relationship != 2) ? (
+        (relationship == 0 && previousRelationship == 3) &&
+          a.u.addFriend(f),
+        (relationship != 4) &&
+          chat('/me #' + a.i + ' [' + SteamUser.EFriendRelationship[relationship].toUpperCase() + "] " + player_name + " -- https://steamcommunity.com/profiles/" + f),
+        log(a, 'SESSION | friendRelationship: ' + (SteamUser.EFriendRelationship[relationship].toUpperCase().inverse + "=\"" + player_name + '", ' + "https://steamcommunity.com/profiles/" + f).yellow))
+      : (a.i != 0) &&
+        a.u.addFriend(f))),
+  a.u.chat.on('friendMessageEcho', (m) =>
+    find_name(a, m.steamid_friend, (player_name) => (
+      log_chat(m.steamid_friend, "^^", m.message, a.i, player_name),
+      (m.message.indexOf('#!') == 0) ?
+        send(reply(m.steamid_friend, m.message.substr(2)), a, m.steamid_friend)
+      : (m.message.indexOf('##') == 0) ? riveScript.setUservar(""+m.steamid_friend, 'chat_time', 0)
+      : (m.message.indexOf('#$') == 0) ? riveScript.setUservar(""+m.steamid_friend, 'chat_time', Date.now())
+      : (a.u.users.hasOwnProperty(m.steamid_friend)) && (
+        a.u.users[m.steamid_friend].stop = true)))),
+  a.u.chat.on('friendMessage', (m) =>
+    find_name(a, m.steamid_friend, (player_name) => (
+      a.last_chatter = m.steamid_friend,
+      (!m.message.includes('[lobbyinvite') && !m.message.includes('[tradeoffer')) && (
+        log_chat(m.steamid_friend, "<<", m.message, a.i, player_name),
+        (!s.steamid_chat_blacklist.includes(""+m.steamid_friend)) && (
+          (riveScript.getUservar(""+m.steamid_friend, 'topic') == 'undefined') && (
+            [ 'first', 'second', 'third', 'fourth', 'fifth' ].forEach((e) =>
+              riveScript.setUservar(""+m.steamid_friend, e, pool(d.chat_topics))),
+            riveScript.setUservar(""+m.steamid_friend, 'chat_time', 0),
+            riveScript.setUservar(""+m.steamid_friend, 'name', pool(d.chat_names))),
+          m.message = m.message.replace(/:[a-zAZ0-9_]+:/g, '').replace(
+            /([\uE000-\uF8FF]|\uD83C[\uDF00-\uDFFF]|\uD83D[\uDC00-\uDDFF])/g, ''),
+          (m.message != '' && Date.now()-riveScript.getUservar(""+m.steamid_friend, 'chat_time') > 3600000) &&
+            send(reply(m.steamid_friend, m.message), a, m.steamid_friend)))))),
+  a.u.on('newItems', (count) =>
+    (a.item_timer == null && count > 0) && (
+      a.item_timer = setTimeout(() => (
+        delete a.item_timer,
+        log(a, "SESSION | newItems: " + count),
+        (a.i != 0) &&
+          http(a, "my/inventory")), 10000))),
+  a.u.on('newComments', (count, myItems) =>
+    (a.comment_timer == null && count > 0) && (
+      a.comment_timer = setTimeout(() => (
+        delete a.comment_timer,
+        http(a, 'my/commentnotifications', { action: 'markallread' }),
+        (myItems > 0) && (
+          log(a, "SESSION | newComments: https://steamcommunity.com/" + profile_url(a) + "/commentnotifications " + ("total=" + s.A[a.i].comments[0].length).yellow),
+          get_comments(a))), 15000))))),
+get_comments = (a, p = 1) =>
+  http(a, 'my/allcomments?ctp=' + p, null, (_b, r, x, b = Cheerio.load(_b)) => (
+    b('.commentthread_comment').toArray().reverse().forEach((e, i, E,
+      id = e.attribs['id'].substr(8),
+      steamid = "765"+(+b('#comment_' + id + " a")[0].attribs['data-miniprofile'] + 61197960265728),
+      contents = b("#comment_content_" + id).contents().toString().replace(/<img src="[:\.\/A-Za-z0-9_]+" alt="/g, '').replace(/" class="emoticon">/g, '').replace(/<br>/g, '\n').trim()) =>
+        (contents.includes("needs_content_check")) ? true : (
+          (s.A[a.i].comments[0].includes(contents)) ?
+            (!s.A[a.i].comments[1].includes(id)) && (
+              log(a, 'SESSION | deleteUserComment: ' + ('https://steam.pm/' + steamid + "/" + id + "| " + contents.slice(0,32)).yellow),
+              a.c.deleteUserComment(a.steamID, id))
+          :(a.comments[i] = { id: id, contents: contents, steamid: steamid },
+            s.A[a.i].comments[0].push(contents),
+            s.A[a.i].comments[1].push(id)), true)),
+    (p > 1) &&
+      setTimeout(get_comments, 1000, a, --p))),
+log_chat = (f, t, m, i = 0, player_name = f) => (
+  console_log("MESSAGE |" + (""+i).padStart(3, '0').gray + "| " + t + " [" + player_name + "] " + t + " " + m + ": " + (Date.now().toString() + "|" + f).yellow),
+  (!s.steamid_chat_blacklist.includes(""+f)) &&
+    chat("/quote " + (t == '<<' ? player_name + " : " + m : m + ' { ' + player_name + ' }'))),
+send = (n = pool(random_responses, 1, null)[0](), a = A[0], f = a.last_chatter, speed = 80) =>
+  (n.length > 0 && !a.u.users[f].hasOwnProperty('active')) && (
+    a.u.users[f].active = true,
+    a.u.chat.sendFriendTyping(f),
+    setTimeout(() =>
+      find_name(a, f, (player_name) => (
+        (!a.u.users[f].hasOwnProperty('stop')) && (
+          a.u.chat.sendFriendMessage(f, n),
+          log_chat(f, ">>", n, a.i, player_name)),
+        delete a.u.users[f].active,
+        delete a.u.users[f].stop)), Math.max(Math.min(n.length, 75)*speed, 2000)+1000)),
+artworks = Object.fromEntries(w.readdirSync('./text').map((e) => [ e, w.readFileSync('./text/' + e, 'utf8').replace(/^ $/m, '').replace(/(\r\n|\r|\n){3,}/g, '\n\n').split('\n\n').filter((n) => n) ])),
+reply = (f, m) =>
+  (riveScript.reply(""+f, m).replace(/<oob>.*<\/oob>/, '').replace(/  random/g, ' ').replace(/  /g, ' ').replace('}', '').replace('pdlrand', 'PDLRAND').replace(/pdlrand/gi, '') || "PDLRAND").replace('PDLRAND',
+    (Math.random() < 0.5) ? pool(random_responses, 1, null)[0]()
+    : (Math.ceil(Math.random()*4) == 1) ? emote(1)
+    : (Math.ceil(Math.random()*3) == 1) ? fortune('questions')
+    : (Math.ceil(Math.random()*5) == 1) ? pool(d.confusion)
+    : (Math.ceil(Math.random()*6) == 1) ? "/pre " + pool(artworks[pool(Object.keys(artworks))])
+    : (Math.ceil(Math.random()*6) == 1) ? "/giphy" : ""),
+console_log("SESSION |" + '000'.gray.inverse + "| loading rivescript: " + ("files=" + w.readdirSync('./rivescript').length).yellow),
+RiveScript = require("rivescript"),
 riveScript = new RiveScript(),
-riveScript.loadDirectory('./rivescript', () =>
-  riveScript.sortReplies()),
-log_chat = (steamid, vector, msg, index = 0, player_name = steamid) =>
-  console_log("MESSAGE |" + (index == 0 ? '000'.gray.inverse : pad(index, "000").gray) + "| " + vector + " [" + player_name + "] " + vector + " " + msg + ": " + (Date.now().toString() + "|" + steamid).yellow),
-send_chat = (reply = generate_random_response(), account = accounts[0], steamid = account.chats[account.chats.length-1], speed = 80) => (
-  account.active_chat = true,
-  account.user.chatTyping(steamid),
-  setTimeout(() => (
-    account.active_chat = false,
-    account.user.chatMessage(steamid, reply),
-    log_chat(steamid, ">>", reply, account.index, find_name(account, steamid))), Math.max(Math.min(reply.length, 75)*speed, 2000)+1000)),
-get_reply = (steamid, msg) =>
-  (riveScript.reply(steamid, msg).replace(/<oob>.*<\/oob>/, '').replace(
-    /  random/g, ' ').replace(/  /g, ' ').replace('}', '').trim().replace(
-    'pdlrand', 'PDLRAND').replace(/pdlrand/g, '') || "PDLRAND").replace('PDLRAND', generate_random_response()),
-test_chat_message = (msg) => 
-  (msg.search(/http[s]?:\/\//) == -1 && msg != 'Invited you to play a game!' && msg.search(/LINK REMOVED/) == -1),
-handle_message_echo = (steamid, msg) =>
-  (msg.indexOf('#!') == 0) ? true
-  : (msg.indexOf('##') == 0) ? !riveScript.setUservar(steamid, 'chat_time', 0)
-  : (msg.indexOf('#$') == 0) ? !riveScript.setUservar(steamid, 'chat_time', Date.now())
-  : false,
-incoming_message_event = (steamid, msg, account) => (
-  msg = msg.replace(/:[a-zAZ0-9_]+:/g, '').replace(
-    /([\uE000-\uF8FF]|\uD83C[\uDF00-\uDFFF]|\uD83D[\uDC00-\uDDFF])/g, ''),
-  (!account.active_chat && msg != '' && (account.index == 0 || Math.floor(Math.random()* 15) != 0)
-  && msg.search(/[!@#$%^&*]/) != 0 && (account.index == 0 || test_chat_message(msg))
-  && !accounts.find((account) => account.steamID == steamid)) ? (
-    (riveScript.getUservar(steamid, 'chat_time') == 'undefined') && (
-      [ 'first', 'second', 'third', 'fourth', 'fifth' ].forEach((topic) =>
-        riveScript.setUservar(steamid, topic, pool(data.chat_topics))),
-      riveScript.setUservar(steamid, 'chat_time', 0),
-      riveScript.setUservar(steamid, 'name', pool(data.chat_names))),
-    (Date.now() - riveScript.getUservar(steamid, 'chat_time') > 3600000) &&
-      true)
-  : false),
-friend_message_echo_handlers = [
-  (steamid, msg, account) =>
-    (handle_message_echo(steamid, msg)) &&
-      send_chat(get_reply(steamid, msg.substr(2)), account, steamid) ],
-friend_message_handlers = [
-  (steamid, msg, account, target = (msg[0] == '^' ? account.chats[+msg.match(/^[^]\d+/)[0].substr(1)] : account.chats[account.chats.length-1])) =>
-    (account.index != 0) && (
-      (msg.indexOf('https://t.co') > -1) ?
-        ban(steamid.toString())
-      : (steamid != accounts[0].steamID && test_chat_message(msg)) ?
-        account.user.chatMessage(accounts[0].steamID, account.chats.indexOf(steamid.toString()) + "| " + find_name(account, steamid) + ": " + msg)
-      : (account.user.chatMessage(target, msg.replace(/^[^]\d+/, '')),
-        handle_message_echo(target, msg))),
-  (steamid, msg, account) =>
-    (steamid != accounts[0].steamID && incoming_message_event(steamid, msg, account, reply = get_reply(steamid, msg))) && (
-      send_chat(reply, account, steamid),
-      account.user.chatMessage(accounts[0].steamID, font(reply, 14))) ],
-console_log("SESSION |" + '000'.gray.inverse + "| loading rivescript: " + ("files=" + fs.readdirSync('./rivescript').length).yellow),
-timer = setInterval((a = (state.account_index = (state.account_index+1 == accounts.length ? 1 : state.account_index+1))) =>
-  (!accounts[0].user.steamID) ?
-    logon(accounts[0])
-  : prep_randomize_profile(accounts[0], profile, () =>
-      randomize_profile(accounts[0], profile, () => 
-        (a % 9 == 0 && a % 90 != 0 && state.commenting) ?
-          (a % 99 == 0) ?
-            profile_commenter(accounts[0], false, false)
-          : profile_commenter(accounts[0])
-        : (a % 180 == 0) &&
-          save_state_files())), state.frequency),
-save_state_files = () => (
-  fs.renameSync('./state.json', './state-backup.json'),
-  fs.writeFileSync('./state.json', JSON.stringify(state, null, 2))),
-quit = () => (
+riveScript.loadDirectory('./rivescript', () => (
+  riveScript.sortReplies(),
+  Object.entries(s.rivescript).forEach((e) =>
+    riveScript.setUservars(e[0], e[1])),
+  (logon = async (a) =>
+    (!a.logon_active) && (
+      a.logon_active = true,
+      (!s.A[a.i].hasOwnProperty('refreshToken')) ? (
+        a.session_result = await a.session.startWithCredentials({ accountName: a.name,	password: s.A[a.i].pass, steamGuardMachineToken: '' }),
+        (a.session_result.actionRequired) &&
+          log(a, 'SESSION | confirm authentication... {*}'))
+      : a.u.logOn({ "refreshToken": s.A[a.i].refreshToken })))(A[0]),
+  timer = setInterval((a = (s.account_index = (s.account_index+1 == A.length ? 1 : s.account_index+1))) =>
+    (!A[0].u.steamID) ?
+      logon(A[0])
+    : randomizer(A[0], profile, () =>
+      (a % 9 == 0 && a % 90 != 0) ?
+        (a % 99 == 0) ? (
+          get_favorites(A[0]),
+          get_reviews(A[0], 3),
+          commenter(A[0], false, false))
+        : commenter(A[0], (Math.ceil(Math.random()*2) == 1) ? false: true)
+      : (a % 180 == 0) && (
+        save(),
+        discover(A[0]),
+        curate(A[0], Object.keys(s.A[0].reviews)[(s.curate >= s.A[0].reviews.length) ? s.curate = 0 : s.curate++]),
+        (Math.ceil(Math.random()*8) == 1) &&
+          poster(A[0]))), s.frequency))),
+save = () => (
+  (Object.entries(s.rivescript).length > 0) && (
+    s.rivescript = riveScript.getUservars()),
+  w.renameSync('./state.json', './state-backup.json'),
+  w.writeFileSync('./state.json', JSON.stringify(s, null, 2))),
+quit = (saving = true) => (
   quit = () => void 0,
   console_log('SESSION | ending process... ' + (""+Math.floor(process.uptime()))),
-  save_state_files(),
+  clearInterval(timer),
+  (saving) &&
+    save(),
   setTimeout(process.exit, 5000, 0),
-  (accounts[0].user.steamID) && (
-    accounts[0].user.setPersona(0, 'byteframe@primarydataloop'),
-    http(accounts[0], 'https://steamcommunity.com/actions/selectPreviousAvatar', { json: 1, sha: 'db02ac5a0970af2a79cd08d07e4f1a20b4e76133' })))
+  (A[0].u.steamID) && (
+    A[0].u.setPersona(0, 'byteframe@primarydataloop'),
+    http(A[0], 'https://steamcommunity.com/actions/selectPreviousAvatar', { json: 1, sha: 'db02ac5a0970af2a79cd08d07e4f1a20b4e76133' }))),
 process.on('SIGINT', (code) =>
-  quit()),
-process.on('uncaughtException', (err) =>
-  console_log(err.stack));
+  quit()
+).on('uncaughtException', (x) =>
+  console_log((global.x = x).stack)); 

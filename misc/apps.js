@@ -1,3 +1,69 @@
+//------------------------------------------------------------------------------ NexterGenDupeChecking
+array_duplicates = (array, sorted_arr = array.slice().sort(), results = []) => (
+  [...Array(sorted_arr.length-1).keys()].forEach((item, i) =>
+    (sorted_arr[i+1] == sorted_arr[i]) &&
+      results.push(sorted_arr[i])),
+  results),
+appid_dupes = array_duplicates(A[0].wishlist.concat(links[1].map((e) => +e.match(/[0-9]+/)[0])).concat(profile.review.slots[0]).concat(profile.review_3507533.slots[0]).concat(d.game_collector.flat()).concat(d.game_collector_dlc.flat())),
+(appid_dupes.length > 0) && (
+  console.dir(appid_dupes),
+  appid_dupes.forEach((e) => Object.keys(s.A[0].reviews).forEach((g) =>
+    s.A[0].reviews[g].contents.includes("/" + e + "/") && console.log('# ' + e + ' https://steamcommunity.com/my/recommended/' + g)))),
+((link_dupes = link_dupes = array_duplicates(links.flat())).length > 0) &&
+  Object.keys(s.A[0].reviews).forEach((e) => link_dupes.forEach((_e) => s.A[0].reviews[e].contents.includes(_e) && console.log('link dupe: ' + _e + ' https://steamcommunity.com/my/recommended/' + e)))
+//----------------------------------------------------------------------------- deleted_acfs
+deleted_acfs = [ 1018100,1021960,1046810,1048010,1090890,1166020,1196180,1215470,1216410,1239410,1275200,
+1282050,1288950,1295410,1298810,1298910,1299020,1301570,1302390,1309480,1311000,1315690,
+1316580,1316930,1318710,1319240,1322530,1324800,1325250,1325830,1326980,1343170,1347280,
+1379860,1404200,1405370,1411310,1416660,1417800,1432370,1432700,1434700,1436720,1438790,
+1452730,1456010,1482760,1491310,1499600,1504060,1515070,1524520,1527310,1527400,1532880,
+1535140,1535710,1539930,1541820,1546680,1556300,1562250,1563990,1573660,1590990,1600400,
+1606390,1606440,1610340,1620610,1620930,1628040,1630950,1631460,1643130,1644120,1649180,
+1654600,1710800,1715020,1719570,1724500,1726580,1745900,1748420,1754990,1756170,1757140,
+1758980,1761370,1762460,1766190,1772560,1773290,1773600,1776510,1799320,1812100,1848090,
+1849480,1849700,1861790,1866950,1875050,1876190,1893920,1894670,1894950,1897270,1900560,
+1904500,1907260,1909480,1910710,1911110,1911190,1911240,1911920,1915570,1922160,1925120,
+1950740,1956780,1956870,1965500,1971140,1974570,1996560,2001490,2013980,2014190,2015350,
+2017250,2052850,2064860,2065540,2071310,2071380,2078420,2084560,2086700,2090540,2153150,
+2336130,397610,459860,468180,547350,562170,587220,592950,616100,627990,633200,652180,
+700550,716820,718950,720140,738600,747300,755120,805560,826510,875650,916100 ],
+//------------------------------------------------------------------------------ OriginalLinkGather
+review_yout_links = [], review_item_links = [], review_game_links = [];
+d.review.slice(0).forEach((e, i) => (
+  review_yout_links.push(s.A[0].reviews[e].contents.match(/https:\/\/(www.)?youtu.+ \[h/)[0].slice(0,-3).slice(8).replace('www\.', '').replace('youtu.be/', '').replace('youtube.com/watch?v=', '').replace(/\?.*/, '').replace(/\&.*/, '')),
+  review_item_links = review_item_links.concat(s.A[0].reviews[e].contents.match(/https:\/\/steamcommunity.com\/id\/byteframe\/inventory\/#[0-9_]+/)),
+  review_game_links.push(s.A[0].reviews[e].contents.match(/https:\/\/store.steampowered.com\/app\/[0-9]+\/.+/)[0].match(/\/[0-9]+\//)[0].slice(1, -1))));
+d.review_3507533.slice(0).forEach((e, i) =>
+  review_item_links = review_item_links.concat(s.A[0].reviews[e].contents.match(/https:\/\/steamcommunity.com\/id\/byteframe\/inventory\/#[0-9_]+/)));
+//------------------------------------------------------------------------------ NextGenDupeCheckingResearch
+.concat(d.completionist.flat()) 
+.concat(d.game_collector_rgby.flat())
+d.game_favorite.map((e) => e.match(/\d+/)[0]).filter((e) => A[0].u.picsCache.apps.hasOwnProperty(""+e)); 
+console.clear();
+array_duplicates = (array, sorted_arr = array.slice().sort(), results = []) => (
+  [...Array(sorted_arr.length-1).keys()].forEach((item, i) =>
+    (sorted_arr[i+1] == sorted_arr[i]) &&
+      results.push(sorted_arr[i])),
+  results),
+console.dir(review_yout_dupes = array_duplicates(review_yout_links)); 
+console.dir(review_item_dupes = array_duplicates(review_item_links));
+console.dir(review_game_dupes = array_duplicates(review_game_links));
+console.dir(array_duplicates(d.game_favorite.map((e) => +e.match(/[0-9]+/)[0]).concat(d.review_3507533).concat(review_game_links).concat(d.review).concat(d.game_collector.flat()).concat(d.game_collector_dlc.flat())));
+Object.keys(s.A[0].reviews).forEach((e) => review_yout_dupes.forEach((_e) => s.A[0].reviews[e].contents.includes(_e) && console.log('yout_dupe: ' + _e + ' https://steamcommunity.com/my/recommended/' + e)));
+Object.keys(s.A[0].reviews).forEach((e) => review_item_dupes.forEach((_e) => s.A[0].reviews[e].contents.includes(_e) && console.log('item_dupe: ' + _e + ' https://steamcommunity.com/my/recommended/' + e)));
+Object.keys(s.A[0].reviews).forEach((e) => review_game_dupes.forEach((_e) => s.A[0].reviews[e].contents.includes(_e) && console.log('game_dupe: ' + _e + ' https://steamcommunity.com/my/recommended/' + e)));
+d.review.forEach((e) => (s.A[0].reviews[e].banned || s.A[0].reviews[e].locked) && console.log(e));
+d.review_3507533.forEach((e) => (s.A[0].reviews[e].banned || s.A[0].reviews[e].locked) && console.log(e));
+Object.keys(s.A[0].reviews).forEach((e) => ['XXXxxx','YYYyyy'].forEach((_e) => s.A[0].reviews[e].contents.includes(_e) && console.log(_e + ' --: https://steamcommunity.com/my/recommended/' + e)));
+console.log(array_duplicates(d.completionist.flat().concat(d.game_favorite.flat()).concat(d.game_collector.flat())));
+d.game_favorite.map((e) => e.match(/\d+/)[0]).filter((e) => A[0].u.picsCache.apps.hasOwnProperty(""+e));
+//------------------------------------------------------------------------------ NextGenDupeCheckingOther
+Object.keys(s.A[0].reviews).forEach((e) =>
+  [ YYY ].forEach((f) =>
+    s.A[0].reviews[e].contents.includes(""+f) && console.log('https://steamcommunity.com/my/recommended/' + e)))
+[XXX].forEach((e) => review_game_links.includes(e) ? console.log(e + " --- RGL") : console.log(e))
+new_game_favorite = d.game_favorite.filter((e) => review_game_links.indexOf(+e.match(/[0-9]+/)[0]) == -1)
+w.writeFileSync('./wasd.json', JSON.stringify(new_game_favorite, null, 2))
 //------------------------------------------------------------------------------ PortedToJson
 other.concat(sharedconfig).forEach((appid) => { try { console.log("  \"https://steamdb.info/appid/"+appid+" -- "+accounts[0].user.picsCache.apps[appid].appinfo.common.name + (accounts[0].user.picsCache.apps[appid].appinfo.common.type == 'Demo' ? " *** DEMO ***" : "")) } catch (ex) { console.log('fail: ' + appid) } });
 //------------------------------------------------------------------------------ SharedConfigAudit2023
@@ -5,7 +71,7 @@ console.log('UNEXPLAINED REVIEW DUPES');
 console.log(array_duplicates(state.reviewed).join(','));
 console.log('BOOKMARK/FOLLOWED DUPES');
 console.log(array_duplicates(bookmarks.concat(followed)).join(','));
-http_request(accounts[0], 'my/followedgames', null, (body, response, error) => followed = body.match(/data-appid=\"[0-9]*/g).map((i) => parseInt(i.substr(12))))
+http(accounts[0], 'my/followedgames', null, (body, response, error) => followed = body.match(/data-appid=\"[0-9]*/g).map((i) => parseInt(i.substr(12))))
 sharedconfig.forEach(a => console.log('[' + (state.reviewed.indexOf(a) > -1 ? 'R' : ' ') + '][' + (bookmarks.indexOf(a) > -1 ? 'B' : ' ') + '][' + (followed.indexOf(a) > -1 ? 'F' : ' ') + '] ==== ' + "https://steamdb.info/app/" + a + "\t" + (accounts[0].user.picsCache.apps[a] != undefined && accounts[0].user.picsCache.apps[a].appinfo != undefined && accounts[0].user.picsCache.apps[a].appinfo.common != undefined ? (accounts[0].user.picsCache.apps[a].appinfo.common.type == 'Demo' ? 'DEMO' : '    ') + " https://store.steampowered.com/app/" + a + "/" + accounts[0].user.picsCache.apps[a].appinfo.common.name.replace(/ /g, '_') : '')));
 //------------------------------------------------------------------------------ FindOwnedGameFavorites
 check_me = data.game_favorite.map((game) => parseInt(game.match(/\d+/)[0]))
@@ -15,7 +81,7 @@ check_me.forEach((appid) => (appids.indexOf(appid) > -1) && console.log('owned a
 checkDlcInterval = 8000;
 (check_app_if_dlc = (i = 0) =>
   (!(data.game_favorite[i] in state.dlccheck)) ?
-    http_request(accounts[0], 'https://store.steampowered.com/app/' + data.game_favorite[i], null, (body, response, error) => (
+    http(accounts[0], 'https://store.steampowered.com/app/' + data.game_favorite[i], null, (body, response, error) => (
       (error) ?
         console.log(body)
       : (body.indexOf('>Downloadable Content</a>') > -1) ?
@@ -35,65 +101,9 @@ owned_already_favorited = [];   owned_games.forEach((appid) => (data.game_favori
 new_games = new_games.filter((appid) => (unowned_already_favorited.indexOf(appid) == -1)); // CULL UNOWNED GAMES ALREADY FAVORITED
 owned_games = []; unowned_games = []; new_games.forEach((appid) => (rgOwnedApps.indexOf(+appid.replace(/\/.*/, '')) > -1) ? owned_games.push(appid) : unowned_games.push(appid));  // REMAKE: OWNED 311, UNOWNED: 693
 console.log("owned: " + owned_games.length + ", unowned: " + unowned_games.length);
-//------------------------------------------------------------------------------ Curation
-: (a % 64 == 0) && (
-  wishlister(accounts[0]),
-  curate_reviews(accounts[0]),
-  curate_videos(accounts[0])))))), state.frequency),
-curate = (account, appid, blurb, link_url, rating, store) => (
-  blurb = blurb.substr(0,203),
-  log(account, 'SESSION | curate: ' + (appid + " " + link_url).yellow),
-  http_request(account, "https://store.steampowered.com/curator/2751860-primarydataloop/admin/ajaxcreatereview", {
-    appid: appid,
-    blurb: (blurb.length > 200) ? blurb.substr(0,200).slice(0,-3) + "..." : blurb.trim(),
-    link_url: link_url,
-    recommendation_state: (!rating ? 1 : 0) }, (body, response, error) =>
-      store.curated = true)),
-curate_review = (account, appid) =>
-  http_request(account, 'my/recommended/' + appid, null, (body, response, error,
-    text = Cheerio.load(body)('textarea')[0].children[0].data,
-    link_url = text.match(/http(?:s?):\/\/(?:www\.)?youtu(?:be\.com\/watch\?v=|\.be\/)([\w\-\_]*)(&(amp;)?‌​[\w\?‌​=]*)?/)) => (
-    state.reviews[appid] = {
-      curated: false,
-      id: body.match(/_Report\( '[0-9]*'/)[0].match(/\d+/)[0],
-      rating: (body.match("thumbsUp.png") ? true: false),
-      text: (text.indexOf('[spoiler]') == -1 ? text : text.substr(0, text.indexOf('[spoiler]'))).replace(/\[[\/biu]*\]/g, '') },
-    (text.indexOf('JICW9lTq') == -1) && (
-      http_request(account, 'userreviews/update/' + state.reviews[appid].id, { 'comments_disabled': false }),
-      curate(account, appid, state.reviews[appid].text, !link_url ? "" : link_url[0], state.reviews[appid].rating, state.reviews[appid]))))
-curate_reviews = (account, p = 1) =>
-  (p > 0) && (
-    http_request(account, 'my/recommended/?p=' + p, null, (body, response, error,
-      _reviews = body.match(/\/recommended\/[0-9]*/g).filter((element, index) => index % 2 == 0)) =>
-      _reviews.forEach((review, i, _reviews,
-        appid = review.slice(13)) =>
-        (!state.reviews.hasOwnProperty(appid) || !state.reviews[appid].curated) &&
-          setTimeout(() =>
-            curate_review(account, appid), (((p-1)*10)+i)*10000))),
-    curate_reviews(account, p-1)),
-curate_videos = (account, p = 1) =>
-  (p > 0) &&
-    http_request(account, 'my/videos/?p=' + p + '&privacy=8&sort=newestfirst', null, (body, response, err,
-      files = body.match(/OnVideoClicked\( \d+/g)) =>
-      (get_content_details = (f = files.length-1, file = (f < 0 ? null : files[f].substr(16))) =>
-        (f < 0) ?
-          curate_videos(account, p-1)
-        : (state.videos.hasOwnProperty(file)) ?
-          get_content_details(f-1)
-        : http_request(account, 'sharedfiles/filedetails/?id=' + file, null, (body, response, err) => (
-            state.videos[file] = {
-              curated: false,
-              link_url:"https://www.youtube.com/watch?v=" + body.match(/vi\/.+\//)[0].slice(3, -1),
-              title: body.match(/workshopItemTitle\"\>.+\</)[0].slice(19, -1),
-              text: Cheerio.load(body)('.nonScreenshotDescription').text().slice(1, -1),
-              appid: body.match(/"appid" value="\d+"/)[0].slice(15, -1),
-              votes: +body.match(/"VotesUpCount"\>[0-9]*/)[0].slice(15) },
-            (!state.reviews[state.videos[file].appid] || !state.reviews[state.videos[file].appid].curated) &&
-              curate(account, state.videos[file].appid, state.videos[file].text.substr(1, state.videos[file].text.indexOf('http')-2), state.videos[file].link_url, true, state.videos[file]), 
-            get_content_details(f-1))))()),
 //------------------------------------------------------------------------------ print_achievement_page
 print_achievement_page = (account, appid = 710780, text = '<html><head><style>.td1 { background-color: white; font-weight: bold; } .td2 { background-color: #C1C1C1; font-weight: italic; } body { font-color: #123123; background-color: #333333; }</style></head><body>\n<table border="1">') =>
-  http_request(account, 'my/ajaxgetachievementsforgame/' + appid, {}, (body) => (
+  http(account, 'my/ajaxgetachievementsforgame/' + appid, {}, (body) => (
     Cheerio.load(body)('div.achievement_list_item').each((i, item) =>
       text += "\n  <tr>\n    <td><img src=\"" + item.children[1].attribs.src + "\" width=\"48\" length=\"48\"></td>\n"
         + '    <td class="td1">' + appid + '_' + item.attribs['data-statid'] + '_' + item.attribs['data-bit'] + '</td>\n'
@@ -101,13 +111,10 @@ print_achievement_page = (account, appid = 710780, text = '<html><head><style>.t
         + '  </tr>'),
     text += '\n</table>\n</body></html>',
     fs.writeFileSync(appid + '.html', text),
-    console.log(text))),
+    console.log(text)));
+//------------------------------------------------------------------------------ check_appid_duplicates_new
+console.log(array_duplicates(d.avatars.map((avatar) => avatar[0] + "_" + avatar[1])) + " << avatars \n" + array_duplicates(data.review.concat(data.game_collector.join()).concat(data.game_favorite.map((game) => parseInt(game.match(/\d+/)[0])))) + " << appids" )
 //------------------------------------------------------------------------------ check_appid_duplicates
-array_duplicates = (array, sorted_arr = array.slice().sort(), results = []) => (
-  [...Array(sorted_arr.length-1).keys()].forEach((item, i) =>
-    (sorted_arr[i+1] == sorted_arr[i]) &&
-      results.push(sorted_arr[i])),
-  results),
 console.log(array_duplicates(data.avatars.map((avatar) => avatar[0] + "_" + avatar[1])) + "\n" + array_duplicates(data.game_favorite.map((game) => parseInt(game.match(/\d+/)[0])).concat(data.game_collector.join()).concat(data.review))),
 (check_appid_duplicates = () =>
   console.log(array_duplicates(data.game_favorite.map((game) => parseInt(game.match(/\d+/)[0]))

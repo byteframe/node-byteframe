@@ -1,3 +1,9 @@
+//------------------------------------------------------------------------------ StoreRaterSnippets
+((rate_workshop) = (i, account) =>
+  (i < workshop.length) && (
+    state.verbose=true,
+    http(account, 'sharedfiles/voteup' + [i], { id: workshop[i] , appid: 0 }),
+    setTimeout(rate_workshop, 6000, i+1, account)))(0, accounts[i])
 //------------------------------------------------------------------------------ Rater2021Functional
       : (a % 42 == 0) ? 
         activity_rater(accounts[0])

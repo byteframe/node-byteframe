@@ -1,21 +1,245 @@
+//------------------------------------------------------------------------------ FatAvatarChange
+A[0].c.httpRequestPost({
+  "uri": "https://steamcommunity.com/actions/FileUploader",
+  "json": true,
+  "formData": {
+    "type": "group_avatar_image", "doSub": 1, "json": 1,
+    "MAX_FILE_SIZE": avatar_file.length,
+    "gId": "103582791432273268",
+    "sessionid": A[0].c.getSessionID(),
+    "avatar": { "value": avatar_file, "options": { "filename": 'avatar.jpg', "contentType": 'image/jpeg' } } }
+}, (x, r, b) =>
+  (x || r.statusCode != 200 || !b || !b.success) &&
+    log(A[0], 'FAILURE | actions/uploadAvatar: ' + (""+d.avatar_files.i).yellow))
+//------------------------------------------------------------------------------ OriginalSlotAssembly
+shuffle(d.items_showcase_array).forEach((e) =>
+  e.forEach((e, i) =>
+    profile.item_showcase.slots[i+6].push(e))),      
+shuffle(d.items_trade_array).forEach((e) =>
+  e.forEach((e, i) =>
+    profile.items_trade.slots[i].push(e))),
+shuffle(d.achievement_array).forEach((e) =>
+  e.forEach((e, i) =>
+    profile.achievement.slots[i].push(e))),
+//------------------------------------------------------------------------------ ReviewMaker
+insert_emojis = (text) => (
+  d.emojis.index = 0,
+  text.replace(/YYY/g, () => pool(pool(d.emojis, 1, null)[0]))),
+generate_emoji_fortune = (size, file = 'all', text = fortune(file, 1, size, size).split(' ')) => (
+  [...Array(3).keys()].forEach((i) =>
+    text[(i+1)*(Math.floor((text.length+1)/4)-1)] += " YYY"),
+  insert_emojis("YYY " + text.join(' ') + " YYY"))
+post_review_sheet = (a, g, h1, h2, h3, _m = shuffle(d.links_steam),
+  m = (pool(d.emotes[6], 1) + ' ' +
+    _m[0] + ' ' + pool(d.emotes[8], 1) + ' ' +
+    _m[1] + ' ' + pool(d.emotes[2], 1) + ' ' +
+    _m[2] + ' ' + pool(d.emotes[4], 1) + ' ' +
+    _m[3] + ' ' + pool(d.emotes[3], 1) + ' ' +
+    _m[4] + ' ' + pool(d.emotes[11], 1) + ' ' +
+    _m[5] + ' ' + pool(d.emotes[9], 1) + ' ' +
+    _m[6] + ' ' + pool(d.emotes[5], 1) + ' ' +
+    _m[7]).replace(/:/g, 'ː') + " " + h1 + " [h1]" + fortune('all', 1, 55, 60).replace(/[\[\]]g/, '') + "[/h1][quote=" + generate_emoji_fortune(50, 'all') + "][table][tr][td]" + h3 + "[/td][td]" + pool(d.ascii_face) + "[/td][td][b]" + fortune('knowledge').replace(/\n/, "[/b]\n[i]") + "[/i][/td][/tr][/table][/quote] " + h2) =>
+  (links[0].includes(h1.match(/https:\/\/(www.)?youtu.+/)[0].slice(8).replace('www\.', '').replace('youtu.be/', '').replace('youtube.com/watch?v=', '').replace(/\?.*/, '').replace(/\&.*/, ''))) ? console.log(h1)
+  : (links[1].map((e) => e.match(/\d+/)[0]).includes(h2.match(/\d+/)[0]) || d.game_collector.flat().concat(d.game_collector_dlc.flat()).includes(h2.match(/\d+/)[0])) ? console.log(h2)
+  : (links[2].includes(h3)) ? console.log(h3)
+  : http(a, 'https://store.steampowered.com/friends/recommendgame', {
+      appid: g, steamworksappid: g, comment: m, rated_up: true, is_public: true, language: 'english', received_compensation: 0, disable_comments: 0}, (b, r, e) => (
+        log(a, 'SESSION | recommendgame: https://steamcommunity.com/my/recommended/' + g),
+        get_reviews(a, 0, true, [ g ])))
+//------------------------------------------------------------------------------ TodoList
+modifiers = [ 'try to','avoid','skip','pretend to','help','','','','','' ]
+verbs = [ 'learn', 'clean', 'buy', 'pick', 'do', 'make', 'fix', 'exercise',
+  'tweet', 'promote', 'code', 'play', 'find', 'crash', 'submit',
+  'skip', 'add', 'forget', 'avoid', 'throw', 'buy', 'sell' ]
+nouns = [ 'Italian', 'milk', 'needle work', 'chess', 'Node.js', 'fines',
+  'books', 'boots', 'fishing rod', 'distant relatives', 'charges',
+  'knife', 'castle', 'laptop', 'principles', 'adults', 'bird' ]
+dues = [ 'tommorow','tonight','this morning','yesterday','after lunch' ]
+function suffix (modifier) {
+  const modifiersToSuffix = {
+    avoid: 'ing',
+    skip: 'ing'
+  }
+  return modifiersToSuffix[modifier] || ''
+}
+function addSuffix (verb, suffix) {
+  if (!suffix) {
+    return verb
+  }
+  if (/e$/.test(verb)) {
+    return verb.substr(0, verb.length - 1) + suffix
+  }
+  return verb + suffix
+}
+generate_todo_list = (
+  modifier = pool(modifiers),
+  verb = pool(verbs),
+  noun = pool(nouns),
+  ending = suffix(modifier),
+  due = pool(dues)) =>
+    console.log(modifier + (modifier ? ' ' : '') + addSuffix(verb, ending) + ' ' + noun)
+  //------------------------------------------------------------------------------ DeprecatedGroupStuff
+((group_url = profile.group_favorite.selection[0].substr(19)) =>
+  http(accounts[0], 'groups/' + group_url + '/edit', '&' + data.group_forms[group_url].replace(
+    /&headline=.*&summary=/, '&headline=' + generate_emoji_fortune(215) + '&summary=')))(),  
+"group_forms": {
+  "fourteenpdl": "type=profileSave&abbreviation=fourteenpdl&headline=%F0%9F%8C%B3+Actor+Real+Name+Boris+Karloff+%F0%9F%8C%82+William+Henry+Pratt+Cary+%F0%9F%93%80+Grant+Archibald+Leach+Edward+%F0%9F%93%98+G.+Robinson+Emmanual+Goldenburg+%F0%9F%98%BA+Gene+Wilder+Gerald+Silberman+%F0%9F%8D%A7+John+Wayne+Marion+Morrison+%F0%9F%8F%80+Kirk+Douglas+Issur+Danielovitch+Richard++%F0%9F%8E%8D&summary=&customURL=fourteenpdl&language=norwegian&country=NA&state=27&city=&associate_game=&favorite_games=450390&weblink_1_title=Equal+Reality+-+DMX+Krew+%7BHTC+VIVE+VR%7D&weblink_1_url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3DkJlPZlYuRPU&weblink_2_title=Magic+Lantern+-+808+State+%7BHTC+VIVE+VR%7D&weblink_2_url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3Dfm9T_a7tqeE&weblink_3_title=Project+Syria+-+%7BHTC+VIVE+VR%7D&weblink_3_url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3DCgSHiLcgtAo",
+  "seispdl": "type=profileSave&abbreviation=seispdl&headline=%F0%9F%92%83+Slaves+are+generally+expected+to+sing+%F0%9F%91%BE+as+well+as+to+work+%F0%9F%8C%B3+...+I+did+not%2C+when+%F0%9F%90%9D+a+slave%2C+understand+the+deep+%F0%9F%93%98+meanings+of+those+rude%2C+and+%F0%9F%95%BA+apparently+incoherent+songs.+I+was+%F0%9F%8C%8B+myself+within+the+circle%2C+so+that+I+neither+%F0%9F%8D%87&summary=&customURL=seispdl&language=finnish&country=BL&state=&city=&associate_game=&favorite_games=555160&weblink_1_title=MSI+Electric+City%2C+Core+Assault+-+%7BHTC+VIVE+VR%7D&weblink_1_url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3D5-kmNpokbBQ&weblink_2_title=Amazing+Files%2C+Horror+Hospital+-+Biosphere+%7BHTC+VIVE+VR%7D&weblink_2_url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3DJQTDBM8J90c&weblink_3_title=Lucky+Night%2C+Texas+Hold'em+-+Luke+Vibert+%7BHTC+VIVE+VR%7D&weblink_3_url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3DfFvLKzck1nw",
+  "pdlproper3": "type=profileSave&abbreviation=pdlproper3&headline=%F0%9F%90%A0+No-one+would+have+believed%2C+in+the+%F0%9F%9A%98+final+years+of+the+Century+%F0%9F%93%80+of+the+Fruitbat%2C+that+Discworld+%F0%9F%92%9A+affairs+were+being+watched+keenly+%F0%9F%8F%93+and+impatiently+by+intelligences+greater+%E2%9A%A1+than+Man's%2C+or+at+least+%F0%9F%8E%8D+much+nastier%3B+that++%F0%9F%90%B3&summary=&customURL=pdlproper3&language=danish&country=DK&state=04&city=&associate_game=&favorite_games=607440&weblink_1_title=Covert+Syndrome+-+Binalog+Frequency+%7BHTC+VIVE+VR%7D&weblink_1_url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3D8ll4hFleRzw&weblink_2_title=Deserving+Life+-+Frontline+Assembly+%7BHTC+VIVE+VR%7D&weblink_2_url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3Dk9cgeq8Yx_Q&weblink_3_title=Deserving+Life+-+Frontline+Assembly+%7BHTC+VIVE+VR%7D&weblink_3_url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3D1rqyPqw_LCk",
+  "pdl15": "type=profileSave&abbreviation=pdl15&headline=%F0%9F%93%92+A+sharper+perspective+on+this+%F0%9F%A5%97+matter+is+particularly+important+%F0%9F%9A%97+to+feminist+thought+today%2C+%F0%9F%91%BE+because+a+major+tendency+%F0%9F%91%94+in+feminism+has+constructed+%E2%9B%B3+the+problem+of+domination+%F0%9F%91%83+as+a+drama+of+female+vulnerability+victimiz+%F0%9F%8E%88&summary=&customURL=pdl15&language=polish&country=PK&state=04&city=&associate_game=&favorite_games=606180&weblink_1_title=Discover+Egypt%2C+King+Tut's+Tomb+-+Egyptian+Lover+%7BHTC+VIVE+VR%7D&weblink_1_url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3DJN-comON924&weblink_2_title=ViveSpray+-+Fah+%7BHTC+VIVE+VR%7D&weblink_2_url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3DnmcXAYyTMx0&weblink_3_title=Pavlov+-+Democracy+Now+%7BHTC+VIVE+VR%7D&weblink_3_url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3DWS_OlV6N-4I",
+  "pdlocho": "type=profileSave&abbreviation=pdlocho&headline=%F0%9F%A5%92+In+%22King+Henry+VI%2C+Part+II%2C%22+%F0%9F%8D%A7+Shakespeare+has+Dick+Butcher+suggest+%F0%9F%8E%AB+to+his+fellow+anti-establishment+rabble-rousers%2C+%F0%9F%9A%95+%22The+first+thing+we+do%2C+%F0%9F%8C%B3+let's+kill+all+the+lawyers.%22+%F0%9F%8C%82+That+action+may+be+extreme+%F0%9F%94%8B+but+a+similar+sen+%F0%9F%90%B3&summary=&customURL=pdlocho&language=&country=&state=&city=&associate_game=&favorite_games=436320&weblink_1_title=InVR+-+Computron+%7BHTC+VIVE+VR%7D&weblink_1_url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3DJe9zsJWPikY&weblink_2_title=Butts+%7BHTC+VIVE+VR%7D&weblink_2_url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3DddtkOkEbYxw&weblink_3_title=Suspended+Workshops+-+Biosphere+%7BHTC+VIVE+VR%7D&weblink_3_url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3DBP59gcwbK2o",
+  "quatropdl": "type=profileSave&abbreviation=quatropdl&headline=%F0%9F%8C%B8+One+fine+day%2C+the+bus+driver+went+%F0%9F%93%A3+to+the+bus+garage%2C+started+his+%F0%9F%93%92+bus%2C+and+drove+off+along+the+%F0%9F%9A%99+route.+No+problems+for+the+first+%F0%9F%8D%A7+few+stops+--+a+few+people+%F0%9F%8F%93+got+on%2C+a+few+got+off%2C+%E2%9B%B3+and+things+went+generally+well.+At+t+%F0%9F%91%83&summary=&customURL=quatropdl&language=dutch&country=NO&state=09&city=&associate_game=&favorite_games=348250&weblink_1_title=Super+Hot+-+Phil+Klein+%7BHTC+VIVE+VR%7D&weblink_1_url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3DT9pPqKdxQxM&weblink_2_title=TSA+Frisky+-+Automatic+Tasty+%7BHTC+VIVE+VR%7D&weblink_2_url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3Dky6-_sBcvig&weblink_3_title=Disco+Destruction+-+Global+Goon+%7BHTC+VIVE+VR%7D&weblink_3_url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3DRAkQ-DE9rAc",
+  "sevenpdlteen": "type=profileSave&abbreviation=sevenpdlteen&headline=%F0%9F%93%95+MAFIA%2C+n%3A+%5BAcronym+for+Mechanized+%F0%9F%8C%B3+Applications+in+Forced+Insurance+%F0%9F%8D%87+Accounting.%5D+An+extensive+network+%F0%9F%A5%97+with+many+on-line+and+%F0%9F%93%80+offshore+subsystems+running+under+%F0%9F%92%84+OS%2C+DOS%2C+and+IOS.+%E2%9B%B3+MAFIA+documentation+is+rather+scanty%2C+%F0%9F%8F%80&summary=&customURL=sevenpdlteen&language=brazilian&country=PS&state=&city=&associate_game=&favorite_games=490490&weblink_1_title=Imos+Loft+-+Electronome+%7BHTC+VIVE+VR%7D&weblink_1_url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3Dt0MmMBT1E6k&weblink_2_title=Sommad+-+CN+%7BHTC+VIVE+VR%7D&weblink_2_url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3DUIf5wUC_tWI&weblink_3_title=Pararea+-+DeFeKT+%7BHTC+VIVE+VR%7D&weblink_3_url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3DU2CZR_KAd5M",
+  "pdl8teen": "type=profileSave&abbreviation=pdl8teen&headline=%F0%9F%93%92+River%3A%3A+%22We+got+outflanked+by+an+%F0%9F%90%8A+Independent+squad%2C+and+we're+never+%F0%9F%91%94+gonna+make+it+back+to+%F0%9F%8E%88+our+platoon.+We+need+to+%F0%9F%8C%B3+resort+to+cannibalism.%22+Simon%3A+%22That+%F0%9F%8F%93+was+fast.+Don't+we+have+%F0%9F%8D%A7+rations+or+anything%3F%22+River%3A+%22They+go+%F0%9F%98%BA&summary=&customURL=pdl8teen&language=russian&country=RE&state=&city=&associate_game=&favorite_games=568800&weblink_1_title=Summer+Times+Afternoon+-+Lee+Norris+%7BHTC+VIVE+VR%7D&weblink_1_url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3DEJnYFkeDpig&weblink_2_title=BattleDome+-+Headnoaks+%7BHTC+VIVE+VR%7D&weblink_2_url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3DM_GCWxhMUxU&weblink_3_title=Dead+Hungry+-+Radioactive+Man+%7BHTC+VIVE+VR%7D&weblink_3_url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3Dfl5x5t8Q224",
+  "twopdl": "type=profileSave&abbreviation=twopdl&headline=%F0%9F%8C%BD+Darth+Vader%3A+There+is+no+escape.+%F0%9F%92%97+Don't+make+me+destroy+you.+%F0%9F%95%BA+pauses+Luke%2C+you+do+not+%F0%9F%8C%8F+yet+realize+your+importance.+You+%F0%9F%93%95+have+only+begun+to+discover+%F0%9F%91%83+your+power.+Join+me%2C+and+%F0%9F%90%9F+I+will+complete+your+training.+With+our+co+%F0%9F%90%8A&summary=&customURL=twopdl&language=czech&country=CA&state=PE&city=&associate_game=&favorite_games=469610&weblink_1_title=MeiMei+Dance+-+Hashim+%7BHTC+VIVE+VR%7D&weblink_1_url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3D6l4qPhrABWM&weblink_2_title=Basketball+Babe+-+Kerrier+District+%7BHTC+VIVE+VR%7D&weblink_2_url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3Dl4aDpK4BL4Y&weblink_3_title=Munch+-+UHU+%7BHTC+VIVE+VR%7D&weblink_3_url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3DG2H5XuY1j9s",
+  "diezytrespdl": "type=profileSave&abbreviation=diezytrespdl&headline=%F0%9F%8C%8B+A+disciple+of+another+sect+once+%F0%9F%91%BD+came+to+Drescher+as+he+%F0%9F%93%98+was+eating+his+morning+meal.+%F0%9F%8D%87+%22I+would+like+to+give+%F0%9F%90%9B+you+this+personality+test%22%2C+said+%F0%9F%8C%82+the+outsider%2C+%22because+I+want+%F0%9F%92%9B+you+to+be+happy.%22+Drescher+took+the+paper+t+%F0%9F%92%9A&summary=&customURL=diezytrespdl&language=koreana&country=KZ&state=07&city=&associate_game=&favorite_games=511690&weblink_1_title=Duck+Force+-+Planetwalker+%7BHTC+VIVE+VR%7D&weblink_1_url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3D9vN4JdSvE1Y&weblink_2_title=Battleship+Yamato+-+Slavoj+Zizek+%7BHTC+VIVE+VR%7D&weblink_2_url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3DGIO4_Kd2quY&weblink_3_title=The+Purge+Day+-+Galaxion+%7BHTC+VIVE+VR%7D&weblink_3_url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3Dbnc9EUFYI_s",
+  "funfpdl": "type=profileSave&abbreviation=funfpdl&headline=%F0%9F%92%99+Sister+Mary+headed+through+the+night-time+%F0%9F%92%84+hospital+with+the+Adversary%2C+Destroyer+%F0%9F%A5%9E+of+Kings%2C+Angel+of+the+%F0%9F%A5%92+Bottomless+Pit%2C+Great+Beast+that+%E2%9A%A1+is+called+Dragon%2C+Prince+of+%F0%9F%93%95+This+World%2C+Father+of+Lies%2C+%F0%9F%8D%86+Spawn+of+Satan+and++%F0%9F%95%BA&summary=&customURL=funfpdl&language=english&country=EC&state=09&city=&associate_game=&favorite_games=525640&weblink_1_title=Unreal+Villa+-+Paco+Osuna+%7BHTC+VIVE+VR%7D&weblink_1_url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3DhKQn5BTXWQ8&weblink_2_title=Altspace+-+Elysis+%7BHTC+VIVE+VR%7D&weblink_2_url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3DWSHNQi3lTzE&weblink_3_title=EmbodyME+-+MC+Hawking+%7BHTC+VIVE+VR%7D&weblink_3_url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3DFLDI3jgXwbg",
+  "10pdl": "type=profileSave&abbreviation=10pdl&headline=%F0%9F%8D%A7+Too+Late+A+large+number+of+%F0%9F%8C%8B+turkies+%5Bsic%5D+went+to+San+%F0%9F%8C%B3+Francisco+yesterday+by+the+two+%F0%9F%93%95+o'clock+boats.+If+their+object+%E2%9A%A1+in+going+down+was+to+%F0%9F%8E%AB+participate+in+the+Thanksgiving+festivities+%F0%9F%92%84+of+that+city%2C+they+would+arrive++%F0%9F%95%BA&summary=&customURL=10pdl&language=hungarian&country=MO&state=02&city=&associate_game=&favorite_games=&weblink_1_title=Hop+Step+Sing!+Kimamani+Summer+Vacation+-+Afrika+Bambaataa+%7BHTC+VIVE+VR%7D&weblink_1_url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3Dt-eypU4jqqI&weblink_2_title=Trespass+-+James+Stinson+%7BHTC+VIVE+VR%7D&weblink_2_url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3DBPv0T6r_lpw&weblink_3_title=Mister+Mart+-+Group+X+%7BHTC+VIVE+VR%7D&weblink_3_url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3DOO8_gkcxRYg",
+  "elevenpdl": "type=profileSave&abbreviation=elevenpdl&headline=%F0%9F%92%99+Charles+Briscoe-Smith+%3Ccpbs%40debian.org%3E%3A+After+%E2%9A%A1+all%2C+the+gzip+%F0%9F%92%83+package+is+called+%E2%9B%B3+%60gzip'%2C+not+%60libz-bin'...+%F0%9F%93%A3+James+Troup+%3Ctroup%40debian.org%3E%3A+%F0%9F%9A%99+Uh%2C+probably+because+%F0%9F%91%94+the+gzip+binary+doesn't+come+from+the+non-existent+lib+%F0%9F%93%95&summary=&customURL=elevenpdl&language=italian&country=IS&state=13&city=&associate_game=&favorite_games=471710&weblink_1_title=Kiya+-+Luis+Ruiz+%7BHTC+VIVE+VR%7D&weblink_1_url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3DFB6W_U5o9L4&weblink_2_title=Triber+-+Dez+Williams+%7BHTC+VIVE+VR%7D&weblink_2_url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3DkZLYfitOK30&weblink_3_title=Vee+Rethak%2C+Deep+Under+the+Mountain+-+Cybrid+%7BHTC+VIVE+VR%7D&weblink_3_url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3DCb80ydB89T4",
+  "dozenpdl": "type=profileSave&abbreviation=dozenpdl&headline=%F0%9F%8C%B3+(Mal%2C+fighting+with+his+torturer+on+%F0%9F%8E%88+the+edge+of+the+factory+%E2%9A%A1+shaft+precipice%2C+is+interrupted+by+%F0%9F%8C%8B+the+arrival+of+his+crew.+%F0%9F%91%BD+Jayne+lifts+his+gun%2C+and+%F0%9F%92%8E+takes+aim%3B+however%2C+Zoe+grabs+%F0%9F%98%BA+his+arm.)+Zoe%3A+%22This+is+something+the+%F0%9F%9A%95&summary=&customURL=dozenpdl&language=japanese&country=JM&state=04&city=&associate_game=&favorite_games=440630&weblink_1_title=A-Tech+Cybernetic+-+Chris+Hayes+%7BHTC+VIVE+VR%7D&weblink_1_url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3Dwe_tQ-KM1_E&weblink_2_title=The+Price+of+Freedom+%7BHTC+VIVE+VR%7D&weblink_2_url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3DhyGNtsrUZqc&weblink_3_title=Paranormal+Activity+-+%7BHTC+VIVE+VR%7D&weblink_3_url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3DPoTrn-UwtpU",
+  "pdluno": "type=profileSave&abbreviation=pdluno&headline=%F0%9F%8F%80+Q%3A+How+many+elephants+can+you+fit+in+%F0%9F%8C%B3+a+VW+Bug%3F+A%3A+Four.+Two+in+%F0%9F%8F%93+the+front%2C+two+in+the+back.+Q%3A+%F0%9F%9A%98+How+can+you+tell+if+an+elephant+%F0%9F%9A%99+is+in+your+refrigerator%3F+A%3A+There's+a+%F0%9F%91%91+footprint+in+the+mayo.+Q%3A+How+can+%F0%9F%8E%AB+you+tell+if+tw+%F0%9F%91%B9&summary=&customURL=pdluno&language=bulgarian&country=BB&state=09&city=&associate_game=&favorite_games=438100&weblink_1_title=Engage+-+%7BHTC+VIVE+VR%7D&weblink_1_url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3DIDIzspUokCw&weblink_2_title=Accounting+%7BHTC+VIVE+VR%7D&weblink_2_url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3DNcFyPUwFPNs&weblink_3_title=Disco+Time+80s+-+%7BHTC+VIVE+VR%7D&weblink_3_url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3Dq8HZ8q8nxbs",
+  "pneindteenl": "type=profileSave&abbreviation=pneindteenl&headline=%F0%9F%8C%B8+7%3A30%2C+Channel+5%3A+The+Bionic+%F0%9F%93%97+Dog+(Action%2FAdventure)+The+Bionic+%F0%9F%91%B3+Dog+drinks+too+much+%F0%9F%8E%BD+and+kicks+over+the+%F0%9F%91%94+National+Redwood+Forest.+7%3A30%2C+%F0%9F%90%9B+Channel+8%3A+The+Bionic+%F0%9F%8D%96+Dog+(Action%2FAdventure)+The+Bionic+Dog+gets+a+hormonal+shor+%F0%9F%91%83&summary=&customURL=pneindteenl&language=schinese&country=KH&state=14&city=&associate_game=&favorite_games=672020&weblink_1_title=The+Ruins%2C+Escape+the+Room+-+David+Frum+%7BHTC+VIVE+VR%7D&weblink_1_url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3Du4tGT1bZXcQ&weblink_2_title=Hold+My+Beer+-+Exzakt+%7BHTC+VIVE+VR%7D&weblink_2_url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3D2s9HJ0bKqWg&weblink_3_title=Cirque+du+Soleil+-+%7BHTC+VIVE+VR%7D&weblink_3_url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3D-uh7CZO8Kfk",
+  "neinpdl": "type=profileSave&abbreviation=neinpdl&headline=%F0%9F%92%84+Hell+Money%3A+Mulder%3A+How+many+dishes+%F0%9F%91%94+do+you+have+to+break+%F0%9F%94%8B+before+your+boss+tosses+you+%F0%9F%93%92+in+an+oven%3F+Scully%3A+So+%F0%9F%8E%8D+now+we're+chasing+ghosts%3F+Mulder%3A+%F0%9F%91%B9+Who+ya+gonna+call%3F+Scully%3A+%F0%9F%92%99+Are+you+saying+that+the+ancestral+spirits+p+%F0%9F%A5%9E&summary=&customURL=neinpdl&language=greek&country=GA&state=05&city=&associate_game=&favorite_games=490840&weblink_1_title=Rich+Life+Simulator+-+Donald+Trump+%7BHTC+VIVE+VR%7D&weblink_1_url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3Dyasz5mRdCVk&weblink_2_title=The+Uncertain+Experience+-+Ditone+%7BHTC+VIVE+VR%7D&weblink_2_url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3DWGf_MztMJOM&weblink_3_title=Hotdogs%2C+Horseshoes%2C+and+Hand+Grenades+-+Clarence+G+%7BHTC+VIVE+VR%7D&weblink_3_url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3DASnVnr9A3iM",
+  "7pdl": "type=profileSave&abbreviation=7pdl&headline=%F0%9F%8E%8D+You+know+you're+in+trouble+when...+(1)+%F0%9F%90%A0+Your+car+horn+goes+off+accidentally+%F0%9F%92%9A+and+remains+stuck+as+you+follow+%F0%9F%8E%BD+a+group+of+Hell's+Angels+on+%F0%9F%8C%8B+the+freeway.+(2)+You+want+to+%F0%9F%90%9D+put+on+the+clothes+you+wore+%F0%9F%9A%98+home+from+the+party++%F0%9F%9A%97&summary=&customURL=7pdl&language=french&country=FK&state=&city=&associate_game=&favorite_games=418650&weblink_1_title=Duck+Season+-+%7BHTC+VIVE+VR%7D&weblink_1_url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3DzTxBO5jbyww&weblink_2_title=El+Ministerio+del+Tiempo%2C+El+Tiempo+en+tus+Manos+-+%7BHTC+VIVE+VR%7D&weblink_2_url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3D_5MbfQULReM&weblink_3_title=Dear+Angelica+-+%7BHTC+VIVE+VR%7D&weblink_3_url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3D0LGH6LlTDdc",
+  "psixdteenl": "type=profileSave&abbreviation=psixdteenl&headline=%F0%9F%8E%84+%5BThe+Kennedy+Assassinations%5D+%22Sometime+later+-+%F0%9F%90%A0+FOR+NO+PARTICULAR+REASON+-+%F0%9F%8E%AB+somebody+shot+that+nice+young+%F0%9F%98%BA+president+when+he+was+riding+%F0%9F%9A%97+in+his+car+and+a+%F0%9F%93%98+few+years+after+that%2C+somebody+%F0%9F%93%80+shot+his+little+brother+too+-+o+%F0%9F%8E%8D&summary=&customURL=psixdteenl&language=portuguese&country=PW&state=&city=&associate_game=&favorite_games=665200&weblink_1_title=&weblink_1_url=&weblink_2_title=&weblink_2_url=&weblink_3_title=&weblink_3_url=" },
+//------------------------------------------------------------------------------ EditWorkShopFavorite
+data.workshop_collector.flat().forEach((id, i) =>
+  console.log('edit_text(' + id + ', "' + ( fortune('platitudes', 1, 75, 85).replace(/[\s\t]+--[\s\t]+/g, ' ').replace(/"/g, '\\"') + '",        "' + generate_emoji_fortune(300, 'startrek').replace(/"/g, '\\"', ' ')/*.replace(/\s+--\s+/g + "\")")*/ + '")')))
+//------------------------------------------------------------------------------ 2023RemovedSegments
+(a.inventory.backgrounds.length > 0) &&
+  showcase('background', 0, (i, e) =>
+    a.edit_1 += "&profile_background=" + e.id),
+showcase('group_primary', 0, (i, e) => a.edit_1 += "&primary_group_steamid=" + e),
+(a.u.playingState.blocked && profile.persona_name.hasOwnProperty('selection')) ?
+  a.edit_1 += "&personaName=byteframe"
+: showcase('persona_name', 0, (i, e) =>
+  a.edit_1 += "&personaName=" + e),
+[ 1715910,2026550,2026560,1715900 ]
+"links_social_dead": [
+  "https://linkedin.com/company/byteframetech",
+  "https://nimo.tv/live/1816208114",
+  "https://vaughn.live/byteframe",
+  "https://picarto.tv/byteframe",
+  "https://youtube.com/c/byteframe",
+  "https://dlive.tv/byteframe",
+  "https://live.fc2.com/49197455",
+  "https://www.mobcrush.com/byteframe",
+  "https://trovo.live/byteframe",
+  "https://dailymotion.com/byteframe",
+  "https://instagib.tv/byteframe",
+  "https://smashcast.tv/byteframe",
+  "https://mixer.com/95892684",
+  "https://streamcraft.com/user/2051568140/room",
+  "https://live.loots.com/c/byteframe" ],
+() => fortune('vortigaunt', 1, 55), 
+(f, comment_message_bot = (o = 900, format = pool([ "","i","b","u","spoiler" ]), t = ("[" + format + "]" + fortune('all') + "[/" + format + ']\n').replace(/\[\]/g, '').replace(/\[\/\]/g, '') + pool(d.emojis_smileys)) =>
+  (t.length >= o) ? t : comment_message_bot()) =>
+comment_message_bot(),
+(f) => emote(12, [15]) + "\n" + emote(12, [15]) + "\n" + "[i]" + split_words(fortune('cookie')).join('\n') + "[/i]\n" + emote(12, [15]) + "\n" + emote(12, [15]),
+() => fortune('vortigaunt', 1, 55),
+() => fortune('overwatch', 1, 100),
+() => fortune('soldiers', 1, 45),
+(f) => "[i]" + reply('', 'tell me a story') + "[/i] " + pool(d.emojis_objects, Math.floor(Math.random()*7)+1, ' '),
+get_friends(a, 'profiles/' + s.last_profiles[Math.floor(Math.random()*s.last_profiles.length)] + "/friends", (F) =>
+  commenter(a, check_replies, false, strangers = F.filter((f) => s.last_profiles.indexOf(f) == -1).map((f) => [ '', f ])))
+game_favorite_2908791: { moves: [], types: [ -1 ], slots: [ d.game_favorite_dlc ] },
+  (account.i < 97 || (account.i >= 201 && account.i <= 223) || (account.i >= 101 && account.i <= 104)) && (
+...t = t.replace(/[\s\t]{2,}/g, ' ').trimEnd()), // was originally t.replace(/ +/g, ' ').trim(),
+(args, dimension = pool([[2,32],[3,26],[4,19],[5,16],[6,13],[7,11],[8,9],[9,8],[10,7],[12,6]]), emoticon_index = pool([0, 1, 12]), text = '') => (
+  [...Array(dimension[0]).keys()].map((i) =>
+    text += pool(data.emotes[emoticon_index], dimension[1]) + "\n"),
+  text),
+((delimiter = "/", t = '') => (
+  shuffle(data.links_steam_greetings).forEach((e) =>
+    t += e + '[/url] ' + delimiter + ' '),
+  t.trim().slice(0, -2)))() + "\n" +
+font = (input, f, output = '') => (
+  [...Array(input.length).keys()].forEach((e, i) =>
+    (data.fonts[f][input[i]] !== undefined) ?
+      output += data.fonts[f][input[i]]
+    : output += input[i]),
+  output),
+pool = (pool, length = 1, join = '', reset = false, E = []) => (
+  (!pool.hasOwnProperty('index')) && (
+    pool.index = 0),
+  [...Array(length).keys()].forEach((item, i) => (
+    (pool.index === 0) &&
+      shuffle(pool),
+    E.push(pool[pool.index]),
+    (++pool.index == pool.length || reset) && (
+      pool.index = 0))),
+  (join !== null) ?
+    E.join(join)
+  : E),
+generate_emoticon_fortune_old = (text, length, emoticon_index, file = 'all', fortune = fortune(file).replace(/\n/g, ' ').split(/\s+/)) =>
+  (fortune.length < length) ?
+    generate_emoticon_fortune(text, length, emoticon_index, file)
+  :([...Array(length).keys()].forEach((i) =>
+      text += pool(data.emotes[emoticon_index], i) + " " + pool(data.ascii) + " " + fortune[i] + "\n"),
+    text.trim() + ' ' + fortune.slice(length).join(' ')),
+generate_emoticons_old = (length, text = '', delimiter = '', indexes = [ 2,3,4,5,6,7,8,9,10,11 ]) => (
+  pool(indexes, length, null).forEach((index) =>
+    text += pool(data.emotes[index]) + delimiter),
+  text),
+"sinvr": [
+  "1000190","1000150","1000230","2238890","998970","1000240","1000210","1111950","1000160","1000120","1000140","998960","1000250","1000180","1000220","998620","1000170","1000200","998961" ],
+"languages": [
+  "bulgarian","czech","danish","dutch","english","finnish",
+  "french","german","greek","hungarian","italian","japanese","koreana",
+  "norwegian","polish","portuguese","brazilian","romanian","russian",
+  "schinese","spanish","swedish","tchinese","thai","turkish","ukrainian" ],
+"symbols": [
+  "☻", "☼", "☎", "♫", "♡", "❀" ],
+"emoticons_green_icons": [
+  ":alliedstar:",":em03:",":melon:",":GreenSphere:",":weed:",":clover:",":neutralgear:",":TrollGerka:",":alkat:",":wazapple:",":greenlightorb:",":GreenCube:",":PlanetYelaxot:",":zzacid:",":ZE3_Escape:",":g_heart:" ],
+"emoticons_red_icons": [
+  ":gore:",":ZE3_GameOver:",":bloodsplat:",":zzenergy:",":LightRedCube:",":redlightorb:",":redrose:",":Angrygerka:",":bloodgear:",":em05:" ],
+"to_like_long": [
+  "get a kick out of", "be entertained", "are pleased by", "take pleasure in" ],
+"ascii_alphabet": [
+  "a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z" ],
+"ascii_equalizer": [
+  "▇","▅","█","▅","▇","▂","▃","▁","▁","▅","▃","▅","▅","▄","▅","▇" ],
+"guide_rainbows": [
+  "ːfivecolorsː","ːthreecolorsː","ːtrippybatː",
+  "ːheartlessː","ːTheDonutsː","ːcrystalsː","ːeggː",
+  "ːPrainbowː","ːrainbowfartː","ːlollypopː","ːpcarsː",
+  "ːrighteyeː","ːgarfunkelː","ːrainbowː","ːThe_Ballː",
+  "ːcandyrainbowː","ːtisdestroyerː","ːtiselementsː","ːtisbombː",
+  "ːuno_Wildː","ːclownhairː","ːglasswindowː","ːshockedIroː" ],
+account.backgrounds = [],
+http(account, 'https://steamcommunity.com/' + profile_url(account) + '/ajaxgetplayerbackgrounds', {}, (body, response, err) => 
+  (body.data.profilebackgroundsowned) &&
+    body.data.profilebackgroundsowned.forEach((background) =>
+      (data.background_blacklist.indexOf(""+background.communityitemid) == -1 || account.index != 0) &&
+        accounts[account.index].backgrounds.push({
+          id: background.communityitemid, // SAME I THINK
+          appid: background.appid, // market fee app
+          game: body.data.backgroundappnames[background.appid], // its in a tag I guess
+          name: background.name, // SAME
+          image: "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/" + background.image_large })))//)),
+'[b][u]Wallpaper (' + data.avatars[data.avatars.index-1] + ')[/u][/b]\n'
++ pool(data.emotes[1]) + ' [url=steamdb.info/app/' + profile.background.selection[0].appid + ']'
++ profile.background.selection[0].game + '[/url] ' + pool(data.emotes[1]) + ' [url=steamcommunity.com/id/byteframe/inventory/#753_6_'
++ profile.background.selection[0].id + ']' + profile.background.selection[0].name.replace(' (Profile Background)', '') + '[/url]\n\n'
 //------------------------------------------------------------------------------ wain sha (obsolete)
 http_request(account, (!account.user.playingState.blocked) ? 'https://steamcommunity.com/actions/selectPreviousAvatar' : 'https://steamcommunity.com/games/' + avatar[0] + '/selectAvatar', (!account.user.playingState.blocked) ? { json: 1, sha: pool(data.wain_sha) } : { selectedAvatar: avatar[1] }, (body, response, error) =>
 //------------------------------------------------------------------------------ profile_debug
 http_debug = (endpoint) =>
   (endpoint == 'my/edit') && (
     (profile.hasOwnProperty('item_showcase_2720320')) && profile.item_showcase_2720320.selection.forEach((item) => (item != '__') && console.log("  BOOSTERS: https://steamcommunity.com/id/byteframe/inventory/#" + item)),
-    (profile.hasOwnProperty('trade_items_2410599')) && profile.trade_items_2410599.selection.forEach((item) => console.log("  DOTAS: https://steamcommunity.com/id/byteframe/inventory/#" + item)),
-    (profile.hasOwnProperty('trade_items')) && profile.trade_items.selection.forEach((item) => console.log("  TRADE1: https://steamcommunity.com/id/byteframe/inventory/#" + item)),
+    (profile.hasOwnProperty('items_trade_2410599')) && profile.items_trade_2410599.selection.forEach((item) => console.log("  DOTAS: https://steamcommunity.com/id/byteframe/inventory/#" + item)),
+    (profile.hasOwnProperty('items_trade')) && profile.items_trade.selection.forEach((item) => console.log("  TRADE1: https://steamcommunity.com/id/byteframe/inventory/#" + item)),
     (profile.hasOwnProperty('artwork')) && profile.artwork.selection.forEach((item) => console.log("  ARTWORK1: https://steamcommunity.com/sharedfiles/filedetails/?id=" + item)),
     (profile.hasOwnProperty('artwork2')) && profile.artwork2.selection.forEach((item) => console.log("  ARTWORK2: https://steamcommunity.com/sharedfiles/filedetails/?id=" + item)),
     (profile.hasOwnProperty('review')) && profile.review.selection.forEach((item) => console.log("  REVIEW: https://steamcommunity.com/id/byteframe/recommended/" + item)),
     (profile.hasOwnProperty('guide_favorite')) && profile.guide_favorite.selection.forEach((item) => console.log("   GUIDE: https://steamcommunity.com/sharedfiles/filedetails/?id=" + item)),
     (profile.hasOwnProperty('guide_collector')) && profile.guide_collector.selection.forEach((item) => console.log("   GUIDE2: https://steamcommunity.com/sharedfiles/filedetails/?id=" + item)),
-    (profile.hasOwnProperty('workshop_collector')) && profile.workshop_collector.selection.forEach((item) => console.log("WORKSHOP1: https://steamcommunity.com/sharedfiles/filedetails/?id=" + item)),
-    (profile.hasOwnProperty('workshop_favorite')) && profile.workshop_favorite.selection.forEach((item) => console.log("WORKSHOP2: https://steamcommunity.com/sharedfiles/filedetails/?id=" + item)),
+    (profile.hasOwnProperty('ugccollector')) && profile.ugccollector.selection.forEach((item) => console.log("WORKSHOP1: https://steamcommunity.com/sharedfiles/filedetails/?id=" + item)),
+    (profile.hasOwnProperty('ugcfavorite')) && profile.ugcfavorite.selection.forEach((item) => console.log("WORKSHOP2: https://steamcommunity.com/sharedfiles/filedetails/?id=" + item)),
     (profile.hasOwnProperty('item_showcase')) && profile.item_showcase.selection.forEach((item) => console.log("https://steamcommunity.com/id/byteframe/inventory/#" + item))),
 //------------------------------------------------------------------------------ Emoticon Strips
-data.emoticons.forEach((index, i) => (console.log(generate_emoticons(31, '', '', [i]) + "\n" + generate_emoticons(31, '', '', [i]))))
+data.emotes.forEach((index, i) => (console.log(generate_emoticons(31, '', '', [i]) + "\n" + generate_emoticons(31, '', '', [i]))))
 //------------------------------------------------------------------------------ SteamFriends.info
 diff_array = (array1, array2) =>
   array1.filter((i) => array2.indexOf(i) < 0),
@@ -47,7 +271,7 @@ friends_check = (account,
           (added.length || removed.length) ?
             state.accounts[account.index].last_friends = friends: null)))(),
 friends_check(accounts[0]),
-      + pool(data.emoticons[5]) + ' [url=sdq.st/u/49520]SideQuest[/url]\n\n'
+      + pool(data.emotes[5]) + ' [url=sdq.st/u/49520]SideQuest[/url]\n\n'
       + '[h1]Friend (' + (profile.game_favorite.selection[0]+"").replace(/_.*/, "") + ') [/h1]\n'
       + ((friend_activity = '') => (
         state.accounts[0].friends_diff.slice(-4).reverse().forEach((entry) =>
@@ -64,7 +288,7 @@ friends_check(accounts[0]),
       links.each((i, link) =>
         account.badges.push(+link.attribs.href.substr(12)))))
 //------------------------------------------------------------------------------ BotchedNewSlimArtworkSed
-http_request(account, 'sharedfiles/itemedittext?' + element, { id: element, language: 0, title: pool(data.emojis_bulk) + generate_fortune('all', 1, 95, 100).replace(/\n/g, '').replace(/ -- .*/, '').trim() + pool(data.emojis_bulk), description: '' }),
+http_request(account, 'sharedfiles/itemedittext?' + element, { id: element, language: 0, title: pool(data.emojis_bulk) + fortune('all', 1, 95, 100).replace(/\n/g, '').replace(/ -- .*/, '').trim() + pool(data.emojis_bulk), description: '' }),
 //------------------------------------------------------------------------------ CompletionistShowcase
 completionist: { shuffle_slots: [ 0, 1 ], shuffle_types: [ -1, -1 ], slots: [ [ ()=> pool(data.completionist) ], [ () => pool(data.completionist) ] ] },
 alter_showcase('completionist', 23, (i, element) =>
@@ -73,13 +297,13 @@ alter_showcase('completionist', 23, (i, element) =>
 http_request(account, 'https://steamcommunity.com/actions/selectPreviousAvatar', { json: 1, sha: pool(data.wain_sha) }, (body, response, error) =>
 //------------------------------------------------------------------------------ GenerateLinks
 (generate_links = (links = shuffle_array(data.links)) =>
-  (pool(data.emoticons[6], 1) + ' ' + links[0] + ' ' + pool(data.emoticons[8], 1) + ' ' +
-  links[1] + ' ' + pool(data.emoticons[2], 1) + ' ' +
-  links[2] + ' ' + pool(data.emoticons[4], 1) + ' ' +
-  links[3] + ' ' + pool(data.emoticons[3], 1) + ' ' +
-  links[4] + ' ' + pool(data.emoticons[11], 1) + ' ' +
-  links[5] + ' ' + pool(data.emoticons[9], 1) + ' ' +
-  links[6] + ' ' + pool(data.emoticons[5], 1) + ' ' + links[7]).replace(/:/g, 'ː'))()
+  (pool(data.emotes[6], 1) + ' ' + links[0] + ' ' + pool(data.emotes[8], 1) + ' ' +
+  links[1] + ' ' + pool(data.emotes[2], 1) + ' ' +
+  links[2] + ' ' + pool(data.emotes[4], 1) + ' ' +
+  links[3] + ' ' + pool(data.emotes[3], 1) + ' ' +
+  links[4] + ' ' + pool(data.emotes[11], 1) + ' ' +
+  links[5] + ' ' + pool(data.emotes[9], 1) + ' ' +
+  links[6] + ' ' + pool(data.emotes[5], 1) + ' ' + links[7]).replace(/:/g, 'ː'))()
 //------------------------------------------------------------------------------ GenerateHalfLife
 generate_halflife = (array, min, max, s = '') => (
   s += pool(array) + " ",
@@ -161,7 +385,7 @@ profile_intermediate = (account,
     + pool(data.ascii) + "\n"
     + "[i]" + haiku.random("html").toString().replace(/<br>/g, '/').trim().toLowerCase().replace(/[.,'"?!]/g, '').replace(/ \//g, '/') + "[/i] "
     + shuffle_string(data.barcode) + "_" + pool(pool(data.emojis, 1, null)[0]) + "_" + shuffle_string(data.chinese).substr(0, 4) + ' (' + pool(data.alphabet).toUpperCase() + ') + ' + pool(pool(data.emojis, 1, null)[0])),
-  edit_text(account, profile.workshop_favorite.selection[0]
+  edit_text(account, profile.ugcfavorite.selection[0]
     , data.chinese.substr(0, 2) + " " + pool(pool(data.emojis, 1, null)[0]) + " "
     + data.chinese.substr(2, 2) + " " + pool(pool(data.emojis, 1, null)[0]) + " "
     + data.chinese.substr(4, 2) + " " + pool(pool(data.emojis, 1, null)[0]) + " "
@@ -194,7 +418,7 @@ profile_intermediate = (account,
       state.guide_editing[profile.guide_collector.selection[i]] = 'collector',
       edit_text(account, profile.guide_collector.selection[i], generate_big_fortune_headline(84)))),
   edit_text(account, profile.artwork.selection[0], generate_artwork_text()),
-  edit_text(account, profile.workshop_favorite.selection[0]
+  edit_text(account, profile.ugcfavorite.selection[0]
     , data.chinese.substr(0, 2) + " " + pool(pool(data.emojis, 1, null)[0]) + " "
     + data.chinese.substr(2, 2) + " " + pool(pool(data.emojis, 1, null)[0]) + " "
     + data.chinese.substr(4, 2) + " " + pool(pool(data.emojis, 1, null)[0]) + " "
@@ -520,7 +744,7 @@ SetItemShowcaseSlot = (id, i, element) => { XXX
     item_assetid: element[2]
   });
 };
-alter_showcase(trade_items, (i, element) => { SetItemShowcaseSlot(4, i, element); });
+alter_showcase(items_trade, (i, element) => { SetItemShowcaseSlot(4, i, element); });
 alter_showcase(item_showcase, (i, element) => { SetItemShowcaseSlot(3, i, element); });
 //------------------------------------------------------------------------------ RunRandomizedProfile
 run_randomized_profile = (account, profile, callback = null, lite = false) => {
@@ -634,9 +858,9 @@ run_randomized_profile = (account, profile, callback = null, lite = false) => {
     account.edit("input[name=rgShowcaseConfig\\[5\\]\\[" + i + "\\]\\[appid\\]]").attr("value", element));
   alter_showcase_favorite = (id, i, element) =>
     account.edit("input[name=rgShowcaseConfig\\[" + id + "\\]\\[" + i +"\\]\\[publishedfileid\\]]").attr("value", element);
-  alter_showcase('workshop_favorite', (i, element) =>
+  alter_showcase('ugcfavorite', (i, element) =>
     alter_showcase_favorite(11, i, element));
-  alter_showcase('workshop_collector', (i, element) =>
+  alter_showcase('ugccollector', (i, element) =>
     alter_showcase_favorite(12, i, element));
   alter_showcase('guide_favorite', (i, element) =>
     alter_showcase_favorite(15, i, element));
@@ -676,7 +900,7 @@ run_randomized_profile = (account, profile, callback = null, lite = false) => {
     edit_form += "&rgShowcaseConfig%5B" + id + "%5D%5B" + i + "%5D%5Bitem_contextid%5D=" + element[1];
     edit_form += "&rgShowcaseConfig%5B" + id + "%5D%5B" + i + "%5D%5Bitem_assetid%5D=" + element[2];
   };
-  alter_showcase('trade_items', (i, element) =>
+  alter_showcase('items_trade', (i, element) =>
     SetItemShowcaseSlot(4, i, element));
   alter_showcase('item_showcase', (i, element) =>
     SetItemShowcaseSlot(3, i, element));

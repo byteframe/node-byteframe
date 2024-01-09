@@ -1,3 +1,42 @@
+//------------------------------------------------------------------------------ GetFavorites2.
+get_favorites2 = (a, p = 1) =>
+  http(a, '/my/myworkshopfiles/?browsefilter=myfavorites&p=' + p, null, (_b, r, x, b = Cheerio.load(_b)) =>
+    [...Array(b('div.itemContents').length).keys() ].some((e, i, y, g = b('div.itemContents .workshopItemPreviewHolderFloatLeft')[i].children[1].attribs.href.substr(55)) =>
+      (!s.favorites.hasOwnProperty(g)) ? (
+        log(a, "SESSION | myfavorite: https://steamcommunity.com/sharedfiles/filedetails/?id=" + g),
+        chat('https://steamcommunity.com/sharedfiles/filedetails/?id=' + g),
+        !(s.favorites[g] = {
+          name: b('div.itemContents .workshopItemTitle')[i].children[0].data,
+          game: b('div.itemContents .workshopItemApp')[i].children[0].data })) : true)
+    || setTimeout(get_favorites, 3000, a, p+1)),
+//------------------------------------------------------------------------------ GetFavorites1
+get_favorites1 = (a, p = 1) =>
+  (p > 0) &&
+    http(a, '/my/myworkshopfiles/?browsefilter=myfavorites&p=' + p, null, (_b, r, x, b = Cheerio.load(_b)) => (
+      setTimeout(get_favorites, 3000, a, p-1),
+      [...Array(b('div.itemContents').length).keys() ].forEach((e, i) =>
+        s.accounts[a.i].favorites[b('div.itemContents .workshopItemPreviewHolderFloatLeft')[i].children[1].attribs.href.substr(55)] = {
+          name: b('div.itemContents .workshopItemTitle')[i].children[0].data,
+          game: b('div.itemContents .workshopItemApp')[i].children[0].data }))),
+//------------------------------------------------------------------------------ UGCEnum
+enum EWorkshopFileType {
+	First = 0;
+	Community	= 0;
+	Microtransaction	= 1;
+	Collection	= 2;
+	Art	= 3;
+	Video	= 4;
+	Screenshot	= 5;
+	Game	= 6;
+	Software	= 7;
+	Concept	= 8;
+	WebGuide	= 9;
+	IntegratedGuide	= 10;
+	Merch	= 11;
+	ControllerBinding	= 12;
+	SteamworksAccessInvite = 13;
+	SteamVideo = 14;
+	GameManagedItem = 15; };
 //------------------------------------------------------------------------------ CountVideos
 array1 = JSON.parse(fs.readFileSync('/mnt/c/Users/byteframe/Desktop/443.json')).map((file)=>file.slice(0,-4))
 array2 = JSON.parse(fs.readFileSync('/mnt/c/Users/byteframe/Desktop/2874.json')).map((file)=>file.slice(0,-4))

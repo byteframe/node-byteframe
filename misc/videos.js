@@ -1,4 +1,18 @@
-//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------ UploadAttempt2023
+cookie = {
+  creation: "2023-12-28T20:33:19.851Z",
+  key: 'youtube_authaccount',
+  value: 'primarydataloop%20',
+  secure: false
+}
+A[0].c._jar.setCookie(cookie, "https://steamcommunity.com");
+http(a, 'https://steamcommunity.com/id/byteframe/videos/add', {
+  "action": "add",
+  "videos": 'li3uJyRCiH0',
+  "app_assoc": 388390
+}, (b, r, x) => global.result = [b, r, x])
+A[0].c._setCookie(Request.cookie('youtube_authaccount=primarydataloop%20'));
+//------------------------------------------------------------------------------ HideVideoPage
 (hide_video_page = (page = 1) =>
   http_request(accounts[0], "https://steamcommunity.com/id/byteframe/videos/?p=" + page + "&privacy=8", null, (body, response, error) => (
     setTimeout(hide_video_page, 8000, page++),

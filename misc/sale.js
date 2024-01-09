@@ -1,3 +1,46 @@
+//------------------------------------------------------------------------------ 2023EasyExpressions
+sale = (i = 1, o = A.length-1) =>
+  (i <= o) && (
+    (!A[i].limited) ? (
+      logon(A[i]),
+      setTimeout((i) => A[i].u.gamesPlayed([440]), 10000, i),
+      setTimeout(discover, 10000, A[i], true),
+      setTimeout(sale, 20000, ++i, o))
+      setTimeout((i) => A[i].u.logOff(), 30000, i),
+    : sale(++i, o))
+logon(A[96])
+offer = (i = 1, o = A.length-1) =>
+  (i <= o) && (
+    (!A[i].limited && i != 96) ? (
+      logon(A[i]),
+      setTimeout(trade, 5000, A[i], A[96]),
+      setTimeout(offer, 45000, ++i, o),
+      setTimeout((i) => A[i].u.logOff(), 75000, i))
+    : offer(++i, o))
+//------------------------------------------------------------------------------ GenerateToken2023
+const readline = require('readline').createInterface({ input: process.stdin }),
+fs = require('fs'),
+s = JSON.parse(fs.readFileSync('./state.json', 'utf8'))
+base64 = (data) => new Buffer(data).toString('base64'),
+google = require('googleapis').google,
+(generate_auth_token = () => {
+  oAuth2Client = new google.auth.OAuth2(s.google_secret.installed.client_id, s.google_secret.installed.client_secret, 'http://localhost');
+  var token;
+  const authUrl = oAuth2Client.generateAuthUrl({
+    access_type: 'offline',
+    scope: [ 'https://www.googleapis.com/auth/gmail.readonly' ],
+  });
+  console.log('Authorize this app by visiting this url, then enter code:', authUrl);
+  readline.question('', (code) => {
+    readline.close();
+    oAuth2Client.getToken(code, (err, data) => {
+      token = data;
+      if (err) return console.error('Error retrieving access token', err);
+      oAuth2Client.setCredentials(token);
+      console.dir(token);
+    });
+  });
+})();
 //------------------------------------------------------------------------------ 2022Routine
 [[ 72, 1332010 ],[ 73, 1592190 ],[ 74, 570 ],[ 75, 648800 ],[ 76, 1063660 ],[ 77, 1332010 ],[ 78, 493520 ],[ 79, 1761390 ],[ 80, 1703340 ],[ 81, 1401590 ]].forEach((vote, v) =>  setTimeout(() => http_request(accounts[i], 'https://store.steampowered.com/salevote', { voteid: vote[0], appid: vote[1], developerid: 0 }), 2000*v))
 //------------------------------------------------------------------------------ 2020Routine
