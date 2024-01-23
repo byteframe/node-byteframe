@@ -1,16 +1,25 @@
+//------------------------------------------------------------------------------ WishlistAgainstLinksBad
+tocheck = A[0].wishlist.concat(d.game_collector.flat()).concat(d.game_collector_dlc.flat())
+tocheck.forEach((e) => A[0].wishlist.includes(e) && console.log('https://store.steampowered.com/app/' + e))
 //------------------------------------------------------------------------------ NexterGenDupeChecking
 array_duplicates = (array, sorted_arr = array.slice().sort(), results = []) => (
   [...Array(sorted_arr.length-1).keys()].forEach((item, i) =>
     (sorted_arr[i+1] == sorted_arr[i]) &&
       results.push(sorted_arr[i])),
-  results),
-appid_dupes = array_duplicates(A[0].wishlist.concat(links[1].map((e) => +e.match(/[0-9]+/)[0])).concat(profile.review.slots[0]).concat(profile.review_3507533.slots[0]).concat(d.game_collector.flat()).concat(d.game_collector_dlc.flat())),
+  results)
+console.log(array_duplicates(d.avatars.map((e) => e.join('_'))))
+appid_dupes = array_duplicates(A[0].wishlist.concat(links[1].map((e) => +e.match(/[0-9]+/)[0])).concat(profile.review.slots[0]).concat(profile.review2.slots[0]).concat(d.game_collector.flat()).concat(d.game_collector_dlc.flat())),
 (appid_dupes.length > 0) && (
   console.dir(appid_dupes),
   appid_dupes.forEach((e) => Object.keys(s.A[0].reviews).forEach((g) =>
     s.A[0].reviews[g].contents.includes("/" + e + "/") && console.log('# ' + e + ' https://steamcommunity.com/my/recommended/' + g)))),
 ((link_dupes = link_dupes = array_duplicates(links.flat())).length > 0) &&
   Object.keys(s.A[0].reviews).forEach((e) => link_dupes.forEach((_e) => s.A[0].reviews[e].contents.includes(_e) && console.log('link dupe: ' + _e + ' https://steamcommunity.com/my/recommended/' + e)))
+ 
+inventory = Object.values(A[0].inventory).flat().map((e)=>e.appid + "_" + e.contextid + "_" + e.id)
+profileitems = d.items_showcase_array.flat().concat(d.items_trade_array.flat())
+profileitems.forEach((e)=>!inventory.includes(e) && console.log(e))
+Object.values(A[0].inventory).forEach((inventory)=>console.log(array_duplicates(inventory.flat().map((e)=>e.name+"_"+e.market_fee_app))))
 //----------------------------------------------------------------------------- deleted_acfs
 deleted_acfs = [ 1018100,1021960,1046810,1048010,1090890,1166020,1196180,1215470,1216410,1239410,1275200,
 1282050,1288950,1295410,1298810,1298910,1299020,1301570,1302390,1309480,1311000,1315690,

@@ -24,11 +24,12 @@ shuffle = (E) => (
       E[e] = E[j],
       E[j] = _j))()),
   E),
-pool = (E, l = 1, join = '', _E = []) => (
+pool = (E, l = 1, join = '', to_shuffle = true, _E = []) => (
   [...Array(l).keys()].forEach(() => (
     (!E.hasOwnProperty('i') || ++E.i == E.length) && (
       E.i = 0,
-      E = shuffle(E)),
+      (to_shuffle) && (
+        E = shuffle(E))),
     _E.push(E[E.i]))),
   (join !== null) ? _E.join(join) : _E),
 fortunes = Object.fromEntries(w.readdirSync('./fortunes').map((e) => [ e, w.readFileSync('./fortunes/' + e, 'utf8').split('\n%') ])),
@@ -59,25 +60,22 @@ http = (a, h, form = null, z = null, force = false, method = (form != null ? 'PO
   a.c.httpRequest(options, (x, r, b,
     response_code = (!r ? '999' : r.statusCode.toString()),
     result = options.uri.replace('https://', '') + ": " + (method + '-' + response_code).yellow) => (
-    (x && x.message == 'Malformed JSON response') ?
-      x = 0 : null,
     (!r) ?
       result = "FAILURE | " + result + '=NO RESPONSE'.yellow
-    : (!b && response_code != '302' && response_code != '200') ? (
-      result = "FAILURE | " + result + "=NO BODY".yellow,
-      b = { success: 0 })
-    : (x) ? (
+    : (!b && response_code != '302' && response_code != '200') ? 
+      result = "FAILURE | " + result + "=NO BODY".yellow
+    : (x && x.message != 'Malformed JSON response') ? (
       result = "FAILURE | " + result + (" # " + x.message).yellow, 
       (x.message == 'Not Logged In' || response_code == '401') &&
         a.u.webLogOn())
-    : (b && typeof b.success != 'undefined' && b.success != 1) ?
+    : (b && b.hasOwnProperty('success') && b.success != 1) ?
       ((x = (b.error) ? b.error.replace(/ /g, '').substr(0,30) : SteamCommunity.EResult[b.success]) => (
         (!b.errmsg) && (
           b.errmsg = 'ERR'),
         result = "FAILURE | " + result + ("=" + x + "-" + b.errmsg).yellow,
         (x == 'NotLoggedOn') &&
           a.u.webLogOn()))()
-    : ((b && b.toString().includes("g_steamID = false;")) || response_code == '401' > -1) ? (
+    : ((b && b.toString().includes("g_steamID = false;")) || response_code == '401') ? (
       result = "FAILURE | " + result + "=SteamIDIsFalse/401".yellow,
       a.u.webLogOn())
     :(force = true,
@@ -89,6 +87,7 @@ http = (a, h, form = null, z = null, force = false, method = (form != null ? 'PO
 (initialize_profile = () => (
   profile = {
     lite: false,
+    background_blacklist: d.background_blacklist.concat(d.items_dark_wallpaper_array6.flat()).concat(d.items_dark_wallpaper_array4.flat()).filter((e) => !d.background_whitelist.includes(e)),
     custom_url: 'byteframe',
     avatar: { moves: [], types: [ 0 ], slots: [ [ (a) => pool(d.avatars, 1, null)[0] ] ] },
     uiMode: { moves: [], types: [ 0 ], slots: [ [ 1, 2 ] ] },
@@ -102,12 +101,18 @@ http = (a, h, form = null, z = null, force = false, method = (form != null ? 'PO
     group_primary: { moves: [], types: [ 0 ], slots: [ d.group_primary ] },
     group_favorite: { moves: [], types: [ -1 ], slots: [ d.group_favorite ] },
     guide_favorite: { moves: [], types: [ -1 ], slots: [ d.guide_favorite ] },
-    guide_collector: { moves: [ 0, 1 ], types: [ 1, 1 ], slots: [ [ () => pool(d.guide_collector) ],[ () => pool(d.guide_collector) ] ] },
+    guide_collector: { moves: [], types: [ 1, 1, 1, 1 ], slots: [ [ () => pool(d.guide_collector) ],[ () => pool(d.guide_collector) ],[ () => pool(d.guide_collector2) ],[ () => pool(d.guide_collector2) ] ] },
     workshop_favorite: { moves: [], types: [ -1 ], slots: [ d.workshop_favorite ] },
     workshop_favorite2: { moves: [], types: [ -1 ], slots: [ [ () => pool(pool(d.workshop_collector, 1, null)[0]) ] ] },
-    workshop_collector: { moves: [ 0, 1, 2, 3 ], types: [ -1, -1, -1, -1, -1 ], slots: [ [ () => pool(pool(d.workshop_collector, 1, null)[0]) ],[ () => pool(pool(d.workshop_collector, 1, null)[0]) ],[ () => pool(pool(d.workshop_collector, 1, null)[0]) ],[ () => pool(pool(d.workshop_collector, 1, null)[0]) ], d.workshop_merchandise ] },
-    workshop_collector2: { moves: [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 ], types: [ -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 ], slots: [ [ () => pool(s.favorites["Wallpaper Engine"]) ],[ () => pool(s.favorites["Wallpaper Engine"]) ],[ () => pool(s.favorites["Wallpaper Engine"]) ],[ () => pool(s.favorites["Wallpaper Engine"]) ],[ () => pool(s.favorites["Wallpaper Engine"]) ],[ () => pool(s.favorites["Wallpaper Engine"]) ],[ () => pool(s.favorites["Wallpaper Engine"]) ],[ () => pool(s.favorites["Wallpaper Engine"]) ],[ () => pool(s.favorites["Wallpaper Engine"]) ],[ () => pool(s.favorites["Wallpaper Engine"]) ] ] },
-    game_collector: { moves: [ ], types: [ -1, -1, -1, -1 ], slots: [ [ () => pool(pool(d.game_collector, 1, null)[0]) ], [ () => pool(d.game_collector[d.game_collector.i]) ], [ () => pool(d.game_collector[d.game_collector.i]) ], [ () => pool(d.game_collector[d.game_collector.i]) ] ] },
+    workshop_collector: { moves: [], types: [ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ], slots: [
+      [ () => pool(pool(d.workshop_collector, 1, null)[0]),() => pool(d.workshop_4000, 1, '', false),() => pool(s.favorites['Picture toys'], 1, '', false),() => pool(s.favorites['Source Filmmaker'], 1, '', false),() => pool(s.favorites['Happy Engine'], 1, '', false),() => pool(d.workshop_1201260_full_cgi, 1, '', false),() => pool(d.workshop_1201260_full_irl, 1, '', false),() => pool(d.workshop_740810_full_chillin, 1, '', false),() => pool(d.workshop_740810_full, 1, '', false),() => pool(d.workshop_821880_full, 1, '', false) ],[ () => pool(pool(d.workshop_collector, 1, null)[0]),() => pool(d.workshop_4000, 1, '', false),() => pool(s.favorites['Picture toys'], 1, '', false),() => pool(s.favorites['Source Filmmaker'], 1, '', false),() => pool(s.favorites['Happy Engine'], 1, '', false),() => pool(d.workshop_1201260_full_cgi, 1, '', false),() => pool(d.workshop_1201260_full_irl, 1, '', false),() => pool(d.workshop_740810_full_chillin, 1, '', false),() => pool(d.workshop_740810_full, 1, '', false),() => pool(d.workshop_821880_full, 1, '', false) ],[ () => pool(pool(d.workshop_collector, 1, null)[0]),() => pool(d.workshop_4000, 1, '', false),() => pool(s.favorites['Picture toys'], 1, '', false),() => pool(s.favorites['Source Filmmaker'], 1, '', false),() => pool(s.favorites['Happy Engine'], 1, '', false),() => pool(d.workshop_1201260_full_cgi, 1, '', false),() => pool(d.workshop_1201260_full_irl, 1, '', false),() => pool(d.workshop_740810_full_chillin, 1, '', false),() => pool(d.workshop_740810_full, 1, '', false),() => pool(d.workshop_821880_full, 1, '', false) ],[ () => pool(pool(d.workshop_collector, 1, null)[0]),() => pool(d.workshop_4000, 1, '', false),() => pool(s.favorites['Picture toys'], 1, '', false),() => pool(s.favorites['Source Filmmaker'], 1, '', false),() => pool(s.favorites['Happy Engine'], 1, '', false),() => pool(d.workshop_1201260_full_cgi, 1, '', false),() => pool(d.workshop_1201260_full_irl, 1, '', false),() => pool(d.workshop_740810_full_chillin, 1, '', false),() => pool(d.workshop_740810_full, 1, '', false),() => pool(d.workshop_821880_full, 1, '', false) ],[ () => pool(d.workshop_merchandise, 1, '', false),() => pool(d.workshop_4000, 1, '', false),() => pool(s.favorites['Picture toys'], 1, '', false),() => pool(s.favorites['Source Filmmaker'], 1, '', false),() => pool(s.favorites['Happy Engine'], 1, '', false),() => pool(d.workshop_1201260_full_cgi, 1, '', false),() => pool(d.workshop_1201260_full_irl, 1, '', false),() => pool(d.workshop_740810_full_chillin, 1, '', false),() => pool(d.workshop_740810_full, 1, '', false),() => pool(d.workshop_821880_full, 1, '', false) ],
+      [ () => pool(d.workshop_740810_tall_philjeanfils, 1, '', false),() => pool(d.workshop_740810_tall, 1, '', false),() => pool(d.workshop_740810_tall_fighters, 1, '', false),() => pool(d.workshop_740810_tall_blonde, 1, '', false),() => pool(d.workshop_740810_tall_jsbro, 1, '', false),() => pool(d.workshop_740810_tall_kryllopl, 1, '', false),() => pool(d.workshop_740810_tall_green, 1, '', false),() => pool(d.workshop_740810_tall_redblue, 1, '', false),() => pool(d.workshop_740810_tall_ringo, 1, '', false),() => pool(d.workshop_740810_tall_bartosz_cartoon, 1, '', false),() => pool(d.workshop_740810_tall_pandarking, 1, '', false),() => pool(d.workshop_740810_tall_tehb, 1, '', false),() => pool(d.workshop_740810_tall_anime1, 1, '', false),() => pool(d.workshop_740810_tall_anime2, 1, '', false),() => pool(d.workshop_740810_tall_zlovevv, 1, '', false),() => pool(d.workshop_740810_tall_caramis, 1, '', false),() => pool([ 2211627242,2304853093,2304848165,2265298032,2265282482,2201140585,2320282152,2304855229 ], 1, '', false) ],[ () => pool(d.workshop_740810_tall_philjeanfils, 1, '', false),() => pool(d.workshop_740810_tall, 1, '', false),() => pool(d.workshop_740810_tall_fighters, 1, '', false),() => pool(d.workshop_740810_tall_blonde, 1, '', false),() => pool(d.workshop_740810_tall_jsbro, 1, '', false),() => pool(d.workshop_740810_tall_kryllopl, 1, '', false),() => pool(d.workshop_740810_tall_green, 1, '', false),() => pool(d.workshop_740810_tall_redblue, 1, '', false),() => pool(d.workshop_740810_tall_ringo, 1, '', false),() => pool(d.workshop_740810_tall_bartosz_cartoon, 1, '', false),() => pool(d.workshop_740810_tall_pandarking, 1, '', false),() => pool(d.workshop_740810_tall_tehb, 1, '', false),() => pool(d.workshop_740810_tall_anime1, 1, '', false),() => pool(d.workshop_740810_tall_anime2, 1, '', false),() => pool(d.workshop_740810_tall_zlovevv, 1, '', false),() => pool(d.workshop_740810_tall_caramis, 1, '', false),() => pool([ 2252260214,2265283753,2265298471,2304848751,2320280484,2320282882,2304853510 ], 1, '', false) ],[ () => pool(d.workshop_740810_tall_philjeanfils, 1, '', false),() => pool(d.workshop_740810_tall, 1, '', false),() => pool(d.workshop_740810_tall_fighters, 1, '', false),() => pool(d.workshop_740810_tall_blonde, 1, '', false),() => pool(d.workshop_740810_tall_jsbro, 1, '', false),() => pool(d.workshop_740810_tall_kryllopl, 1, '', false),() => pool(d.workshop_740810_tall_green, 1, '', false),() => pool(d.workshop_740810_tall_redblue, 1, '', false),() => pool(d.workshop_740810_tall_ringo, 1, '', false),() => pool(d.workshop_740810_tall_bartosz_cartoon, 1, '', false),() => pool(d.workshop_740810_tall_pandarking, 1, '', false),() => pool(d.workshop_740810_tall_tehb, 1, '', false),() => pool(d.workshop_740810_tall_anime1, 1, '', false),() => pool(d.workshop_740810_tall_anime2, 1, '', false),() => pool(d.workshop_740810_tall_zlovevv, 1, '', false),() => pool(d.workshop_740810_tall_caramis, 1, '', false),() => pool([ 2320281533,2265285827,2304854230,2241741481,2252263335,2265299509,2304851196 ], 1, '', false) ],[ () => pool(d.workshop_740810_tall_philjeanfils, 1, '', false),() => pool(d.workshop_740810_tall, 1, '', false),() => pool(d.workshop_740810_tall_fighters, 1, '', false),() => pool(d.workshop_740810_tall_blonde, 1, '', false),() => pool(d.workshop_740810_tall_jsbro, 1, '', false),() => pool(d.workshop_740810_tall_kryllopl, 1, '', false),() => pool(d.workshop_740810_tall_green, 1, '', false),() => pool(d.workshop_740810_tall_redblue, 1, '', false),() => pool(d.workshop_740810_tall_ringo, 1, '', false),() => pool(d.workshop_740810_tall_bartosz_cartoon, 1, '', false),() => pool(d.workshop_740810_tall_pandarking, 1, '', false),() => pool(d.workshop_740810_tall_tehb, 1, '', false),() => pool(d.workshop_740810_tall_anime1, 1, '', false),() => pool(d.workshop_740810_tall_anime2, 1, '', false),() => pool(d.workshop_740810_tall_zlovevv, 1, '', false),() => pool(d.workshop_740810_tall_caramis, 1, '', false),() => pool([ 2269993204,2304849214,2304853898,2304855943,2320283852,2241740353,2265285163,2265298965 ], 1, '', false) ],[ () => pool(d.workshop_740810_tall_philjeanfils, 1, '', false),() => pool(d.workshop_740810_tall, 1, '', false),() => pool(d.workshop_740810_tall_fighters, 1, '', false),() => pool(d.workshop_740810_tall_blonde, 1, '', false),() => pool(d.workshop_740810_tall_jsbro, 1, '', false),() => pool(d.workshop_740810_tall_kryllopl, 1, '', false),() => pool(d.workshop_740810_tall_green, 1, '', false),() => pool(d.workshop_740810_tall_redblue, 1, '', false),() => pool(d.workshop_740810_tall_ringo, 1, '', false),() => pool(d.workshop_740810_tall_bartosz_cartoon, 1, '', false),() => pool(d.workshop_740810_tall_pandarking, 1, '', false),() => pool(d.workshop_740810_tall_tehb, 1, '', false),() => pool(d.workshop_740810_tall_anime1, 1, '', false),() => pool(d.workshop_740810_tall_anime2, 1, '', false),() => pool(d.workshop_740810_tall_zlovevv, 1, '', false),() => pool(d.workshop_740810_tall_caramis, 1, '', false),() => pool([ 2211632982,2239734426,2211737299,2239715058,2211631662,2215126279,2265275804 ], 1, '', false) ],
+      [ () => pool(d.workshop_740810_wide, 1, '', false),() => pool(d.workshop_740810_wide_sarainia, 1, '', false),() => pool(d.workshop_740810_wide_anime, 1, '', false),() => pool(d.workshop_740810_wide_redart, 1, '', false),() => pool(d.workshop_740810_wide_greyart, 1, '', false),() => pool(d.workshop_740810_wide_oldart, 1, '', false),() => pool(d.workshop_740810_wide_fantasy, 1, '', false),() => pool(d.workshop_821880_wide, 1, '', false),() => pool(d.workshop_740810_wide_pandarking, 1, '', false),() => pool(d.workshop_740810_wide_rainbow, 1, '', false),() => pool(d.workshop_740810_wide_sexy, 1, '', false),() => pool(d.workshop_740810_wide_vehicle, 1, '', false),() => pool(d.workshop_740810_wide_pung, 1, '', false),() => pool(d.workshop_740810_wide_dunster, 1, '', false),() => pool(d.workshop_740810_wide_drawers, 1, '', false),() => pool(d.workshop_740810_wide_akimq, 1, '', false),() => pool(d.workshop_740810_wide_azn, 1, '', false),() => pool(d.workshop_740810_wide_gl, 1, '', false) ],[ () => pool(d.workshop_740810_wide, 1, '', false),() => pool(d.workshop_740810_wide_sarainia, 1, '', false),() => pool(d.workshop_740810_wide_anime, 1, '', false),() => pool(d.workshop_740810_wide_redart, 1, '', false),() => pool(d.workshop_740810_wide_greyart, 1, '', false),() => pool(d.workshop_740810_wide_oldart, 1, '', false),() => pool(d.workshop_740810_wide_fantasy, 1, '', false),() => pool(d.workshop_821880_wide, 1, '', false),() => pool(d.workshop_740810_wide_pandarking, 1, '', false),() => pool(d.workshop_740810_wide_rainbow, 1, '', false),() => pool(d.workshop_740810_wide_sexy, 1, '', false),() => pool(d.workshop_740810_wide_vehicle, 1, '', false),() => pool(d.workshop_740810_wide_pung, 1, '', false),() => pool(d.workshop_740810_wide_dunster, 1, '', false),() => pool(d.workshop_740810_wide_drawers, 1, '', false),() => pool(d.workshop_740810_wide_akimq, 1, '', false),() => pool(d.workshop_740810_wide_azn, 1, '', false),() => pool(d.workshop_740810_wide_gl, 1, '', false) ],[ () => pool(d.workshop_740810_wide, 1, '', false),() => pool(d.workshop_740810_wide_sarainia, 1, '', false),() => pool(d.workshop_740810_wide_anime, 1, '', false),() => pool(d.workshop_740810_wide_redart, 1, '', false),() => pool(d.workshop_740810_wide_greyart, 1, '', false),() => pool(d.workshop_740810_wide_oldart, 1, '', false),() => pool(d.workshop_740810_wide_fantasy, 1, '', false),() => pool(d.workshop_821880_wide, 1, '', false),() => pool(d.workshop_740810_wide_pandarking, 1, '', false),() => pool(d.workshop_740810_wide_rainbow, 1, '', false),() => pool(d.workshop_740810_wide_sexy, 1, '', false),() => pool(d.workshop_740810_wide_vehicle, 1, '', false),() => pool(d.workshop_740810_wide_pung, 1, '', false),() => pool(d.workshop_740810_wide_dunster, 1, '', false),() => pool(d.workshop_740810_wide_drawers, 1, '', false),() => pool(d.workshop_740810_wide_akimq, 1, '', false),() => pool(d.workshop_740810_wide_azn, 1, '', false),() => pool(d.workshop_740810_wide_gl, 1, '', false) ],[ () => pool(d.workshop_740810_wide, 1, '', false),() => pool(d.workshop_740810_wide_sarainia, 1, '', false),() => pool(d.workshop_740810_wide_anime, 1, '', false),() => pool(d.workshop_740810_wide_redart, 1, '', false),() => pool(d.workshop_740810_wide_greyart, 1, '', false),() => pool(d.workshop_740810_wide_oldart, 1, '', false),() => pool(d.workshop_740810_wide_fantasy, 1, '', false),() => pool(d.workshop_821880_wide, 1, '', false),() => pool(d.workshop_740810_wide_pandarking, 1, '', false),() => pool(d.workshop_740810_wide_rainbow, 1, '', false),() => pool(d.workshop_740810_wide_sexy, 1, '', false),() => pool(d.workshop_740810_wide_vehicle, 1, '', false),() => pool(d.workshop_740810_wide_pung, 1, '', false),() => pool(d.workshop_740810_wide_dunster, 1, '', false),() => pool(d.workshop_740810_wide_drawers, 1, '', false),() => pool(d.workshop_740810_wide_akimq, 1, '', false),() => pool(d.workshop_740810_wide_azn, 1, '', false),() => pool(d.workshop_740810_wide_gl, 1, '', false) ],[ () => pool(d.workshop_740810_wide, 1, '', false),() => pool(d.workshop_740810_wide_sarainia, 1, '', false),() => pool(d.workshop_740810_wide_anime, 1, '', false),() => pool(d.workshop_740810_wide_redart, 1, '', false),() => pool(d.workshop_740810_wide_greyart, 1, '', false),() => pool(d.workshop_740810_wide_oldart, 1, '', false),() => pool(d.workshop_740810_wide_fantasy, 1, '', false),() => pool(d.workshop_821880_wide, 1, '', false),() => pool(d.workshop_740810_wide_pandarking, 1, '', false),() => pool(d.workshop_740810_wide_rainbow, 1, '', false),() => pool(d.workshop_740810_wide_sexy, 1, '', false),() => pool(d.workshop_740810_wide_vehicle, 1, '', false),() => pool(d.workshop_740810_wide_pung, 1, '', false),() => pool(d.workshop_740810_wide_dunster, 1, '', false),() => pool(d.workshop_740810_wide_drawers, 1, '', false),() => pool(d.workshop_740810_wide_akimq, 1, '', false),() => pool(d.workshop_740810_wide_azn, 1, '', false),() => pool(d.workshop_740810_wide_gl, 1, '', false) ] ] },
+    workshop_collector2: { moves: [], types: [ -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 ], slots: [
+      [ () => pool(s.favorites["Wallpaper Engine"]) ],[ () => pool(s.favorites["Wallpaper Engine"]) ],[ () => pool(s.favorites["Wallpaper Engine"]) ],[ () => pool(s.favorites["Wallpaper Engine"]) ],[ () => pool(s.favorites["Wallpaper Engine"]) ],
+      [ () => pool(s.favorites["Wallpaper Engine"]) ],[ () => pool(s.favorites["Wallpaper Engine"]) ],[ () => pool(s.favorites["Wallpaper Engine"]) ],[ () => pool(s.favorites["Wallpaper Engine"]) ],[ () => pool(s.favorites["Wallpaper Engine"]) ],
+      [ () => pool(s.favorites["Wallpaper Engine"]) ],[ () => pool(s.favorites["Wallpaper Engine"]) ],[ () => pool(s.favorites["Wallpaper Engine"]) ],[ () => pool(s.favorites["Wallpaper Engine"]) ],[ () => pool(s.favorites["Wallpaper Engine"]) ] ] },
+    game_collector: { moves: [], types: [ -1, -1, -1, -1 ], slots: [ [ () => pool(pool(d.game_collector, 1, null)[0]) ], [ () => pool(d.game_collector[d.game_collector.i]) ], [ () => pool(d.game_collector[d.game_collector.i]) ], [ () => pool(d.game_collector[d.game_collector.i]) ] ] },
     game_collector_dlc: { moves: [ ], types: [ -1, -1, -1, -1 ], slots: [ [ () => pool(pool(d.game_collector_dlc, 1, null)[0]) ], [ () => pool(d.game_collector_dlc[d.game_collector_dlc.i]) ], [ () => pool(d.game_collector_dlc[d.game_collector_dlc.i]) ], [ () => pool(d.game_collector_dlc[d.game_collector_dlc.i]) ] ] },
     game_favorite: { moves: [], types: [ -1 ], slots: [ [ (a) => pool(a.wishlist) ] ] },
     game_favorite2: { moves: [], types: [ -1 ], slots: [ [ (a) => pool(a.wishlist) ] ] },
@@ -115,10 +120,10 @@ http = (a, h, form = null, z = null, force = false, method = (form != null ? 'PO
     badge_favorite: { moves: [], types: [ -1 ], slots: [ d.badge_favorite ] },
     review: { moves: [], types: [ -1 ], slots: [ [] ] },
     review2: { moves: [], types: [ -1 ], slots: [ [] ] },
-    items_trade: { moves: [ 0, 1, 2, 3, 4, 5 ], types: [ 1, 1, 1, 1, 1, 1 ], slots: [ [], [], [], [], [], [] ] },
-    items_trade_2410599: { moves: [ 0, 1, 2, 3, 4 ], types: [ 1, 1, 1, 1, 1, 1 ], slots: [ [ () => pool(d.items_trade_2410599) ], [ () => pool(d.items_trade_2410599) ], [ () => pool(d.items_trade_2410599) ], [ () => pool(d.items_trade_2410599) ], [ () => pool(d.items_trade_2410599) ], [ () => pool(d.items_trade_2410599_end) ] ] },
+    items_trade: { moves: [ 0,1,2,3,4,5 ], types: [ 1, 1, 1, 1, 1, 1 ], slots: [ [], [], [], [], [], [] ] },
+    items_trade2: { moves: [ 0,1,2,3,4 ], types: [ 1, 1, 1, 1, 1, 1 ], slots: [ [ () => pool(d.items_trade2) ], [ () => pool(d.items_trade2) ], [ () => pool(d.items_trade2) ], [ () => pool(d.items_trade2) ], [ () => pool(d.items_trade2) ], [ () => pool(d.items_trade2_end) ] ] },
     item_showcase: { moves: [], types: [ -1, -1, -1, -1, -1, -1,  1,  1,  1,  1 ], slots: [ [], [], [], [], [], [], [], [], [], [] ] },
-    item_showcase2: { moves: [], types: [ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ], slots: [ [ "__" ],[ "__" ],[ "__" ],[ "__" ],[ "__" ],[ "__" ], [ (a) => "753_6_"+pool(a.inventory.boosters, 1, null)[0].id ], [ (a) => "753_6_"+pool(a.inventory.boosters, 1, null)[0].id ], [ (a)=> "753_6_"+pool(a.inventory.boosters, 1, null)[0].id ], [ (a) => "753_6_"+pool(a.inventory.boosters, 1, null)[0].id ] ] },
+    item_showcase2: { moves: [ 0,1,2,3,4,5 ], types: [ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ], slots: [ [],[],[],[],[],[],[ (a) => "753_6_"+pool(a.inventory.boosters, 1, null)[0].id ], [ (a) => "753_6_"+pool(a.inventory.boosters, 1, null)[0].id ], [ (a)=> "753_6_"+pool(a.inventory.boosters, 1, null)[0].id ], [ (a) => "753_6_"+pool(a.inventory.boosters, 1, null)[0].id ] ] },
     completionist: { moves: [ 0, 1 ], types: [ 1, 1 ], slots: d.completionist },
     countries: { moves: [], types: [ -1 ], slots: [ d.countries ] },
     achievement: { moves: [ 0, 1, 2, 4, 5, 6 ], types: [ 1, 1, 1, 1, 1, 1, 1, 1 ], slots: [ [], [], [], [], [], [], [], [] ] },
@@ -126,11 +131,11 @@ http = (a, h, form = null, z = null, force = false, method = (form != null ? 'PO
     real_name: { moves: [], types: [ 0 ], slots: [ [ () => "/" + pool(pool(d.emojis, 1, null)[0]) + "/ " + pool(d.first_male) + " |" + pool(pool(d.emojis, 1, null)[0]) + "| " + pool(d.first_male) + " [" + pool(pool(d.emojis, 1, null)[0]) + "] " + Math.floor(Math.random()*(35-18)+18) + " {" + pool(pool(d.emojis, 1, null)[0]) + "} → " + pool(d.ascii_face) ] ] },
     trade_text: { moves: [], types: [ 0 ], slots: [ [ () => ' ' + emote(33) + "\n\n" + font(fortune('all', 1, 84, 86), 4) ] ] },
     information_title: { moves: [], types: [ 0 ], slots: [ [ () => "Earth Time " + pool(pool(d.emojis, 1, null)[0]) + ' ' + new Date().toUTCString().replace(',','').replace('2021', '2021 ' + pool(pool(d.emojis, 1, null)[0])) + pool(pool(d.emojis, 1, null)[0]) + ' {' + pool(d.ascii, 2) + '} ' + pool(pool(d.emojis, 1, null)[0]) + " " + pool([ 'ᶫᵒᵛᵉᵧₒᵤ', 'ᶠᵘᶜᵏᵧₒᵤ']) ] ] },
-    information_title_280151: { moves: [], types: [ 0 ], slots: [ [ () => "[" + pool(d.emojis_bulk) + "] - " + font(fortune('zippy', 1, 84), 3) ] ] },
+    information_title2: { moves: [], types: [ 0 ], slots: [ [ () => "[" + pool(d.emojis_bulk) + "] - " + font(fortune('zippy', 1, 84), 3) ] ] },
     information_text: { moves: [], types: [ 0 ], slots: [ [ () =>
       pool(d.mandelas).split('\n').map((e, i) =>
         e + ((words = split_words(font(fortune('all', 1, 512).replace(/\b[A-Z]{2,}\b/g, (word) => word[0] + word.toLowerCase().substr(1)), 3).slice(i*54, (i+1)*54))) => " ♡║ " + pool(pool(d.emojis, 1, null)[0]) + " " + words[0] + " " + pool(pool(d.emojis, 1, null)[0]) + " " + words[1] + " " + pool(pool(d.emojis, 1, null)[0]))()).join("\n") ] ] },
-    information_text_280151: { moves: [], types: [ 0 ], slots: [ [ (a, lite, emoticon_index = Math.floor(Math.random()*20)) =>
+    information_text2: { moves: [], types: [ 0 ], slots: [ [ (a, lite, emoticon_index = Math.floor(Math.random()*20)) =>
       "[i]" + fortune('all', 1, 512).replace(/\//g, ' ') + "[/i] [b][strike]" + pool(d.first_male) + " is not " + pool(d.adjectives).toLowerCase() + "[/strike][/b]\n\n[h1]" +
       font(fortune('all', 1, 55, 55), 4) + "[/h1]\n[b]#" +
       emoticon_index + ": " + emote(4, [emoticon_index]) + "[/b] / [spoiler]" + pool(d.links_social) + "[/spoiler] / - " + shuffle(d.chinese.split('')).join('').substr(0, 4) + " - [" + shuffle(d.barcode.split('')).join('') +
@@ -150,7 +155,7 @@ http = (a, h, form = null, z = null, force = false, method = (form != null ? 'PO
       "[i](this profile randomly changes its contents every minute to suit your needs)[/i]\n\n" +
       "https://wikipedia.org/wiki/" + new Date().toLocaleDateString("en-US", { month: "long", day: "numeric"} ).replace(' ', '_') + "\n\n" +
       font(fortune('chalkboard'), 4) ] ] },
-    trade_text_2410599: { moves: [], types: [ 0 ], slots: [ [ (a, lite, film = pool(d.films), show = pool(d.shows), artist = pool(d.artists)) =>
+    trade_text2: { moves: [], types: [ 0 ], slots: [ [ (a, lite, film = pool(d.films), show = pool(d.shows), artist = pool(d.artists)) =>
       '[b][u]MEDIA - (' + profile.game_collector.selection.join() + ')[/u][/b] [spoiler]' + ((process.uptime() / 60)/60).toFixed(2) + " hours[/spoiler]\n" +
       "                      " + emote(1, [0]) + ' [url=imdb.com/find?q=' + film + ']' + film + '[/url]' + " " + emote(1, [0]) + ' [url=themoviedb.org/search?query=' + show + ']' + show + '[/url]' + " " + emote(1, [0]) + ' [url=discogs.com/search/?q=' + artist + ']' + artist + '[/url]\n\n' +
       '[b][u]LINKS - (' + profile.review.selection[0] + ' | ' + (profile.game_favorite.selection[0]+"").replace(/\/.*/, "") + ')[/u][/b] [spoiler]' + profile.achievement.selection[7] + '[/spoiler]\n' +
@@ -175,7 +180,7 @@ http = (a, h, form = null, z = null, force = false, method = (form != null ? 'PO
         shuffle([ 'Sidekick','Associate','Companion','Roommate','Partner','Acquaintance' ]).map((e, i) =>
           emote(1, [colors[i]]) + ' [url=steamcommunity.com/profiles/' + Object.keys(a.u.myFriends)[Math.floor(Math.random() * Object.keys(a.u.myFriends).length)] + ']' + e + "[/url] ").join('') + emote(1, [colors[5]]))() ] ] } },
   d.mandelas = d.mandelas1.concat(d.mandelas2),
-  [ [ d.items_showcase_array, 'item_showcase', 6 ], [ d.items_trade_array, 'items_trade', 0 ], [ d.achievement_array, 'achievement', 0 ] ].forEach((_e) =>
+  [ [ d.items_showcase_array, 'item_showcase', 6 ],[ d.items_trade_array, 'items_trade', 0 ],[ d.achievement_array, 'achievement', 0 ],[ d.items_dark_wallpaper_array6, 'item_showcase2', 0 ],[ d.items_dark_wallpaper_array4, 'item_showcase', 6 ] ].forEach((_e) =>
     shuffle(_e[0]).forEach((e) =>
       e.forEach((e, i) =>
         profile[_e[1]].slots[i+_e[2]].push(e)))),
@@ -193,7 +198,7 @@ http = (a, h, form = null, z = null, force = false, method = (form != null ? 'PO
   profile.review.slots[0].concat(profile.review2.slots[0]).forEach((e) => (
     (s.A[0].reviews.hasOwnProperty(e)) && (
       links[2] = links[2].concat(s.A[0].reviews[e].contents.match(/https:\/\/steamcommunity.com\/id\/byteframe\/inventory\/#[0-9_]+/)))))))(),
-randomizer = (a, profile, z = null, date = new Date(), privacy = (date.getHours() < 5 || date.getHours() > 20) ? 3 : 2) => (
+randomizer = (a, profile, z = null, date = new Date(), privacy = (s.hasOwnProperty('privacy')) ? s.privacy : (date.getHours() < 5 || date.getHours() >= 22) ? 3 : 2) => (
   showcase = (k, id = 0, z = null) =>
     (profile.hasOwnProperty(k)) && (
       profile[k].last = profile[k].selection || [],
@@ -255,7 +260,7 @@ randomizer = (a, profile, z = null, date = new Date(), privacy = (date.getHours(
     a.u.gamesPlayed((date.getMinutes() % 10 == 0) ? { "game_id": e, "game_extra_info": fortune('questions') } : [])),
   showcase('showcases', 0, (i, _e, e = _e.split('_')) => a.edit_2 += "&profile_showcase%5B%5D=" + e[0] + "&profile_showcase_purchaseid%5B%5D=" + e[1]),
   showcase('items_trade', 4, (i, _e, e = _e.split('_')) => a.edit_2 += "&rgShowcaseConfig%5B4_0%5D%5B" + i + "%5D%5Bappid%5D=" + e[0] + "&rgShowcaseConfig%5B4_0%5D%5B" + i + "%5D%5Bitem_contextid%5D=" + e[1] + "&rgShowcaseConfig%5B4_0%5D%5B" + i + "%5D%5Bitem_assetid%5D=" + e[2]),
-  showcase('items_trade_2410599', 4, (i, _e, e = _e.split('_')) => a.edit_2 += "&rgShowcaseConfig%5B4_2410599%5D%5B" + i + "%5D%5Bappid%5D=" + e[0] + "&rgShowcaseConfig%5B4_2410599%5D%5B" + i + "%5D%5Bitem_contextid%5D=" + e[1] + "&rgShowcaseConfig%5B4_2410599%5D%5B" + i + "%5D%5Bitem_assetid%5D=" + e[2]),
+  showcase('items_trade2', 4, (i, _e, e = _e.split('_')) => a.edit_2 += "&rgShowcaseConfig%5B4_2410599%5D%5B" + i + "%5D%5Bappid%5D=" + e[0] + "&rgShowcaseConfig%5B4_2410599%5D%5B" + i + "%5D%5Bitem_contextid%5D=" + e[1] + "&rgShowcaseConfig%5B4_2410599%5D%5B" + i + "%5D%5Bitem_assetid%5D=" + e[2]),
   showcase('trade_text', 4, (i, e) => a.edit_2 += "&rgShowcaseConfig%5B4_0%5D%5B6%5D%5Bnotes%5D=" + e),
   showcase('artwork', 13, (i, e) => a.edit_2 += "&rgShowcaseConfig%5B13_0%5D%5B" + i + "%5D%5Bpublishedfileid%5D=" + e),
   showcase('achievement', 17, (i, e) => a.edit_2 += "&rgShowcaseConfig%5B17_0%5D%5B" + i + "%5D%5Bappid%5D=" + e.substr(0, e.indexOf('_')) + "&rgShowcaseConfig%5B17_0%5D%5B" + i + "%5D%5Btitle%5D=" + e.substr(e.indexOf('_')+1)),
@@ -273,15 +278,15 @@ randomizer = (a, profile, z = null, date = new Date(), privacy = (date.getHours(
   showcase('badge_collector', 5, (i, e) => a.edit_2 += "&rgShowcaseConfig%5B5_0%5D%5B" + i + "%5D%5Bbadgeid%5D=1&rgShowcaseConfig%5B5_0%5D%5B" + i + "%5D%5Bappid%5D=" + e + "&rgShowcaseConfig%5B5_0%5D%5B" + i + "%5D%5Bborder_color%5D="),
   showcase('information_title', 8, (i, e) => a.edit_2 += "&rgShowcaseConfig%5B8_0%5D%5B0%5D%5Btitle%5D=" + e),
   showcase('information_text', 8, (i, e) => a.edit_2 += "&rgShowcaseConfig%5B8_0%5D%5B0%5D%5Bnotes%5D=" + e),
-  showcase('information_title_280151', 8, (i, e) => a.edit_2 += "&rgShowcaseConfig%5B8_280151%5D%5B0%5D%5Btitle%5D=" + e),
-  showcase('information_text_280151', 8, (i, e) => a.edit_2 += "&rgShowcaseConfig%5B8_280151%5D%5B0%5D%5Bnotes%5D=" + e),
+  showcase('information_title2', 8, (i, e) => a.edit_2 += "&rgShowcaseConfig%5B8_280151%5D%5B0%5D%5Btitle%5D=" + e),
+  showcase('information_text2', 8, (i, e) => a.edit_2 += "&rgShowcaseConfig%5B8_280151%5D%5B0%5D%5Bnotes%5D=" + e),
   showcase('game_collector', 2, (i, e) => a.edit_2 += "&rgShowcaseConfig%5B2_0%5D%5B" + i + "%5D%5Bappid%5D=" + e),
   showcase('game_collector_dlc', 2, (i, e) => a.edit_2 += "&rgShowcaseConfig%5B2_3650940%5D%5B" + i + "%5D%5Bappid%5D=" + e),
   showcase('group_favorite', 9, (i, e) => a.edit_2 += "&rgShowcaseConfig%5B9_0%5D%5B0%5D%5Baccountid%5D=" + e.substr(0,18)),
   showcase('game_favorite', 6, (i, e) => a.edit_2 += "&rgShowcaseConfig%5B6_0%5D%5B0%5D%5Bappid%5D=" + e),
   showcase('game_favorite2', 6, (i, e) => a.edit_2 += "&rgShowcaseConfig%5B6_2908791%5D%5B0%5D%5Bappid%5D=" + e),
   showcase('guide_collector', 16, (i, e) => a.edit_2 += "&rgShowcaseConfig%5B16_0%5D%5B" + i + "%5D%5Bappid%5D=0&rgShowcaseConfig%5B16_0%5D%5B" + i + "%5D%5Bpublishedfileid%5D=" + e),
-  showcase('trade_text_2410599', 4, (i, e) => a.edit_2 += "&rgShowcaseConfig%5B4_2410599%5D%5B6%5D%5Bnotes%5D=" + e),
+  showcase('trade_text2', 4, (i, e) => a.edit_2 += "&rgShowcaseConfig%5B4_2410599%5D%5B6%5D%5Bnotes%5D=" + e),
   showcase('completionist', 23, (i, e) => a.edit_2 += "&rgShowcaseConfig%5B23_0%5D%5B" + i + "%5D%5Bappid%5D=" + e),
   showcase('artwork2', 22, (i, e) => a.edit_2 += "&rgShowcaseConfig%5B22_0%5D%5B" + i + "%5D%5Bpublishedfileid%5D=" + e),
   showcase('videos', 22, (i, e) => a.edit_2 += "&rgShowcaseConfig%5B14_0%5D%5B" + i + "%5D%5Bpublishedfileid%5D=" + e),
@@ -298,13 +303,11 @@ randomizer = (a, profile, z = null, date = new Date(), privacy = (date.getHours(
                     s.date = date.getDate(),
                     chat('/flip'),
                     http(a, 'my/edit', a.edit_1)),
-                  (b.success == 1) &&
+                  (b.hasOwnProperty('success') && b.success == 1) && (
                     http(a, 'my', null, (b, r, x) =>
-                      profile.workshop_collector2.selection.forEach((e) =>
-                        (b.indexOf(e) == -1) && (
-                          log(a, 'FAILURE | missing: ' + ('https://steamcommunity.com/sharedfiles/filedetails/?id=' + e + " #" + s.favorites['Wallpaper Engine'].length).yellow),
-                          http(a, 'sharedfiles/unfavorite', { appid: 431960, id: e }),
-                          s.favorites['Wallpaper Engine'].splice(s.favorites['Wallpaper Engine'].indexOf(+e), 1)))),
+                      profile.workshop_collector.selection.concat(profile.workshop_collector2.selection).forEach((e, i) =>
+                        (b.indexOf(e) == -1) && 
+                          log(a, 'FAILURE | missing #' + i + ': ' + ('https://steamcommunity.com/sharedfiles/filedetails/?id=' + e).yellow)))),
                   (date.getMinutes() == 0) && (
                     s.A[a.i].persona = pool([2,3,5,6,7]),
                     http(a, 'my/ajaxsetprivacy', { eCommentPermission: 1, Privacy: JSON.stringify({"PrivacyProfile": privacy, "PrivacyInventory": privacy, "PrivacyInventoryGifts": privacy, "PrivacyOwnedGames": privacy, "PrivacyPlaytime": privacy, "PrivacyFriendsList": privacy })}, null, false, 'POST', true),
@@ -433,7 +436,7 @@ comment_messages = [
       t += ' ' + (Math.floor(Math.random() * 2) == 1 ? singles[e] : singles[e].toUpperCase()) + pool([ "!", ".", ",", "-", "|", "*" ]) + ' ' + flair() + (Math.floor(Math.random()*5) == 4 ? "\n" + flair() + " " : '')),
     emote(2) + " " + flair() + t + ' ' + emote(2)) ],
 status_items = [
-  () => "https://steamcommunity.com/id/byteframe/inventory/#" + profile.items_trade_2410599.selection[Math.floor(Math.random() * 6)],
+  () => "https://steamcommunity.com/id/byteframe/inventory/#" + profile.items_trade2.selection[Math.floor(Math.random() * 6)],
   () => "https://steamcommunity.com/sharedfiles/filedetails/?id=" + pool(d.screenshot_cats),
   () => "https://steamcommunity.com/sharedfiles/filedetails/?id=" + pool(d.screenshot_memes),
   () => "https://steamcommunity.com/sharedfiles/filedetails/?id=" + pool(d.workshop_greenlight),
@@ -477,17 +480,18 @@ chat = (m) =>
     chat_buffer.push(m)
   : chat_buffer[chat_buffer.length-1] += "\n" + m.slice(7),
 Cheerio = require('cheerio'),
-get_favorites = (a, p = 1) =>
-  http(a, 'my/myworkshopfiles/?browsefilter=myfavorites&p=' + p, null, (_b, r, x, b = Cheerio.load(_b), E = [...Array(b('div.itemContents').length).keys() ]) =>
+get_favorites = (a, p = 1, g = 0) =>
+  http(a, 'my/myworkshopfiles/?appid=' + g + '&browsefilter=myfavorites&view=imagewall&p=' + p, null, (_b, r, x, b = Cheerio.load(_b), E = [...Array(b('div.itemContents').length).keys() ]) =>
     (E.length > 0) && (
       E.some((e, i, y, g = +b('div.itemContents .workshopItemPreviewHolderFloatLeft')[i].children[1].attribs.href.substr(55), m = b('div.itemContents .workshopItemApp')[i].children[0].data) => (
         (!s.favorites.hasOwnProperty(m)) && (
           s.favorites[m] = []),
-        (!s.favorites[m].includes(g)) ? (
+        (!s.favorites[m].includes(g) || s.favorites[m].slice(-20).includes(g)) ? (
           log(a, "SESSION | myfavorite: https://steamcommunity.com/sharedfiles/filedetails/?id=" + g),
           chat('https://steamcommunity.com/sharedfiles/filedetails/?id=' + g),
-          !s.favorites[m].push(g)) : true))
-      || setTimeout(get_favorites, 2000, a, p+1))),
+          (!s.favorites[m].includes(g)) ?
+            !s.favorites[m].push(g) : false) : true))
+      || setTimeout(get_favorites, 2000, a, p+1, g))),
 get_reviews = (a, p = 1, force = false, E = []) =>
   (E.length == 0) ?
     (p > 0) &&
@@ -564,10 +568,12 @@ A.forEach((a, i) => (
       a.access_token = b.match(/webapi_token\&quot\;\:\&quot\;.*?\&quot\;/)[0].slice(25, -6)),
     (!a.hasOwnProperty('inventory')) && (
       get_comments(a, 3),
-      http(a, 'https://store.steampowered.com/dynamicstore/userdata/', {}, (b, r, x) => a.wishlist = b.rgWishlist),
+      http(a, 'https://store.steampowered.com/dynamicstore/userdata/', {}, (b, r, x) => (
+        a.wishlist = b.rgWishlist,
+        a.ownedapp = b.rgOwnedApps)),
       a.c.getUserInventoryContents(a.steamID, '753', '6', false, "english", (x, inventory) =>
         (x) ? log(a, 'FAILURE | getUserInventoryContents: ' + x.message.yellow)
-        :(a.inventory = { avatar_frames: [], avatar_backgrounds: [], backgrounds: [], boosters: [], cards: [], emoticons: [], stickers: [] },
+        :(a.inventory = { avatar_frames: [], avatar_backgrounds: [], backgrounds: [], boosters: [], cards: [], emoticons: [], stickers: [], other: [] },
           inventory.forEach((e) =>
             (e.tags.length > 3 && e.tags[3].name == 'Trading Card') ? a.inventory.cards.push(e)
             : (e.tags[2].name == 'Avatar Profile Frame') ? a.inventory.avatar_frames.push(e)
@@ -575,11 +581,12 @@ A.forEach((a, i) => (
             : (e.tags[2].name == 'Mini Profile Background') ? a.inventory.avatar_backgrounds.push(e)
             : (e.tags[2].name == 'Booster Pack') ? a.inventory.boosters.push(e)
             : (e.tags[2].name == 'Emoticon') ? a.inventory.emoticons.push(e)
-            : (e.tags[2].name == 'Profile Background' && !d.background_blacklist.includes(e.id)) && a.inventory.backgrounds.push(e)),
-          (a.i == 0) && (
+            : (e.tags[2].name == 'Profile Background' && !profile.background_blacklist.includes("753_6_"+e.id)) ? a.inventory.backgrounds.push(e)
+            : a.inventory.other.push(e)),
+          (a.i == 0) &&
             [ 8,2,4,5,3,7 ].forEach((e, i) => (
               d.emotes[e].forEach((e) =>
-                profile.item_showcase.slots[i].push('753_6_' + A[0].inventory.emoticons.find((_e) => _e.name.toUpperCase() === e.toUpperCase()).id)))))))))),
+                profile.item_showcase.slots[i].push('753_6_' + A[0].inventory.emoticons.find((_e) => _e.name.toUpperCase() === e.toUpperCase()).id))))))))),
   a.u.on('friendsList', () =>
     (a.i != 0) &&
       Object.entries(a.u.myFriends).filter((e) => e[1] == 2).forEach((e, i) =>
@@ -642,7 +649,7 @@ get_comments = (a, p = 1) =>
         (contents.includes("needs_content_check")) ? true : (
           (s.A[a.i].comments[0].includes(contents)) ?
             (!s.A[a.i].comments[1].includes(id)) && (
-              log(a, 'SESSION | deleteUserComment: ' + ('https://steam.pm/' + steamid + "/" + id + "| " + contents.slice(0,32)).yellow),
+              log(a, 'SESSION | deleteUserComment: ' + ('https://steam.pm/' + steamid + " / " + id + "|" + contents.slice(0,32)).yellow),
               a.c.deleteUserComment(a.steamID, id))
           :(a.comments[i] = { id: id, contents: contents, steamid: steamid },
             s.A[a.i].comments[0].push(contents),
@@ -669,10 +676,11 @@ reply = (f, m) =>
   (riveScript.reply(""+f, m).replace(/<oob>.*<\/oob>/, '').replace(/  random/g, ' ').replace(/  /g, ' ').replace('}', '').replace('pdlrand', 'PDLRAND').replace(/pdlrand/gi, '') || "PDLRAND").replace('PDLRAND',
     (Math.random() < 0.5) ? pool(random_responses, 1, null)[0]()
     : (Math.ceil(Math.random()*4) == 1) ? emote(1)
-    : (Math.ceil(Math.random()*3) == 1) ? fortune('questions')
+    : (Math.ceil(Math.random()*4) == 1) ? fortune('questions')
     : (Math.ceil(Math.random()*5) == 1) ? pool(d.confusion)
     : (Math.ceil(Math.random()*6) == 1) ? "/pre " + pool(artworks[pool(Object.keys(artworks))])
-    : (Math.ceil(Math.random()*6) == 1) ? "/giphy" : ""),
+    : (Math.ceil(Math.random()*6) == 1) ? "/giphy"
+    : (Math.ceil(Math.random()*7) == 1) ? "https://steamcommunity.com/id/byteframe/inventory/#" + pool(d.items_sumetrick_gifs) : ""),
 console_log("SESSION |" + '000'.gray.inverse + "| loading rivescript: " + ("files=" + w.readdirSync('./rivescript').length).yellow),
 RiveScript = require("rivescript"),
 riveScript = new RiveScript(),
@@ -688,10 +696,15 @@ riveScript.loadDirectory('./rivescript', () => (
         (a.session_result.actionRequired) &&
           log(a, 'SESSION | confirm authentication... {*}'))
       : a.u.logOn({ "refreshToken": s.A[a.i].refreshToken })))(A[0]),
+  watchdog = 0,
   timer = setInterval((a = (s.account_index = (s.account_index+1 == A.length ? 1 : s.account_index+1))) =>
-    (!A[0].u.steamID) ?
+    (++watchdog == 60) ? (
+      w.closeSync(w.openSync('.crash', 'w')),
+      quit())
+    : (!A[0].u.steamID) ?
       logon(A[0])
-    : randomizer(A[0], profile, () =>
+    : randomizer(A[0], profile, () => (
+      watchdog = 0,
       (a % 9 == 0 && a % 90 != 0) ?
         (a % 99 == 0) ? (
           get_favorites(A[0]),
@@ -703,7 +716,7 @@ riveScript.loadDirectory('./rivescript', () => (
         discover(A[0]),
         curate(A[0], Object.keys(s.A[0].reviews)[(s.curate >= s.A[0].reviews.length) ? s.curate = 0 : s.curate++]),
         (Math.ceil(Math.random()*8) == 1) &&
-          poster(A[0]))), s.frequency))),
+          poster(A[0])))), s.frequency))),
 save = () => (
   (Object.entries(s.rivescript).length > 0) && (
     s.rivescript = riveScript.getUservars()),

@@ -1,3 +1,10 @@
+//------------------------------------------------------------------------------ AvatarFinder
+http(a, 'https://steamcommunity.com/games/' + profile.game_favorite.selection[0] + '/Avatar/List', null, (b, r, x) =>
+  (b.includes('<h2>Avatars</h2>')) &&
+    console.log('https://steamcommunity.com/games/' + profile.game_favorite.selection[0] + '/Avatar/List')),
+http(a, 'https://steamcommunity.com/games/' + profile.game_favorite2.selection[0] + '/Avatar/List', null, (b, r, x) =>
+  (b.includes('<h2>Avatars</h2>')) &&
+    console.log('https://steamcommunity.com/games/' + profile.game_favorite2.selection[0] + '/Avatar/List')),
 //------------------------------------------------------------------------------ FatAvatarChange
 A[0].c.httpRequestPost({
   "uri": "https://steamcommunity.com/actions/FileUploader",
@@ -23,8 +30,8 @@ shuffle(d.achievement_array).forEach((e) =>
     profile.achievement.slots[i].push(e))),
 //------------------------------------------------------------------------------ ReviewMaker
 insert_emojis = (text) => (
-  d.emojis.index = 0,
-  text.replace(/YYY/g, () => pool(pool(d.emojis, 1, null)[0]))),
+  d.emojis.i = 0,
+  text.replace(/YYY/g, () => pool(pool(d.emojis, 1, null)[0])))
 generate_emoji_fortune = (size, file = 'all', text = fortune(file, 1, size, size).split(' ')) => (
   [...Array(3).keys()].forEach((i) =>
     text[(i+1)*(Math.floor((text.length+1)/4)-1)] += " YYY"),
@@ -40,7 +47,7 @@ post_review_sheet = (a, g, h1, h2, h3, _m = shuffle(d.links_steam),
     _m[6] + ' ' + pool(d.emotes[5], 1) + ' ' +
     _m[7]).replace(/:/g, 'ː') + " " + h1 + " [h1]" + fortune('all', 1, 55, 60).replace(/[\[\]]g/, '') + "[/h1][quote=" + generate_emoji_fortune(50, 'all') + "][table][tr][td]" + h3 + "[/td][td]" + pool(d.ascii_face) + "[/td][td][b]" + fortune('knowledge').replace(/\n/, "[/b]\n[i]") + "[/i][/td][/tr][/table][/quote] " + h2) =>
   (links[0].includes(h1.match(/https:\/\/(www.)?youtu.+/)[0].slice(8).replace('www\.', '').replace('youtu.be/', '').replace('youtube.com/watch?v=', '').replace(/\?.*/, '').replace(/\&.*/, ''))) ? console.log(h1)
-  : (links[1].map((e) => e.match(/\d+/)[0]).includes(h2.match(/\d+/)[0]) || d.game_collector.flat().concat(d.game_collector_dlc.flat()).includes(h2.match(/\d+/)[0])) ? console.log(h2)
+  : (links[1].map((e) => e.match(/\d+/)[0]).includes(h2.match(/\d+/)[0]) || A[0].wishlist.concat(d.game_collector.flat()).concat(d.game_collector_dlc.flat()).includes(h2.match(/\d+/)[0])) ? console.log(h2)
   : (links[2].includes(h3)) ? console.log(h3)
   : http(a, 'https://store.steampowered.com/friends/recommendgame', {
       appid: g, steamworksappid: g, comment: m, rated_up: true, is_public: true, language: 'english', received_compensation: 0, disable_comments: 0}, (b, r, e) => (
