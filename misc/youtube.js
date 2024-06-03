@@ -1,23 +1,29 @@
-//------------------------------------------------------------------------------ UploadAttempt2023
-cookie = {
-  creation: "2023-12-28T20:33:19.851Z",
-  key: 'youtube_authaccount',
-  value: 'primarydataloop%20',
-  secure: false
-}
-A[0].c._jar.setCookie(cookie, "https://steamcommunity.com");
-http(a, 'https://steamcommunity.com/id/byteframe/videos/add', {
-  "action": "add",
-  "videos": 'li3uJyRCiH0',
-  "app_assoc": 388390
-}, (b, r, x) => global.result = [b, r, x])
-A[0].c._setCookie(Request.cookie('youtube_authaccount=primarydataloop%20'));
-//------------------------------------------------------------------------------ HideVideoPage
-(hide_video_page = (page = 1) =>
-  http_request(accounts[0], "https://steamcommunity.com/id/byteframe/videos/?p=" + page + "&privacy=8", null, (body, response, error) => (
-    setTimeout(hide_video_page, 8000, page++),
-    body.match(/https:\/\/steamcommunity.com\/sharedfiles\/filedetails\/\?id=[0-9]+/g).forEach((id) =>
-      http_request(accounts[0], 'https://steamcommunity.com/sharedfiles/itemsetvisibility', { visibility: 2, id: id.substr(55)})))))()
+//------------------------------------------------------------------------------ youtube_player.html
+fs.writeFileSync('misc/youtube_player.html',`<!DOCTYPE html>
+  <html>
+    <body>
+      <div id="player"></div>
+      <script>
+        var tag = document.createElement('script');
+        tag.src = "https://www.youtube.com/iframe_api";
+        var firstScriptTag = document.getElementsByTagName('script')[0];
+        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+        var player;
+        onYouTubeIframeAPIReady = () =>
+          player = new YT.Player('player', {
+            width: '1280',
+            height: '720',
+            playerVars: { 'autoplay': 1, 'controls': 1, 'rel': 0, 'start': 1, 'modestbranding': 1, 'fs': 0 },
+            events: { 'onReady': (event) => select_video(),
+              'onStateChange': (event) => (event.data == YT.PlayerState.ENDED) && select_video(),
+              'onError': (event) => setTimeout(select_video, 5000) }
+          });
+        select_video = () =>
+          player.loadVideoById(videos.splice(Math.floor(Math.random()*videos.length), 1)[0])
+        var videos = [ ` + Object.keys(state.videos).reduce((accumulator, value) => accumulator + "'" + state.videos[value].link_url.substr(32) + "',", '') + ` ];
+      </script>
+    </body>
+  </html>`)
 //------------------------------------------------------------------------------ Tags
 "old_youtube_tags": [ 
   "HTC","VIVE","VR","STEAM","OCULUS","RIFT","PSVR","VIRTUAL","REALITY","360","GAMING","AR","PC","LINUX","WINDOWS","VULCAN","OPENGL","D3D" ],

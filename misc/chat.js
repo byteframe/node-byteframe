@@ -1,90 +1,8 @@
-//------------------------------------------------------------------------------ HandlerRig
-test_chat_message = (m) => 
-  (m.search(/http[s]?:\/\//) == -1 && m != 'Invited you to play a game!' && m.search(/LINK REMOVED/) == -1),
-handle_message_echo = (f, m) =>
-  (m.indexOf('#!') == 0) ? true
-  : (m.indexOf('##') == 0) ? !riveScript.setUservar(""+f, 'chat_time', 0)
-  : (m.indexOf('#$') == 0) ? !riveScript.setUservar(""+f, 'chat_time', Date.now())
-  : false,
-message_echo_handlers = [
-  (f, m, a) =>
-    (handle_message_echo(f, m)) &&
-      send_chat(reply(f, m.substr(2)), a, f) ],
-incoming_message_event = (f, m, a) => (
-  m = m.replace(/:[a-zAZ0-9_]+:/g, '').replace(
-    /([\uE000-\uF8FF]|\uD83C[\uDF00-\uDFFF]|\uD83D[\uDC00-\uDDFF])/g, ''),
-  (!a.active_chat && m != '' && (a.i == 0 || Math.floor(Math.random()* 15) != 0)
-  && m.search(/[!@#$%^&*]/) != 0 && (a.i == 0 || test_chat_message(m))
-  && !A.find((a) => a.steamID == f)) ? (
-    (riveScript.getUservar(""+f, 'chat_time') == 'undefined') && (
-      [ 'first', 'second', 'third', 'fourth', 'fifth' ].forEach((e) =>
-        riveScript.setUservar(""+f, e, pool(d.chat_topics))),
-      riveScript.setUservar(""+f, 'chat_time', 0),
-      riveScript.setUservar(""+f, 'name', pool(d.chat_names))),
-    (Date.now() - riveScript.getUservar(""+f, 'chat_time') > 3600000) &&
-      true)
-  : false),
-message_handlers = [
-  (f, m, a, target = (m[0] == '^' ? a.chats[+m.match(/^[^]\d+/)[0].substr(1)] : a.chats[a.chats.length-1])) =>
-    (a.i != 0) &&
-      (f != A[0].steamID && test_chat_message(m)) ?
-        a.u.chatMessage(A[0].steamID, a.chats.indexOf(f) + "| " + find_name(a, f) + ": " + m)
-      :(a.u.chatMessage(target, m.replace(/^[^]\d+/, '')),
-        handle_message_echo(target, m)),
-  (f, m, a) =>
-    (f != A[0].steamID && incoming_message_event(f, m, a, n = reply(f, m))) && (
-      send_chat(n, a, f),
-      a.u.chatMessage(A[0].steamID, font(n, 14))) ],
-  a.u.chat.on('friendMessageEcho', (m) => (
-    log_chat(m.steamid_friend, "^^", m.message, a.i, find_name(a, m.steamid_friend)),
-    message_echo_handlers.forEach((e) =>
-      e(m.steamid_friend, m.message, a)))),
-  a.u.chat.on('friendMessage', (m) => (
-    (!a.chats.includes(m.steamid_friend) && m.steamid_friend != A[0].steamID) &&
-      a.chats.push(m.steamid_friend),
-    (a.i != 0 || !A.find((a) => a.steamID == m.steamid_friend)) &&
-      log_chat(m.steamid_friend, "<<", m.message, a.i, find_name(a, m.steamid_friend)),
-    (!s.steamid_chat_blacklist.includes(""+m.steamid_friend)) &&
-      message_handlers.forEach((e) =>
-        e(m.steamid_friend, m.message, a)))),
+//------------------------------------------------------------------------------ SlowerDelay
+Math.max(Math.min(n.length, 75)*speed+delay, 2000)+1000)), 
 //------------------------------------------------------------------------------ OldSpamBlocking
 (m.indexOf('https://t.co') > -1) ?
   ban(f.toString())
-//------------------------------------------------------------------------------ RiveScript2Attempt
-get_reply = (steamid, m, callback) =>
-  riveScript.reply(steamid, m).then((reply) => callback(
-    (reply.replace(/<oob>.*<\/oob>/, '').replace(/  random/g, ' ').replace(/  /g, ' ').replace('}', '').trim().replace('pdlrand', 'PDLRAND').replace(/pdlrand/g, '') || "PDLRAND").replace('PDLRAND',
-      (Math.random() < 0.5) ? pool(random_responses, 1, null)[0]()
-      : (Math.ceil(Math.random()*4) == 4) ? pool(data.emoticons[Math.floor(Math.random() * data.emoticons.length)])
-      : (Math.ceil(Math.random()*3) == 3) ? generate_fortune('questions')
-      : pool(data.confusion)))),
-friend_message_echo_handlers = [
-  (steamid, m, account) =>
-    (handle_message_echo(steamid, m)) &&
-      get_reply(steamid, m.substr(2), (reply) =>
-        send_chat(reply, account, steamid)) ],
-friend_message_handlers = [
-  (steamid, m, account, target = (m[0] == '^' ? account.chats[+m.match(/^[^]\d+/)[0].substr(1)] : account.chats[account.chats.length-1])) =>
-    (account.index != 0) && (
-      (m.indexOf('https://t.co') > -1) ?
-        ban(steamid.toString())
-      : (steamid != accounts[0].steamID && test_chat_message(m)) ?
-        account.user.chatMessage(accounts[0].steamID, account.chats.indexOf(steamid.toString()) + "| " + find_name(account, steamid) + ": " + m)
-      :(account.user.chatMessage(target, m.replace(/^[^]\d+/, '')),
-        handle_message_echo(target, m))),
-  (steamid, m, account) =>
-    get_reply(steamid, m, (reply) =>
-      (steamid != accounts[0].steamID && incoming_message_event(steamid, m, account)) && (
-        send_chat(reply, account, steamid),
-        account.user.chatMessage(accounts[0].steamID, font(reply, 14)))) ],
-//------------------------------------------------------------------------------ TwitchFailed
-twitchChat.onWhisper((channel, user, message) => (
-  console.log(user, message),
-  twitchChat.whisper(user, get_reply(user, message))))
-twitchChat.onPrivmsg((channel, user, message) => 
-  (user != 'byteframe' && message.indexOf('@byteframe ') == 0) &&
-    setTimeout((user, reply) =>
-      twitchChat.say('byteframe', '@' + user + ' ' + get_reply(user, message.substr(11))), Math.max(Math.min(reply.length, 75)*80, 2000), user, get_reply(user, message)))
 //------------------------------------------------------------------------------ RainbowChat
 setInterval(() => rainbow_message = pool(questions), 100000),
 rainbow_chat = (i = 0) => (
@@ -92,21 +10,6 @@ rainbow_chat = (i = 0) => (
   console.log('MESSAGE |999| ' + (i == 0 ? '<< [Perry] <<' : '>> [Walter] >>').rainbow.bold.inverse + ' ' + rainbow_message.rainbow.bold),
   setTimeout(rainbow_chat, Math.floor((Math.random()*20000) + 10000), (i == 0 ? 1 : 0))),
 //------------------------------------------------------------------------------ GroupSend
-old_send_group_chat = send_group_chat;
-send_group_chat = (account, groupid, roomid, msg) => (
-  old_send_group_chat(account, groupid, roomid, msg),
-  discord.channels.get('391678265166921760').send(msg));
-accounts[a].send_group_chat('37338', '12030657', "/pre .\n" + generate_text());
-giphy.search({q: pool(byteframe.giphy_queries)}, (err, data) =>
-  accounts[a].send_group_chat('37338', '12030657', data.data[Math.floor(Math.random()*data.data.length)].url))
-send_group_chat = (account, groupid, roomid, msg) => {
-  if (account.user.chat666) {
-    setTimeout((groupid, roomid, msg) => (
-      group_chats_length--,
-      account.user.chat.sendChatMessage(groupid, roomid, msg)), group_chats_length*2000, groupid, roomid, msg);
-    group_chats_length++;
-  }
-}
 send_group_chat(account, '37338', '12023431', msg.replace(/\[\/?[biu]\]/g, '').replace(/\s+/g, ' ') + ' https://steamcommunity.com/profiles/' + steamid[1] + " #" + account.index),
 send_group_chat(account, '37338', '12097217',pool(decoration.ascii_face) + " | HUMAN " + pool(decoration.emojis[0]) + (action ? ' SUBSUMED ': ' DETACHED ') + pool(decoration.emojis[1]) + " ON " + pool(decoration.emojis[2]) + " INDEX " + pool(decoration.emojis[3]) + " #" + account.index + " | - " + decoration.barcode.shuffle() + "\n" + 'https://steamcommunity.com/profiles/' + persona),
 send_group_chat(account, '37338', '12023431', "# " + account.index + ' https://steamcommunity.com/sharedfiles/filedetails/?id=' + item_id),
@@ -136,115 +39,14 @@ CWebChat.prototype.MessageRandomUser = function() {
     ShowAlertDialog('Failed to send chat message: An error was encountered while processing your request:');
   }
 };
-//------------------------------------------------------------------------------ Broadcast chat with request text and update title
-request_index = -1;
-setInterval(function() {
-  broadcast_log(requests[++request_index].data.replace(
-    /\n/g, ' | ').replace(/\s+/g, ' ').trim().substr(0,750));
-  if (request_index == requests.length-1) {
-    request_index = -1;
-  }
-}, 30000);
-function update_broadcast_title() {
-  setTimeout(function() {
-    jQuery('#BroadcastAdminTitleInput').val(profile_debug());
-    BroadcastWatch.UpdateBroadcast();
-    update_broadcast_title();
-  }, (60-new Date().getSeconds()+5)*1000);
-}
-update_broadcast_title();
 //------------------------------------------------------------------------------ ElizaInterface
-var logon_settings = { rememberPassword: true, accountName: process.argv[2] }
-  , ElizaBot = require('./ElizaBot.js')
-  , elizaBot = new ElizaBot()
-  , Crypto = require('crypto')
-  , SteamUser = require('steam-user')
-  , SteamCommunity = require('steamcommunity')
-  , fs = require('fs')
-  , readline = require('readline').createInterface({
-      input: process.stdin, output: process.stdout })
-  , account = { user: new SteamUser(), name: logon_settings.accountName };
-account.user.setOption("dataDirectory", null);
-account.community = new SteamCommunity();
-if (fs.existsSync('ssfn')) {
-  account.user.setSentry(Crypto.createHash('sha1').update(
-    fs.readFileSync('ssfn')).digest()
-  );
-}
-if (fs.existsSync('key')) {
-  logon_settings.loginKey = fs.readFileSync('key', 'utf8');
-  account.user.logOn(logon_settings);
-} else {
-  readline.question('password: ', function(input) {
-    logon_settings.password = input;
-    account.user.logOn(logon_settings);
-  });
-}
-account.user.on('sentry', function(sentry) { fs.writeFileSync('ssfn', sentry); });
-account.user.on('loginKey', function(key) { fs.writeFileSync('key', key, 'utf8'); });
-account.user.on('loggedOn', function(details, parental) {
-  console.log('logged on to steam...');
-  account.user.setPersona(SteamUser.EPersonaState.LookingToPlay);
-});
+ElizaBot = require('./ElizaBot.js')
+elizaBot = new ElizaBot()
 account.user.on('friendMessage', function(steamID, message) {
   if (message) {
     account.user.chatMessage(steamID, elizaBot.transform(message));
   }
 });
-//------------------------------------------------------------------------------ GetGroupJoinChat
-(join_chat = (g = 0) => {
-  if (g != group_chats.length) {
-    account.community.getSteamGroup(group_chats[g], (err, group) => {
-      if (err) {
-        console.error('getGroup error: ' + group_chats[g]);
-        return join_chat(g+1);
-      }
-      account.user.joinChat(group.steamID, (result) => {
-        console.log('joinChat result: ' + SteamUser.EResult[result] + "/" + group_chats[g]);
-        join_chat(g+1);
-      });
-    });
-  }
-})();
-//------------------------------------------------------------------------------ AimlTestCommon
-const fs = require('fs');
-var few_aiml_files = [
-  'reduction0.safe.aiml','reduction1.safe.aiml','reduction2.safe.aiml',
-  'reduction3.safe.aiml','reduction4.safe.aiml',
-  'mp0.aiml','mp1.aiml','mp2.aiml','mp3.aiml','mp4.aiml','mp5.aiml','mp6.aiml' ];
-//------------------------------------------------------------------------------ BurlyTest
-const Burly = require('burlyy');
-const bot = new Burly({
-  defaultResponse: "I don't know what you're on about.",
-  name: 'Botto'
-});
-aiml_files = fs.readdirSync('aiml/').map(file => 'aiml/'+file);
-var prompt = 'You: ';
-(function load_aiml_files(f = 0) {
-  if (f != aiml_files.length) {
-    bot.loadFile(aiml_files[f]).then(() => {
-      console.log('loading file: ' + aiml_files[f]);
-      load_aiml_files(f+1);
-    });
-  } else {
-    console.log(`${bot.name}: Hello! Type quit to quit or /help for unhelpful help.`);
-    process.stdout.write(prompt);
-    process.stdin.on('data', data => {
-      let sentence = data.toString().replace(/\r?\n/g, '');
-      if (sentence === 'quit' || sentence === 'exit') {
-          console.log('Yeah, fuck off.');
-          process.exit();
-      }
-      bot.talk(sentence).then(res => {
-          console.log(`${bot.name}: ${res}`);
-          process.stdout.write(prompt);
-      }).catch(err => {
-          console.error(`\n\nSome shit happened.\n${err.stack}`);
-          process.exit(1);
-      });
-    });
-  }
-})();
 //------------------------------------------------------------------------------ AimlHighTest
 var aimlHigh = require('aiml-high');
 var interpreter = new aimlHigh({name:'Bot', age:'42'}, 'Goodbye');
@@ -257,14 +59,24 @@ var callback = function(answer, wildCardArray, input){
   console.log(answer + ' | ' + wildCardArray + ' | ' + input);
 };
 setTimeout(function() { interpreter.findAnswer('hello', callback); }, 2000);
-//------------------------------------------------------------------------------ SurlyTest
-const fs = require('fs');
+var few_aiml_files = [
+  'reduction0.safe.aiml','reduction1.safe.aiml','reduction2.safe.aiml',
+  'reduction3.safe.aiml','reduction4.safe.aiml',
+  'mp0.aiml','mp1.aiml','mp2.aiml','mp3.aiml','mp4.aiml','mp5.aiml','mp6.aiml' ];
+//------------------------------------------------------------------------------ B/SurlyTest
 var pkg = require('./package.json');
 var Surly = require('./src/Surly');
 var conf = { brain: '' };
 var bot = new Surly({
   brain: conf.brain
 });
+const Burly = require('burlyy');
+const bot = new Burly({
+  defaultResponse: "I don't know what you're on about.",
+  name: 'Botto'
+});
+var prompt = 'You: ';
+aiml_files = fs.readdirSync('aiml/').map(file => 'aiml/'+file);
 aiml_files = aiml_files.concat(
   fs.readdirSync('aiml-en-us-foundation-alice/').map(file => 'aiml-en-us-foundation-alice/'+file));
 console.log(aiml_files);
@@ -291,82 +103,209 @@ var prompt = 'You: ';
     });
   }
 })();
-//------------------------------------------------------------------------------ UserData
-if (fs.existsSync('config-users.json')) {
-  var json = JSON.parse(fs.readFileSync('config-users.json'));
-  for (var key in json) {
-    if (json.hasOwnProperty(key)) {
-      riveScript.setUservars(key, json[key]);
-    }
-  }
-}
-process.once('exit', (code) => {
-  fs.writeFileSync('config-users.json', JSON.stringify(riveScript.getUservars(), null, 2));
-});
-console.log("SESSION |" + '000'.gray + "| restoring " + Object.keys(config.chat_users).length + " sessions...");
-for (var key in config.chat_users) {
-  if (config.chat_users.hasOwnProperty(key)) {
-    riveScript.setUservars(key, config.chat_users[key]);
-  }
-}
-("saving_chat_data" == "true") && (
-  Object.keys(config.chatbot).forEach((key) =>
-    riveScript.setUservars(key, config.chatbot[key])),
-  console_log("SESSION |" + '000'.gray.inverse + "| restored " + Object.keys(config.chatbot).length + " sessions"),
-  exit_handlers.unshift(() => config.chatbot = riveScript.getUservars())),
-//------------------------------------------------------------------------------ ChatProcedures
-get_reply = (userid, msg, account) => {
-  var reply = riveScript.reply(userid, msg).replace(
-    /<oob><search>.*<\/search><\/oob>/, '').replace(
-    /  random/g, ' ').replace(/  /g, ' ').replace('}', '');
-  if (!reply.length) {
-    reply = 'Huh?';
-  }
-  log_line(userid, ">>", reply, account);
-  return reply;
-};
-handle_message_echo = (userid, msg, send, account) => {
-  if (msg.indexOf('#!') == 0) {
-    send(get_reply(userid, msg.substr(2), account));
-  } else if (msg.indexOf('##') == 0) {
-    riveScript.setUservar(userid, 'chat_time', 0);
-  } else if (msg.indexOf('#$') == 0) {
-    riveScript.setUservar(userid, 'chat_time', Date.now());
-  }
-  if (msg.indexOf('ㅤ') != -1) {
+//------------------------------------------------------------------------------ Adventure
+const adventurejs = require("adventurejs");
+adventure_states = {},
+friend_message_echo_handlers.push((steamid, msg, account) =>
+  handle_games_request(steamid, msg, account)),
+friend_message_handlers.push((steamid, msg, account) =>
+  handle_games_request(steamid, msg, account)),
+check_credits = (userid, price) =>
+  config.games[userid].credits >= price,
+handle_games_request = (userid, msg, account) => {
+  if (account.active_chat) {
     return;
   }
-  log_line(userid, "^^", msg, account);
-};
-send_reply = (reply, typeon, typeoff, send, account, callback = null) => {
-  setTimeout(() => {
-    typeon(account);
-    setTimeout(() => {
-      typeoff(account);
-      send(account, reply);
-      if (callback != null) {
-        callback();
-      }
-    }, Math.max(Math.min(reply.length, 100)*50, 1500));
-  }, 1000);
-};
-incoming_message_event = (userid, msg, typeon, typeoff, send, account) => {
-  log_line(userid, "<<", msg, account);
-  if (msg.indexOf('!') == 0) {
-    var trigger = msg.substr(1, (msg+" ").indexOf(' ')-1);
-    if (trigger in chat_triggers) {
-      return chat_triggers[trigger](userid, (msg+" ").substr(msg.indexOf(' ')).trim(), typeon, typeoff, send, account);
-    } else {
-      return send_reply('Unknown Chat Trigger!', typeon, typeoff, send, account);
-    }
+  if (typeof config.games[userid] == 'undefined') {
+    config.games[userid] = { credits: 1000, blackjack: { state: 2, deck: [] } };
   }
-};
-handle_message_echo(recipientID.toString(), msg, (reply) => {
-  account.user.chatMessage(recipientID, reply);
-}, account);
-incoming_message_event(steamID.toString(), msg,
-  (account) => { account.user.chatTyping(steamID); },
-  (account) => { ; },
-  (account, reply) => { account.user.chatMessage(steamID, reply); }
-, account);
-//------------------------------------------------------------------------------
+  if (msg.indexOf('@') == 0) {
+    if (typeof config.games[userid].adventure == 'undefined') {
+      config.games[userid].adventure = adventurejs.makeState();
+      msg = '@';
+    } else if (!adventure_states.hasOwnProperty(userid)) {
+      config.games[userid].adventure = adventurejs.makeState(config.games[userid].adventure);
+    }
+    adventure_states[userid] = 0;
+    var text = config.games[userid].adventure.advance(msg.substr(1))
+      , j = 0;
+    for (var i = 0; i < text.length; i++) {
+      if (text[i].length > 1) {
+        break;
+      }
+      j++;
+    }
+    text = text.slice(j);
+    j = 0;
+    for (i = text.length-1; i > 0; i--) {
+      if (text[i].length > 1) {
+        break;
+      }
+      j++;
+    }
+    if (j > 0) {
+      text = text.slice(0,-j);
+    }
+    account.send_chat(userid, "/code " + text.map((line) => "\"| " + line + Array(64-line.length).join(" ") + " |\"").join("\n"), null, 0);
+  } else if (msg.indexOf('!') != 0) {
+    return;
+  }
+  var trigger = msg.substr(1, (msg+" ").indexOf(' ')-1)
+    , args = (msg+" ").substr(msg.indexOf(' ')).trim(); 
+//------------------------------------------------------------------------------ OtherGames
+if (trigger == "joke") {
+  if (!check_credits(userid, 10)) {
+    return account.send_chat(userid, "/quote I don't perform stand-up comedy for free!");
+  }
+  config.games[userid].credits -= 10;
+  account.send_chat(userid, "/me Accessing Joke Matrix! 💲 " + config.games[userid].credits, () =>
+    account.send_chat(userid, "/spoiler " + jokes[Math.floor(Math.random()*jokes.length)], null, 0));
+} else if (trigger == "haiku") {
+  if (!check_credits(userid, 5)) {
+    return account.send_chat(userid, "/quote go away person / you dont have any money / no haiku for you");
+  }
+  config.games[userid].credits -= 5;
+  account.send_chat(userid, "/me Counting the syllables...! 💲 " + config.games[userid].credits, () =>
+    account.send_chat(userid, "/spoiler " + jokes[Math.floor(Math.random()*jokes.length)], null, 0));
+} else if (trigger == "art") {
+  if (!check_credits(userid, 15)) {
+    return account.send_chat(userid, "/quote I am an artist, but I won't starve! Shoo!");
+  }
+  if (args == '') {
+    args = text_dir[Math.floor(Math.random()*text_dir.length)];
+  } else if (args == 'help') {
+    return account.send_chat(userid, 'art categories\n\n: ' + text_dir.join(', '), null, 0);
+  } else if (text_dir.indexOf(args) == -1) {
+    return account.send_chat(userid, 'invalid art category: ' + args);
+  }
+  config.games[userid].credits -= 15;
+  account.send_chat(userid, "/me Drawing you a picture of " + args + "! 💲 " + config.games[userid].credits, () =>
+    account.send_chat(userid, "/pre " + generate_text(args), null, 0));
+} else if (trigger == "slots") {
+  if (!check_credits(userid, 50)) {
+    return account.send_chat(userid, "/quote Not enough credits, get out of the casino!");
+  }
+  config.games[userid].credits -= 50;
+  account.send_chat(userid, "/me Spinning the wheel! 💲 " + config.games[userid].credits, () => {
+    setTimeout(() => {
+      var slots_symbols = { 1: '🍊', 2: '🍉', 3: '☘️', 4: '🍋', 5: '🍫', 6: '🥓', 7: '🥗', 8: '🍒', 9: '🍇' }
+        , line = [ Math.floor(Math.random()*9)+1, Math.floor(Math.random()*9)+1, Math.floor(Math.random()*9)+1 ]
+        , slots_results = 0
+        , string = 'You lost!';
+      if (line[0] == line[1] && line[1] == line[2]) {
+        slots_results = 100*line[0];
+      } else {
+        var line2 = line.slice().sort();
+        for (var i = 0; i < line2.length-1; i++) {
+          if (line2[i+1] == line2[i]) {
+            slots_results = (100*line[0])/2;
+          }
+        }
+      }
+      slots_results = [ slots_results, "[ " + slots_symbols[line[0]] + " | " + slots_symbols[line[1]] + " | " + slots_symbols[line[2]] + " ]" ];
+      if (slots_results[0] != 0) {
+        string = 'You won ' + slots_results[0] + ' credits!';
+        config[account.user.steamID.toString()].payouts += slots_results[0];
+        config.games[userid].credits += slots_results[0];
+      }
+      string = slots_results[1] + " " + string;
+      account.send_chat(userid, string);
+      config[account.user.steamID.toString()].game_string = "Slots: " + slots_results[1] + " >> 💰: 666" /*+ config[account.user.steamID.toString()].payouts*/;
+      account.user.gamesPlayed(config[account.user.steamID.toString()].game_string)
+    }, Math.floor(Math.random() * 3000));
+  });
+} else if (trigger == "blackjack" || trigger == "hit" || trigger == 'stay') {
+  draw = () => {
+    if (config.games.blackjack_deck.length == 0) {
+      [...Array(6).keys()].forEach((i) => {
+        [ 'A','2','3','4','5','6','7','8','9','10','J','Q','K' ].forEach((face) => {
+          [ '✤','♦','♥','♠' ].forEach((suit) => {
+            config.games.blackjack_deck.push(face + suit);
+          });
+        });
+      });
+      shuffle_array(config.games.blackjack_deck);
+    }
+    return config.games.blackjack_deck.pop();
+  };
+  if (config.games[userid].blackjack.state == 2) {
+    if (!check_credits(userid, 75)) {
+      return account.send_chat(userid, "/quote Not enough credits, try the slots!");
+    }
+    config.games[userid].blackjack.state = 0;
+    config.games[userid].blackjack.player_hand = [ draw(), draw() ];
+    config.games[userid].blackjack.dealer_hand = [ draw(), draw() ];
+    account.send_chat(userid, "/me Dealing the cards! 💲 " + config.games[userid].credits);
+  }
+  var new_state = 2
+    , counts = [];
+  (blackjack = (action = trigger) => {
+    count_card = (card, total) => {
+      value = 10;
+      if (card[0] != 'J' && card[0] != 'Q' && card[0] != 'K') {
+        value = card[0];
+      }
+      total[0] += (card[0] == 'A' ? 11 : value);
+      total[1] += (card[0] == 'A' ? 1 : value);
+    };
+    var text = 'You: '
+      , player_total = []
+      , dealer_total = [];
+    config.games[userid].blackjack.player_hand.forEach((card) => {
+      text += "[" + card[0] + card[1] + "]";
+      count_card(card, player_total);
+    });
+    text += " - Dealer: ";
+    config.games[userid].blackjack.dealer_hand.forEach((card) => {
+      text += "[" + card[0] + card[1] + "]";
+      count_card(card, dealer_total);
+    });
+    text += " | ";
+    if (dealer_total[0] == 21 || dealer_total[1] == 21) {
+      account.send_chat(userid, text + ' Dealer has blackjack! :(');
+    } else if (player_total[0] == 21 || player_total[1] == 21) {
+      payout_credits(200);
+      account.send_chat(userid, text + 'Player has blackjack and wins 200 credits! :)');
+    } else if (player_total[1] > 21) {
+      account.send_chat(userid, text + 'Player went bust! :(');
+    } else if (dealer_total[1] >= 21) {
+      payout_credits(150);
+      account.send_chat(userid, text + 'Dealer went bust! Player wins 150 credits! :)');
+    } else if (action == "hit") {
+      config.games[userid].blackjack.player_hand.push(draw());
+      return blackjack('blackjack');
+    } else if (config.games[userid].blackjack.state == 0) {
+      new_state == 1;
+      return account.send_chat(userid, text + '!hit or !stay ?');
+    } else if (action == "stay") {
+    } else if (action == "blackjack") {
+      return account.send_chat(userid, "/quote Please use !hit or !stay.");
+    }
+    config.games[userid].blackjack.state = new_state;
+  })();
+} else if (trigger == "help") {
+  account.send_chat(userid, '/code Hello! Welcome to primarydataloop!\n'
+    + 'My name is ' + random_name({first: true, gender: 'male'}) + " " + random_name({last: true, gender: 'male'}) + ". How may I help you?\n\n"
+    + 'CREDITS: ' + config.games[userid].credits + "\n\n"
+    + 'Commands:\n'
+    + '!haiku (5 credits) "Prints a pretty poem."\n'
+    + '!joke (10 credits) "Life got you down? Buy a funny joke!"\n'
+    + '!art (15 credits) "We read your mind and show you what\s inside."\n'
+    + '!slots (50 credits) "Gamble for more credits!"\n'
+    + '!blackjack (50 credits) "Gamble for more credits!"\n'
+    + '!comment (100 credits) "Drop a deuce on a profile for a hundo."\n'
+    + '!like (150 credits) "Need a +1 on your lame anime art?"\n'
+    + '!follow (250 credits) "Start a cult!"\n'
+    + '!enter (400 credits) "Get a goon in your group!"\n\n'
+    + 'Services:\n'
+    + '!email "Access electronic mail."\n'
+    + '!users "Show user directory."\n'
+    + '!guestbook "View/Sign user log."\n'
+    + '!system "Perform control functions."\n'
+    + '--------------------------------------------\n'
+    + 'Other: @(adventure), $(files), %(calculator)\n'
+    + '--------------------------------------------\n'
+    + '>> Earth Time: ' + new Date().toUTCString(), null, 10);
+} else {
+  account.send_chat(userid, 'Unknown Chat Trigger!');
+}

@@ -1,4 +1,3 @@
-
 const readline = require('readline').createInterface({ input: process.stdin }),
 fs = require('fs'),
 s = JSON.parse(fs.readFileSync('./state-standalone.json', 'utf8')),

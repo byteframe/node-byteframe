@@ -1,23 +1,35 @@
-//------------------------------------------------------------------------------ StoreRaterSnippets
-((rate_workshop) = (i, account) =>
-  (i < workshop.length) && (
-    state.verbose=true,
-    http(account, 'sharedfiles/voteup' + [i], { id: workshop[i] , appid: 0 }),
-    setTimeout(rate_workshop, 6000, i+1, account)))(0, accounts[i])
-//------------------------------------------------------------------------------ Rater2021Functional
-      : (a % 42 == 0) ? 
-        activity_rater(accounts[0])
-vote = (account, delay = Math.random()*(14000-7000)+7000) =>
-  (account.votes.length > 0) &&
-    setTimeout((account, item = account.votes.shift().split('(')) => (
-      log(account, "SUCCESS | rate: " + ((item[0] + "/" + item[1])
-        .replace("VoteUp/", "https://steamcommunity.com/sharedfiles/filedetails/?id=")
-        .replace("VoteUpCommentThread/'UserReceivedNewGame_", 'https://steamcommunity.com/profiles/')
-        .replace("VoteUpCommentThread/'UserStatusPublished_", 'https://steamcommunity.com/profiles/')
-        .replace("_", () => (item[1].startsWith("\'UserReceived")) ? "/friendactivitydetail/3/" : "/status/")
-        .replace('\'', '').slice(0, -2)).yellow),
-      eval(item[0])(account, item[1])), delay, account),
-//------------------------------------------------------------------------------ Rater2020Functional
+//------------------------------------------------------------------------------ RaterD
+get_user_news = (account, callback) => (
+  (++account.cycle == cycles+1) && (
+    account.cycle = 0,
+    account.blotter_url = ''),
+  account.http_request('my/ajaxgetusernews/' + account.blotter_url, null, (body, response, err) =>
+    (!body) ?
+      account.log("FAILURE | my/ajaxgetusernews/" + account.blotter_url + ": GET-200=NO FEED BODY".yellow)
+    : (account.blotter_url = body.next_request.substr(body.next_request.indexOf('?')),
+      callback(body.blotter_html))));
+run_activity_rater = (account, html = "") => (
+  (!account.votes) && (
+    account.votes = [],
+    account.cycle = 0),
+  (account.cycle == cycles && shared_files.length) &&
+    account.file(shared_files[Math.floor(Math.random()*shared_files.length)]),
+  get_user_news(account, (blotter_html,
+    body = Cheerio.load(blotter_html + html),
+    init = (account.votes.length) ? false : true) => (
+    body('div.blotter_block').filter((index, element) =>
+      (body(element).text().toLowerCase().indexOf("a workshop item") > -1
+      || body(element).text().toLowerCase().indexOf("a guide for") > -1
+      || body(element).text().toLowerCase().indexOf("a collection for") > -1) ?
+        false
+      : true
+    ).find('[id^="vote_up_"]').not(".active").each((index, _element,
+      element = _element.attribs.onclick.substr(7).replace("\'", "'")) =>
+      (account.votes.indexOf(element) == -1) &&
+        account.votes.push(element)),
+    (init) &&
+      vote()))),
+//------------------------------------------------------------------------------ RaterC
 VoteUp = (account, _item_id, item_id = _item_id.slice(0, -2)) =>
   http_request(account, 'sharedfiles/voteup?' + item_id , { id: item_id , appid: 0 }, (body, response, err) =>
     vote(account), true),
@@ -29,6 +41,18 @@ vote = (account, delay = Math.random()*(14000-7000)+7000) =>
   (account.votes.length > 0) &&
     setTimeout((account, item = account.votes.shift().split('(')) =>
       eval(item[0])(account, item[1]), delay, account),
+: (a % 42 == 0) ? 
+  activity_rater(accounts[0])
+vote = (account, delay = Math.random()*(14000-7000)+7000) =>
+  (account.votes.length > 0) &&
+    setTimeout((account, item = account.votes.shift().split('(')) => (
+      log(account, "SUCCESS | rate: " + ((item[0] + "/" + item[1])
+        .replace("VoteUp/", "https://steamcommunity.com/sharedfiles/filedetails/?id=")
+        .replace("VoteUpCommentThread/'UserReceivedNewGame_", 'https://steamcommunity.com/profiles/')
+        .replace("VoteUpCommentThread/'UserStatusPublished_", 'https://steamcommunity.com/profiles/')
+        .replace("_", () => (item[1].startsWith("\'UserReceived")) ? "/friendactivitydetail/3/" : "/status/")
+        .replace('\'', '').slice(0, -2)).yellow),
+      eval(item[0])(account, item[1])), delay, account),
 activity_rater = (account) => (
   (!account.votes) ? (
     account.votes = [],
@@ -51,7 +75,7 @@ activity_rater = (account) => (
         account.votes.push(element)),
     (init) &&
       vote(account, 0)))),
-//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------ RaterB
 VoteUp2 = (account, _item_id, item_id = _item_id.slice(0, -2)) => (
   (shared_files.indexOf(item_id) == -1) &&
     shared_files.push(item_id),
@@ -81,6 +105,7 @@ vote = (account, delayed = false, item = null) =>
       (delayed) ?
         setTimeout(eval, Math.random()*(10000-5000)+5000, account.votes.shift())
       : eval(account.votes.shift()),
+//------------------------------------------------------------------------------ RaterA
 run_activity_rater = (account, html = "", favorite = true, callback = null) => (
   (!account.votes) ? (
     account.votes = [],
@@ -140,33 +165,3 @@ run_activity_rater = (account, html = "", favorite = true, callback = null) => (
           account.votes.push(element)),
       (init) &&
         vote(account))));
-run_activity_rater = (account, html = "") => (
-  (!account.votes) && (
-    account.votes = [],
-    account.cycle = 0),
-  (account.cycle == cycles && shared_files.length) &&
-    account.file(shared_files[Math.floor(Math.random()*shared_files.length)]),
-  get_user_news(account, (blotter_html,
-    body = Cheerio.load(blotter_html + html),
-    init = (account.votes.length) ? false : true) => (
-    body('div.blotter_block').filter((index, element) =>
-      (body(element).text().toLowerCase().indexOf("a workshop item") > -1
-      || body(element).text().toLowerCase().indexOf("a guide for") > -1
-      || body(element).text().toLowerCase().indexOf("a collection for") > -1) ?
-        false
-      : true
-    ).find('[id^="vote_up_"]').not(".active").each((index, _element,
-      element = _element.attribs.onclick.substr(7).replace("\'", "'")) =>
-      (account.votes.indexOf(element) == -1) &&
-        account.votes.push(element)),
-    (init) &&
-      vote()))),
-get_user_news = (account, callback) => (
-  (++account.cycle == cycles+1) && (
-    account.cycle = 0,
-    account.blotter_url = ''),
-  account.http_request('my/ajaxgetusernews/' + account.blotter_url, null, (body, response, err) =>
-    (!body) ?
-      account.log("FAILURE | my/ajaxgetusernews/" + account.blotter_url + ": GET-200=NO FEED BODY".yellow)
-    : (account.blotter_url = body.next_request.substr(body.next_request.indexOf('?')),
-      callback(body.blotter_html))));

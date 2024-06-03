@@ -1,4 +1,128 @@
-//------------------------------------------------------------------------------ barely used ban function
+//------------------------------------------------------------------------------ Quitting
+(quitting > 0 && --quitting < 1) && setTimeout(process.exit, 3000, 0)),
+http(A[0], 'https://steamcommunity.com/actions/selectPreviousAvatar', { json: 1, sha: 'db02ac5a0970af2a79cd08d07e4f1a20b4e76133' }),
+//------------------------------------------------------------------------------ NodeCustomRequests
+finish_request_haiku = (response) => {
+  return Cheerio.load(response)("strong").text().replace(
+    '\n\n\n', '\n').replace('\n\n', '\n').replace('\n\n', '\n').trim();
+};
+finish_request_bsdfortune = (response) => {
+  return Cheerio.load(response)(".fortune p").text().replace('\n\n','').trim();
+};
+finish_request_subfushion = (response) => {
+  var text = Cheerio.load(response).root().text();
+  return text.substr(text.indexOf('-->')+3).trim().substr(5).trim();
+};
+requests = [
+  { url: "http://smalltime.com/Haiku",
+    translation: (response) => { return finish_request_haiku(response); } },
+  { url: "http://bsdfortune.com/discworld.php",
+    translation: (response) => { return finish_request_bsdfortune(response); } },
+  { url: "http://www.behindthename.com/random/random.php?number=1&gender=m&surname=&randomsurname=yes&norare=yes&nodiminutives=yes&all=no&usage_eng=1",
+    translation: (response) => { return Cheerio.load(response)(".heavyhuge").text().trim(); } },
+  { url: "http://dfrench.hypermart.net/cgi-bin/bashFortune/mkFortune.cgi?FORTFILE=./fortunes.txt",
+    translation: (response) => { return Cheerio.load(response)("table").text().trim(); } },
+  { url: "http://subfusion.net/cgi-bin/quote.pl?quote=cookie&number=1",
+    translation: (response) => { return finish_request_subfushion(response); } },
+  { url: "http://smalltime.com/Haiku",
+    translation: (response) => { return finish_request_haiku(response); } },
+  { url: "http://smalltime.com/Haiku",
+    translation: (response) => { return finish_request_haiku(response); } },
+  { url: "http://bsdfortune.com/xfiles.php",
+    translation: (response) => { return finish_request_bsdfortune(response); } },
+  { url: "http://bsdfortune.com/xfiles.php",
+    translation: (response) => { return finish_request_bsdfortune(response); } },
+  { url: "http://subfusion.net/cgi-bin/quote.pl?quote=startrek&number=2",
+    translation: (response) => { return finish_request_subfushion(response); } },
+  { url: "http://www.bash.org/?random",
+    translation: (response) => { return Cheerio.load(response)("td").eq(4).text(); } },
+  { url: "http://subfusion.net/cgi-bin/quote.pl?quote=calvin&number=2",
+    translation: (response) => { return finish_request_subfushion(response); } },
+  { url: "http://subfusion.net/cgi-bin/quote.pl?quote=futurama&number=2",
+    translation: (response) => { return finish_request_subfushion(response); } },
+  { url: "http://subfusion.net/cgi-bin/quote.pl?quote=love&number=2",
+    translation: (response) => { return finish_request_subfushion(response); } },
+  { url: "http://subfusion.net/cgi-bin/quote.pl?quote=drugs&number=2",
+    translation: (response) => { return finish_request_subfushion(response); } },
+  { url: "http://subfusion.net/cgi-bin/quote.pl?quote=pets&number=2",
+    translation: (response) => { return finish_request_subfushion(response); } },
+  { url: "http://subfusion.net/cgi-bin/quote.pl?quote=zippy&number=1",
+    translation: (response) => { return finish_request_subfushion(response); } },
+];
+request_data = (callback) => {
+  request_count = requests.length
+  finish_request = (i, response = '') => {
+    if (response !== '') {
+      requests.data = response;
+    } else if (typeof requests.data == 'undefined') {
+      requests.data = 'request_data_error';
+    }
+    request_count--;
+    if (request_count === 0) {
+      callback();
+    }
+  };
+  for (var i = 0; i < requests.length; i++) {
+    ((i) => {
+      http_request(requests.url, {}, (body, response, err) => {
+        var translation = '';
+        try {
+          if (!err) {
+            translation = requests.translation(body);
+          }
+        } catch (err) {
+          console.error('request error: ' + i);
+        }
+        finish_request(i, translation);
+      }, 'GET', true);
+    })(i);
+  }
+};
+//------------------------------------------------------------------------------ Broadcast Web Chat with request text and update title
+request_index = -1;
+setInterval(function() {
+  broadcast_log(requests[++request_index].data.replace(/\n/g, ' | ').replace(/\s+/g, ' ').trim().substr(0,750));
+  if (request_index == requests.length-1) {
+    request_index = -1;
+  }
+}, 30000);
+function update_broadcast_title() {
+  setTimeout(function() {
+    jQuery('#BroadcastAdminTitleInput').val(profile_debug());
+    BroadcastWatch.UpdateBroadcast();
+    update_broadcast_title();
+  }, (60-new Date().getSeconds()+5)*1000);
+}
+update_broadcast_title();
+//------------------------------------------------------------------------------ obswebsocket
+  OBSWebSocket = require('obs-websocket-js'),
+  obsWebSocket = new OBSWebSocket(),
+  obsWebSocket.on('error', err =>
+    console.error('SOCKET ERROR:', err)))
+  obsWebSocket.connect({ address: 'localhost:4444', password: state.obs_password }).catch((err) => console.error(err)).finally(() =>
+    obsWebSocket.sendCallback('StopStreaming', (error) =>
+      obsWebSocket.sendCallback('SetSceneItemProperties', { item: 'Browser', visible: false }, (err) =>
+        setTimeout(() =>
+          obsWebSocket.sendCallback('SetSceneItemProperties', { item: 'Browser', visible: true }, (err) =>
+            obsWebSocket.sendCallback('StartStreaming', (error) =>
+              obsWebSocket.disconnect())), 10000))))
+//------------------------------------------------------------------------------ FriendsLevelSorter
+A[0].u.getSteamLevels(Object.entries(A[0].u.myFriends).filter((i) => i[1] == 3).map((i) => i[0]), (err, users) =>
+  Object.entries(users).sort((a, b) => a[1] - b[1]).forEach((e) =>
+    console.dir('https://steamcommunity.com/profiles/' + e[0] + " #" + e[1])))
+//------------------------------------------------------------------------------ FriendsAutoReAddInsane
+(relationship == 0 && previousRelationship == 3) &&
+  a.u.addFriend(f),
+//------------------------------------------------------------------------------ bot one-off 2024
+bot = (i = 1, o = A.length-1) =>
+  (i <= o) && (
+    logon(A[i]),
+    setTimeout(bot, 5000, i+1, o),
+    setTimeout((i) => A[i].u.logOff(), 20000, i),
+    setTimeout((i) => http(A[i], 'sharedfiles/subscribe', { appid: 250820, id: 2392198506, include_dependencies: false  }), 8000, i),
+    setTimeout((i) => http(A[i], 'sharedfiles/voteup', { appid: 250820, id: 2392198506, file_type: 2 }), 12000, i),
+    setTimeout((i) => http(A[i], 'sharedfiles/favorite', { appid: 250820, id: 2392198506 }), 16000, i))
+//------------------------------------------------------------------------------ BanFunction
 ban = (steamid) => (
   accounts.forEach((account) =>
     account.user.removeFriend(steamid)),
@@ -22,60 +146,19 @@ login = (account, delay = 0) =>
 login(accounts[0]),
 (accounts.length > 1) &&
   login(accounts[(state.account_index+1 == accounts.length ? 1 : state.account_index+1)]),
-//------------------------------------------------------------------------------ old get access token
+//------------------------------------------------------------------------------ OldAccessToken
 setTimeout((account) =>
   http_request(account, 'https://store.steampowered.com/points/shop', {}, (body, response, error) =>
     account.access_token = body.match(/webapi_token\&quot\;\:\&quot\;.*?\&quot\;/)[0].slice(25, -6)), 5000, account))),
-//------------------------------------------------------------------------------ state-standalone-clean
-state.accounts.forEach(account => delete account.backgrounds)
-state.accounts.forEach(account => delete account.replies)
-state.accounts.forEach(account => delete account.day)
-state.accounts.forEach(account => delete account.last_steamid)
-state.accounts.forEach(account => delete account.replies)
-state.accounts.forEach(account => delete account.subscriptions)
-state.accounts.forEach(account => delete account.wishlist_blacklist)
-state.accounts.forEach(account => delete account.friends_diff)
-state.accounts.forEach(account => delete account.last_friends)
-state.accounts.forEach(account => delete account.post_free)
-//------------------------------------------------------------------------------ Gmail
-base64 = (data) =>
-  new Buffer(data).toString('base64'),
-google = require('googleapis').google,
-google_auth = new google.auth.OAuth2(state.google_secret.installed.client_id, state.google_secret.installed.client_secret, state.google_secret.installed.redirect_uris[0]),
-google_auth.setCredentials(state.google_token),
-googleAPIsGmail = google.gmail({ version: 'v1', google_auth }),
-base64toUTF8 = (str) =>
-  Buffer.from(str, 'base64').toString('utf8'),
-get_gmail = (account, callback, maxResults = 10, q = 'from:noreply@steampowered.com') =>
-  googleAPIsGmail.users.messages.list({ auth: google_auth, userId: 'me', maxResults: maxResults, q: q + ",to:" + account.mail },(err, response, gmails = []) =>
-    (err || !response.data.messages) ? (
-      log(accounts[0], 'FAILURE | gmail error: ' + (err ? err : 'no gmail data').yellow),
-      callback(true, []))
-    :(read_message = (m = 0) =>
-      (m == response.data.messages.length) ?
-        callback(false, gmails)
-      : googleAPIsGmail.users.messages.get({
-        auth: google_auth, userId: 'me', id: response.data.messages[m].id
-      }, (err, response, body = '') => (
-        response.data.payload.parts.forEach((part) => body += base64toUTF8(part.body.data)),
-        gmails.push(body),
-        read_message(m+1))))())
-//------------------------------------------------------------------------------ NewGmailSearch
-search_gmail = (gmails, regex, match = gmails.join('\n').match(regex)) =>
-  match && match[0] || '';
 //------------------------------------------------------------------------------ GetGmailGuard
-(account.index != 0) ?
-  account.user.on('steamGuard', (domain, callback) =>
-    (get_gmail_guard = (retries = 0) =>
-      (retries < 3) &&
-        setTimeout(() => get_gmail(account, (err, gmails, code) =>
-          (code = search_gmail(gmails, /\r\n\r\n[A-Z0-9]{5}/).trim()) ? (
-            account.auth_code = code,
-            callback(code))
-          : get_gmail_guard(retries+1)), 3000))())
-//------------------------------------------------------------------------------ GetA
-a = (a) =>
-  accounts.find((account) => account.index == a),
+account.user.on('steamGuard', (domain, callback) =>
+  (get_gmail_guard = (retries = 0) =>
+    (retries < 3) &&
+      setTimeout(() => get_gmail(account, (err, gmails, code) =>
+        (code = search_gmail(gmails, /\r\n\r\n[A-Z0-9]{5}/).trim()) ? (
+          account.auth_code = code,
+          callback(code))
+        : get_gmail_guard(retries+1)), 3000))())
 //------------------------------------------------------------------------------ OldTimer
 old_timer = (a = (state.account_index = (state.account_index+1 == accounts.length ? 1 : state.account_index+1))) => (
   save_state_files(),
@@ -161,32 +244,6 @@ old_timer = (a = (state.account_index = (state.account_index+1 == accounts.lengt
       accounts.forEach((account) =>
         (account.index != 0) &&
           account.user.setPersona(SteamUser.EPersonaState.Online))))))
-//------------------------------------------------------------------------------ GooglePhotos
-googleAPIsPhotos = require('googlephotos'),
-google_photos = new googleAPIsPhotos(google_auth.credentials.access_token),
-google_photos.albums.list().then((result) =>
-  ((total_count = +result.albums[0].mediaItemsCount + +result.albums[1].mediaItemsCount,
-    picture = Math.floor(Math.random() * total_count),
-    album = (picture > 19999 ? result.albums[0].id : result.albums[1].id) ) =>
-      google_photos.mediaItems.search(album).then((result) =>
-        global.result1 = result
-      );
-  )()
-//------------------------------------------------------------------------------ GoogleOAuth2
-scopes = [
-  "https://www.googleapis.com/auth/youtube.readonly",
-  "https://www.googleapis.com/auth/youtubepartner",
-  "https://www.googleapis.com/auth/youtube",
-  "https://www.googleapis.com/auth/gmail.readonly",
-  "https://www.googleapis.com/auth/youtube.upload",
-  "https://www.googleapis.com/auth/photoslibrary.readonly",
-  "https://www.googleapis.com/auth/drive.metadata.readonly",
-  "https://www.googleapis.com/auth/drive.file",
-  "https://www.googleapis.com/auth/drive.readonly"
-];
-google_auth.generateAuthUrl({ access_type: 'offline', scope: scopes.join(' ') });
-code = 'CODE_FROM_GOOGLE';
-google_auth.getToken(code, (err, token) => (err) ? console.error(err) : (console.log(token), state.google_token = token));
 //------------------------------------------------------------------------------ OPNEvents
 this.user.on('groupRelationship', (steamID, relationship) => {
   if (relationship != SteamUser.EClanRelationship.Blocked
@@ -281,14 +338,6 @@ http_request = (account, endpoint, data = null, callback = null, method = 'GET',
   });
   return true;
 }
-//------------------------------------------------------------------------------ ReadlineExitHandler
-(typeof readline == 'undefined' && account.index == 0) && (
-  readline = require('readline').createInterface({ input: process.stdin, output: process.stdout }),
-  readline.on('line', (input) =>
-  eval(input))),
-exit_handlers = [ save_config_files ],
-exit_handlers.forEach((handler) =>
-  handler())
 //------------------------------------------------------------------------------ AccountLimitations
 this.user.on('accountLimitations', (limited, communityBanned, locked, canInviteFriends) => {
   this.user.setPersona(SteamUser.EPersonaState.LookingToPlay);
@@ -359,20 +408,6 @@ if [ ! -z ${1} ]; then
 else
   node byteframe.js
 fi
-//------------------------------------------------------------------------------ OldBatchLines
-mklink byteframe.bat Z:\\Work\node-byteframe\byteframe.bat
-mklink config-byteframe.json Z:\\Work\node-byteframe\config-byteframe.json
-mklink config-users.json Z:\\Work\node-byteframe\config-users.json
-mklink data-adjectives.json Z:\\Work\node-byteframe\data-adjectives.json
-mklink data-avatars.json Z:\\Work\node-byteframe\data-avatars.json
-mklink data-byteframe.json Z:\\Work\node-byteframe\data-byteframe.json
-mklink data-countries.json Z:\\Work\node-byteframe\data-countries.json
-mklink data-decoration.json Z:\\Work\node-byteframe\data-decoration.json
-mklink data-jokes.json Z:\\Work\node-byteframe\data-jokes.json
-mklink data-performance-review.json Z:\\Work\node-byteframe\data-performance-review.json
-mklink data-questions.json Z:\\Work\node-byteframe\data-questions.json
-mklink config-friends.json Z:\\Work\node-byteframe\config-friends.json
-mklink config-friends.diff Z:\\Work\node-byteframe\config-friends.diff
 //------------------------------------------------------------------------------ LogSuspiciousChatEchos
 friend_message_echo_handlers.push((steamid, msg, account) =>
   (msg.indexOf('http') > -1) &&
@@ -414,13 +449,13 @@ http_request(a(i), 'https://store.steampowered.com/twofactor/manage_action', { a
   setTimeout(subscribe, 3000, i+1);
 })(1);
 (nickname = (i) => {
-    if (i == accounts.length) {
-    	return console.log('done');
-    }
-    jQuery.post("https://steamcommunity.com/profiles/" + accounts[i] + "/ajaxsetnickname/", {
-    	sessionid: g_sessionID,
-    	nickname: "[" + i + "]"
-    });
+  if (i == accounts.length) {
+    return console.log('done');
+  }
+  jQuery.post("https://steamcommunity.com/profiles/" + accounts[i] + "/ajaxsetnickname/", {
+    sessionid: g_sessionID,
+    nickname: "[" + i + "]"
+  });
 	console.log('https://steamcommunity.com/profiles/' + accounts[i] );
 	setTimeout(nickname, 2000, i+1);
 })(1);
@@ -441,4 +476,311 @@ accounts.forEach((accounts[a], i) =>
        (user.customURL != null && user.customURL.indexOf('byte') == 0) &&
          accounts[a].user.removeFriend(friend))),
     accounts[a].user.blockUser('76561197976737508')), 5000*i))
-//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------ HttpDebug
+(typeof http_debug != 'undefined') &&
+  http_debug(h, b, r, x),
+A[0].c.on('postHttpRequest', (a, b, c, d, e, f) => (
+  (c.uri.includes('ugcupload')) && (
+    console.dir(a,b,c,d,e,f))))
+//------------------------------------------------------------------------------ RenaCommentScript
+var match = "*://steamcommunity.com/profiles/* + *://steamcommunity.com/id/*"
+var comment = `
+:icon: - :icon: - :icon: - :icon: - :icon: - :icon:
+~ Have a very nice day $NAME! ~
+:icon: - :icon: - :icon: - :icon: - :icon: - :icon:
+`;
+jQuery(document).keyup(function(event) {
+  if (event.which == 27) {
+    jQuery('textarea.commentthread_textarea').each(function(index, item) {
+      if (jQuery(item).val() === '$$$') {
+        jQuery(item).val(comment.trim().replace('$NAME', jQuery('.actual_persona_name')[0].innerText));
+        jQuery(item).click();
+        return false;
+      }
+    });
+  }
+});
+//------------------------------------------------------------------------------ Zadey
+((user, community) => (
+  user.logOn({ accountName: 'USERNAME', password: 'PASSWORD' }),
+  user.on('loggedOn', () => user.setPersona(SteamUser.Steam.EPersonaState.Online)),
+  user.on('webSession', (sessionID, cookies) => {
+    community.sessionID = sessionID;
+    community.setCookies(cookies);
+    (user.started) ?
+      console.log('restarted connection')
+    : (target = (t = 0, targets = [
+      [ '76561197961017729', 'byteframe', 3],
+      [ '76561198117362085', 'Zadey', 6]
+    ]) =>
+      (t == targets.length) ?
+        process.exit(0)
+      : (comment = (c = 0, comments = [
+        'I think',
+        'you should',
+        'have five',
+        'differant',
+        'hearts',
+        '*** HAPPY NEW YEAR, $NAME, you dumb motherstuffer! ***'
+      ]) =>
+        (c == comments.length || targets[t][2] == 0) ?
+          target(t+1)
+        : setTimeout(() =>
+          community.postUserComment(targets[t][0],
+            ((targets[t][2] > 1 && c < comments.length-1)
+              ? comments[c] : comments[comments.length-1].replace('$NAME', targets[t][1]))
+          , (err) => {
+            if (err){
+              if (err.message == 'The settings on this account do not allow you to add comments.') {
+                target(t+1)
+              }
+              console.error(err.message);
+              return comment(c);
+            }
+            console.log(`comment: ${c+1}, target: ${t+1}/${targets.length}`);
+            targets[t][2]--;
+            comment(c+1);
+          }), 30000);
+      )();
+    )()
+  })))(new require('steam-user'), new require('steamcommunity'));
+//------------------------------------------------------------------------------ N4ZAvatars
+if (typeof process.argv[2] == 'undefined') {
+  console.log('username not supplied');
+  process.exit(1);
+}
+var readline = require('readline').createInterface({
+    input: process.stdin, output: process.stdout })
+  , avatars = [
+  ... ,
+];
+console.log('avatar pool size: ' + avatars.length);
+(function avatar_changer(index) {
+  if (index == avatars.length) {
+    index = 0;
+    shuffle_array(avatars);
+  }
+  setTimeout(function() {
+    if (account.user.client.loggedOn) {
+      account.community.uploadAvatar(avatars[index], null, function(err) {
+        if (err) {
+          return console.log('ERROR, uploadAvatar:' + err);
+        }
+        console.log('uploaded Avatar:' + index + " " + new Date().toString());
+      });
+    }
+    avatar_changer(index+1);
+  }, (60-new Date().getSeconds())*1000);
+})(avatars.length);
+//------------------------------------------------------------------------------ BrunoSardine
+var names = [
+  'STUFF','JUNK','CRAP','BUNK','SCRAP','FOOD','MISC','WASTE','CHAOS','OFFAL',
+  'CHAFF','SLOP','LEAK','GEAR', 'ODDS','ENDS','DIRT','MIX','DRECK' ]
+, emojis = [
+  [ '🌂','🎈','🏓','🏀','📕','👹','💗','💄','🐠','🌸','💃','🍖','🌋','🚗', ],
+  [ '🎄','🎍','⛳','🔋','📗','👽','💚','🐊','🐛','🌳','🥒','🥗','🕺','🚙', ],
+  [ '🐟','🎫','🎽','👔','📘','👾','💙','💎','🐳','🍇','🍆','🍧','🌏','🚘', ],
+  [ '⚡','🎁','📣','📀','📒','😺','💛','👑','🐝','👃','🌽','🥞','👳','🚕', ],]
+, errors = 0;
+account.user.on('loggedOn', (details, parental) => {
+  account.user.gamesPlayed([399080,399220,399480]);
+});
+(function group_avatar_changer(index) {
+  if (index == avatars.length) {
+    index = 0;
+    shuffle_array(avatars);
+    shuffle_array(names);
+  }
+  setTimeout(function() {
+    if (account.user.client.loggedOn) {
+      account.user.setPersona(SteamUser.EPersonaState.Offline,
+        names[index] + "[" + emojis[0][Math.floor(Math.random()*14)] +
+        emojis[1][Math.floor(Math.random()*14)] +
+        emojis[2][Math.floor(Math.random()*14)] +
+        emojis[3][Math.floor(Math.random()*14)] + "]");
+      account.community.uploadAvatar("./group/" + avatars[index], null, function(err) {
+        if (err) {
+          if (++errors == 6) {
+            errors = 0;
+            account.user.webLogOn();
+            return console.log('restarting...');
+          }
+          return console.log('ERROR, uploadAvatar:' + err);
+        }
+        errors = 0;
+        console.log('uploadAvatar (' + names[index] + '): ' + index + " " + new Date().toString());
+      });
+    }
+    group_avatar_changer(index+1);
+  }, (60-new Date().getSeconds())*1000);
+})(avatars.length);
+//------------------------------------------------------------------------------ SimonI
+if (process.argv.length < 3) {
+  console.error('username not supplied!');
+  process.exit(1);
+}
+var logon_settings = { rememberPassword: true, accountName: process.argv[2] }
+  , Cheerio = require('cheerio')
+  , Crypto = require('crypto')
+  , SteamUser = require('steam-user')
+  , SteamCommunity = require('steamcommunity')
+  , fs = require('fs')
+  , readline = require('readline').createInterface({
+      input: process.stdin, output: process.stdout })
+  , account = { user: new SteamUser(), name: process.argv[2] }
+  , RiveScript = require("rivescript")
+  , riveScript = new RiveScript()
+  , avatars = fs.readdirSync("./avatars")
+  , avatar_index = 99999
+  , backgrounds = []
+  , background_index = 99999
+  , errors = 0;
+account.user.setOption("dataDirectory", null);
+account.community = new SteamCommunity();
+console.log("loading rivescript files...");
+riveScript.loadDirectory("./rs", () => {
+  riveScript.sortReplies();
+  if (fs.existsSync('users.json')) {
+    var json = JSON.parse(fs.readFileSync('users.json'));
+    console.log("restoring " + Object.keys(json).length + " sessions...");
+    for (var key in json) {
+      if (json.hasOwnProperty(key)) {
+        riveScript.setUservars(key, json[key]);
+      }
+    }
+  }
+  if (fs.existsSync('ssfn')) {
+    account.user.setSentry(Crypto.createHash('sha1').update(
+      fs.readFileSync('ssfn')).digest()
+    );
+  }
+  if (fs.existsSync('key-' + process.argv[2])) {
+    logon_settings.loginKey = fs.readFileSync('key-' + process.argv[2], 'utf8');
+    account.user.logOn(logon_settings);
+  } else {
+    readline.question('password: ', (input) => {
+      logon_settings.password = input;
+      account.user.logOn(logon_settings);
+    });
+  }
+  account.user.on('sentry', (sentry) => fs.writeFileSync('ssfn', sentry));
+  account.user.on('loginKey', (key) => fs.writeFileSync('key-' + process.argv[2], key, 'utf8'));
+  account.user.on('loggedOn', (sessionID, cookies) => {
+    console.log('logged on to steam: ' + process.argv[2]);
+    account.user.setPersona(SteamUser.EPersonaState.LookingToPlay);
+    account.user.gamesPlayed([362960,238750,2100,475150,297000,304390,211420,236430,374320,658620,238960,24810,15370,444590,372000,438420,315810,17480,24800,307780,286260,344770,221380,379430,373420,219990,236390,222880,10270,496300,242920,14221]);
+  });
+  account.community.on('sessionExpired', (err) => {
+    console.log('sessionExpired...');
+    account.user.webLogOn();
+  });
+  account.user.on('webSession', (sessionID, cookies) => {
+    console.log('webSession...');
+    account.community.sessionID = sessionID;
+    account.community.setCookies(cookies);
+    if (!backgrounds.length) {
+      console.log('requesting inventory...');
+      account.community.getUserInventoryContents(account.user.steamID, 753, 6, false, 'english', (err, inventory, currencies, count) => {
+        inventory.forEach((item) => {
+          if (item.tags[2].name == 'Profile Background') {
+            backgrounds.push(item);
+          }
+        });
+        console.log('total backgrounds: ' + backgrounds.length);
+        function shuffle_array(array) {
+          for (var i = array.length - 1; i > 0; i--) {
+            var j = Math.floor(Math.random()*(i + 1));
+            var t = array[i];
+            array[i] = array[j];
+            array[j] = t;
+          }
+          return array;
+        }
+        console.log('caching edit form...');
+        account.community.httpRequestGet({
+          "uri": 'https://steamcommunity.com/id/Triumphofdegeneration/edit',
+        }, (err, response, body) => {
+          edit = Cheerio.load(body);
+        });
+        setInterval(() => profile_changer(), 60000);
+      });
+    }
+  });
+  function profile_changer() {
+    if (++avatar_index >= avatars.length) {
+      avatar_index = 0;
+      shuffle_array(avatars);
+    }
+    if (++background_index >= backgrounds.length) {
+      background_index = 0;
+      shuffle_array(backgrounds);
+    }
+    account.community.uploadAvatar("./avatars/" + avatars[avatar_index], null, (err) => {
+      if (err) {
+        if (++errors == 6) {
+          errors = 0;
+          account.user.webLogOn();
+          return console.log('restarting web session...');
+        }
+        return console.log('ERROR, uploadAvatar:' + err);
+      }
+      errors = 0;
+      console.log('uploadAvatar: ' + avatar_index + " " + new Date().toString());
+    });
+    edit("input[name=sessionID]").attr("value", account.community.getSessionID());
+    edit("#profile_background").attr("value", backgrounds[background_index].id);
+    account.community.httpRequestPost({
+      "uri": 'https://steamcommunity.com/id/Triumphofdegeneration/edit',
+      "form": edit("#editForm").serialize()
+    }, (err, response, body) => {
+      console.log('profile randomized...');
+    });
+  }
+  function get_reply(steamID, message, steamID64 = steamID.toString()) {
+    var reply = riveScript.reply(steamID64, message).replace(
+      /<oob><search>.*<\/search><\/oob>/, '').replace(
+      /  random/g, ' ').replace(/  /g, ' ').replace('}', '');
+    if (!reply.length) {
+      reply = 'Huh?';
+    }
+    console.log(new Date() + " | " + riveScript.getUservar(steamID64, 'chat_time') +
+      "\n>> " + "[" + steamID64 + "] " + reply);
+    return reply + "ㅤ";
+  }
+  account.user.on('friendMessageEcho', (recipientID, message, steamID64 = recipientID .toString()) => {
+    if (message.indexOf('#!') == 0) {
+      account.user.chatMessage(recipientID, get_reply(recipientID, message.substr(2)));
+    } else if (message.indexOf('##') == 0) {
+      riveScript.setUservar(steamID64, 'chat_time', 0);
+    } else if (message.indexOf('ㅤ') == -1) {
+      riveScript.setUservar(steamID64, 'chat_time', Date.now());
+    }
+  });
+  account.user.on('friendMessage', (steamID, message, steamID64 = steamID.toString()) => {
+    if (riveScript.getUservar(steamID64, 'chat_time') == 'undefined') {
+      riveScript.setUservar(steamID64, 'chat_time', 0);
+      riveScript.setUservar(steamID64, 'chat_active', false);
+    }
+    console.log(new Date() + " | " + riveScript.getUservar(steamID64, 'chat_time') +
+      "\n<< " + "[" + steamID64 + "] " + message);
+    if (Date.now() - riveScript.getUservar(steamID64, 'chat_time') > 3600000
+    && riveScript.getUservar(steamID64, 'chat_active') != true) {
+      riveScript.setUservar(steamID64, 'chat_active', true);
+      var reply = get_reply(steamID, message);
+      setTimeout(() => {
+        account.user.chatTyping(steamID);
+        setTimeout(() => {
+          account.user.chatMessage(steamID, reply);
+          riveScript.setUservar(steamID64, 'chat_active', false);
+        }, Math.max(Math.min(reply.length, 100)*50, 2000));
+      }, 1000);
+    }
+  });
+});
+quit = () => {
+  account.user.logOff();
+  fs.writeFileSync('users.json', JSON.stringify(riveScript.getUservars(), null, 2));
+  process.exit(0);
+}
+process.on('SIGINT', quit);
+process.on('SIGTERM', quit);

@@ -1,50 +1,145 @@
-//------------------------------------------------------------------------------ ArtworkChanges
-edit_text(2351645830, null, "[video mp4=https://archive.org/download/youtube-UiXWGtVLI3g/The_Secret_Homework_Cheating_Machine_Chinese_Kids_Are_Using-UiXWGtVLI3g.mp4][/video][video mp4=https://archive.org/download/facebook-769467711511847/769467711511847.mp4][/video][video mp4=https://ia802502.us.archive.org/31/items/scanlover-fourm-teaser-videos/ScanLover%20Forum%20Teaser%20-%20Olivia%20Munn.ia.mp4][/video][video mp4=https://archive.org/download/youtube-79TVRM9ywYw/79TVRM9ywYw.mp4][/video] [previewyoutube=09AqNTynkK8;full][/previewyoutube] [previewyoutube=-Zo8uGiJY0g;full] [/previewyoutube] [previewyoutube=XcCXexHpfis;full][/previewyoutube]  ")
-edit_text(2330667249, null, '[video mp4=https://archive.org/download/youtube-44HFtgTTIEg/Thermal_Camera_Smartphone-_the_Blackview_BV9900_Pro-44HFtgTTIEg.mp4][/video][video mp4=https://archive.org/download/facebook-694746464629808/694746464629808.mp4][/video][video mp4=https://archive.org/download/youtube-N1dtNfQGOig/N1dtNfQGOig.mp4][/video][video mp4=https://archive.org/download/youtube--Lmbw-x6p_k/-Lmbw-x6p_k.mp4][/video][previewyoutube=M0n_Lq6JADA;full][/previewyoutube][previewyoutube=6zOXJtGQEec;full][/previewyoutube][previewyoutube=GmT3wOrsYic;full][/previewyoutube]')
-edit_text(2330668137, null, "[video mp4=https://archive.org/download/youtube-zVAjbJGd4GE/See_My_Boob-zVAjbJGd4GE.mp4][/video][video mp4=https://archive.org/download/facebook-456826631755127/456826631755127.mp4][/video][video mp4=https://archive.org/download/youtube-Mbsq6Y30A6c/Mbsq6Y30A6c.mp4][/video][video mp4=https://archive.org/download/youtube-Q0VUVTEzEsc/Q0VUVTEzEsc.mp4][/video][previewyoutube=rpYcWxQCGx4;full][/previewyoutube][previewyoutube=xQAnp41AZps;full][/previewyoutube][previewyoutube=GUMoN-wctVA;full][/previewyoutube]")
-!!! edit_text(2330668252, null, "[video mp4=https://archive.org/download/youtube-7u7lZQQZm2s/7u7lZQQZm2s.mp4][/video][video mp4=https://archive.org/download/facebook-538787496892373/538787496892373.mp4][/video][video mp4=https://archive.org/download/dailymotion-x6qlt5e/x6qlt5e.mp4][/video][video mp4=https://archive.org/download/youtube-_t80n8XUnqA/_t80n8XUnqA.mp4][/video] [previewyoutube=J0jBQB_q2_8;full][/previewyoutube] [previewyoutube=CDX2HRHxVd0;full] [/previewyoutube] [previewyoutube=ADbuZWinMYk;full][/previewyoutube]  ")
-edit_text(2330668999, null, "[video mp4=https://archive.org/download/youtube-a929IRtg4YU/LEBs-_Cyberpunk_Wearable_Fiber_Optic_Implant_Transillumination-a929IRtg4YU.mp4][/video][video mp4=https://archive.org/download/facebook-425549298216194/425549298216194.mp4][/video][video mp4=https://archive.org/download/youtube-7ie6-HDUopk/7ie6-HDUopk.mp4][/video][video mp4=https://archive.org/download/youtube-OifctUFcfyA/OifctUFcfyA.mp4][/video] [previewyoutube=StjFTXa7wg8;full][/previewyoutube] [previewyoutube=XPombybTVAs;full] [/previewyoutube] [previewyoutube=7Azqqc7tK4o;full][/previewyoutube]  ")
-edit_text(2351645890, null, "[video mp4=https://archive.org/download/youtube-r5hrP5iMTmM/Hardware_Manufacturing_LED_Rings_Pt.2-_A_Visit_to_JLCPCB-r5hrP5iMTmM.mp4][/video][video mp4=https://archive.org/download/facebook-694331068004681/694331068004681.mp4][/video][video mp4=https://ia802502.us.archive.org/31/items/scanlover-fourm-teaser-videos/ScanLover%20Forum%20Teaser%20-%20Momoko%20Tani.ia.mp4][/video][video mp4=https://archive.org/download/youtube-PiqnIA1s4T0/PiqnIA1s4T0.mp4][/video] [previewyoutube=uBl3shzKi2s;full][/previewyoutube] [previewyoutube=4ts772g5ZQ0;full] [/previewyoutube] [previewyoutube=8dJprgS-B8w;full][/previewyoutube]  ")
-!!! edit_text(2330669157, null, "[video mp4=https://archive.org/download/youtube-qotqbNSB6Bw/Installing_Linux_Mint_on_a_Used_Thinkpad-qotqbNSB6Bw.mp4][/video][video mp4=https://archive.org/download/facebook-1322882985317641/1322882985317641.mp4][/video][video mp4=https://archive.org/download/scanlover-fourm-teaser-videos/Iroha%20Yanagi.mp4][/video][video mp4=https://archive.org/download/youtube-YYwy-P-3w_k/YYwy-P-3w_k.mp4][/video] [previewyoutube=ZqAbmqE4qcE;full][/previewyoutube] [previewyoutube=spKfnE5lEoI;full] [/previewyoutube] [previewyoutube=Q9YsCUJeNmY;full][/previewyoutube]  ")
-edit_text(2330669229, null, "[video mp4=https://archive.org/download/youtube-l-iwEiFPSws/Testing_WEIRD_Masks_and_PPE_for_Adafruit-l-iwEiFPSws.mp4][/video][video mp4=https://archive.org/download/facebook-1167803170594395/1167803170594395.mp4][/video][video mp4=https://archive.org/download/youtube-3iX7k1T4na4/3iX7k1T4na4.mp4][/video][video mp4=https://archive.org/download/youtube-2G61Tfu0J74/2G61Tfu0J74.mp4][/video] [previewyoutube=e6FCOJs-pSI;full][/previewyoutube] [previewyoutube=m0ZuNrfj714;full] [/previewyoutube] [previewyoutube=xX1gi2UIL04;full][/previewyoutube]  ")
-!!! edit_text(2330669299, null, "[video mp4=https://archive.org/download/youtube-JOfpG37WCLk/Shenzhen_Electronics_Market_Haul-JOfpG37WCLk.mp4][/video][video mp4=https://archive.org/download/facebook-1246774579423035/1246774579423035.mp4][/video][video mp4=https://archive.org/download/youtube-359Vn6vwJZM/359Vn6vwJZM.mp4][/video][video mp4=https://archive.org/download/youtube-IZipVVBmjGw/IZipVVBmjGw.mp4][/video] [previewyoutube=0bB-ZoCm-i4;full][/previewyoutube] [previewyoutube=ivm5TsAtplU;full] [/previewyoutube] [previewyoutube=m3j9onWywq8;full][/previewyoutube]  ")
-edit_text(2330669381, null, "[video mp4=https://archive.org/download/youtube-7fC2Zk3ci5A/LaserCube-_Party_Laser_AND_Laser_Engraver_in_One_Device-7fC2Zk3ci5A.mp4][/video][video mp4=https://archive.org/download/facebook-1395976684242839/1395976684242839.mp4][/video][video mp4=https://archive.org/download/dailymotion-x8dz87r/x8dz87r.mp4][/video][video mp4=https://archive.org/download/youtube-e_oYV3KnnLI/e_oYV3KnnLI.mp4][/video] [previewyoutube=SPCXRmo9ytQ;full][/previewyoutube] [previewyoutube=LA8Kl0SRykY;full] [/previewyoutube] [previewyoutube=VG-XCn0TOgg;full][/previewyoutube]  ")
-edit_text(2330670868, null, "[video mp4=https://archive.org/download/youtube-tAVkoIq0PeQ/LCD_Shutter_Top_NSFW-ish-tAVkoIq0PeQ.mp4][/video][video mp4=https://archive.org/download/scanlover-fourm-teaser-videos/Fumina%20Suzuki%20Improved%20Version.ia.mp4][/video][video mp4=https://archive.org/download/scanlover-fourm-teaser-videos/Arisa%20Kurada.mp4][/video][video mp4=https://archive.org/download/youtube-hgDiF8O9hQo/hgDiF8O9hQo.mp4][/video] [previewyoutube=kskFMQxl3vU;full][/previewyoutube] [previewyoutube=WTPzP9l-XR4;full] [/previewyoutube] [previewyoutube=FlL22paLjMQ;full][/previewyoutube]  ")
-edit_text(2330670895, null, "[video mp4=https://archive.org/download/youtube-8IagZskMGds/DJI_Osmo_Pocket_Tested_in_Tokyo_Courtesy_GeekBuying-8IagZskMGds.mp4][/video][video mp4=https://archive.org/download/facebook-188318728605920/188318728605920.mp4][/video][video mp4=https://archive.org/download/scanlover-fourm-teaser-videos/Fumina%20Suzuki%20Improved%20Version.ia.mp4][/video][video mp4=https://archive.org/download/youtube-UnsW2YpwvaA/UnsW2YpwvaA.mp4][/video] [previewyoutube=BocmmujCg9w;full][/previewyoutube] [previewyoutube=kPT3zr26OrQ;full] [/previewyoutube] [previewyoutube=TLVKETZ3TpU;full][/previewyoutube]  ")
-edit_text(2330670907, null, "[video mp4=https://archive.org/download/youtube-NPTP6dmtXR4/NPTP6dmtXR4.mp4][/video][video mp4=https://archive.org/download/facebook-1431487994036754/1431487994036754.mp4][/video][video mp4=https://archive.org/download/scanlover-fourm-teaser-videos/Sayuri%20Otomo%20Improved%20Version.ia.mp4][/video][video mp4=https://archive.org/download/youtube-3EeVu862Tfw/3EeVu862Tfw.mp4][/video] [previewyoutube=wh-1jhVRFhU;full][/previewyoutube] [previewyoutube=-Rk8mhrKYKM;full] [/previewyoutube] [previewyoutube=ix48mtdZViE;full][/previewyoutube]  ")
-edit_text(2351645923, null, "[video mp4=https://archive.org/download/youtube-aYaSPxBjvEU/aYaSPxBjvEU.mp4][/video][video mp4=https://archive.org/download/facebook-417207425717048/417207425717048.mp4][/video][video mp4=https://ia802502.us.archive.org/31/items/scanlover-fourm-teaser-videos/ScanLover%20Forum%20Teaser%20-%20Ami%20Tokito.ia.mp4][/video][video mp4=https://archive.org/download/youtube-o7Z8MzP2YsU/o7Z8MzP2YsU.mp4][/video] [previewyoutube=Ee04Z161jDQ;full][/previewyoutube] [previewyoutube=lbzTpS-K_YE;full] [/previewyoutube] [previewyoutube=dJ_eqgoD1so;full][/previewyoutube]  ")
-edit_text(2351645968, null, "[video mp4=https://archive.org/download/youtube-nheTjjQzqcs/Home_Networking_Part_1-_Pulling_Cable-nheTjjQzqcs.mp4][/video][video mp4=https://archive.org/download/facebook-417181505719640/417181505719640.mp4][/video][video mp4=https://ia802502.us.archive.org/31/items/scanlover-fourm-teaser-videos/ScanLover%20Forum%20Teaser%20-%20Melanie%20Iglesias.ia.mp4][/video][video mp4=https://archive.org/download/youtube-CAlNRC_cMis/CAlNRC_cMis.mp4][/video] [previewyoutube=NW6bJL4B6mU;full][/previewyoutube] [previewyoutube=7ChIkRqJ9bU;full] [/previewyoutube] [previewyoutube=N2Cg9FvzR2I;full][/previewyoutube]  ")
-edit_text(2330670942, "­", "[video mp4=https://archive.org/download/youtube-f0Nnj-pDRlc/f0Nnj-pDRlc.mp4][/video][video mp4=https://archive.org/download/facebook-870188234078175/870188234078175.mp4][/video][video mp4=https://ia802502.us.archive.org/31/items/scanlover-fourm-teaser-videos/ScanLover%20Forum%20Teaser%20-%20Natsuki%20Ikeda.ia.mp4][/video][video mp4=https://archive.org/download/youtube-jdTSwS6rZ0Y/jdTSwS6rZ0Y.mp4][/video] [previewyoutube=fkuj5FlJUoA;full][/previewyoutube] [previewyoutube=2W8DHTAOQuI;full] [/previewyoutube] [previewyoutube=YO9TJoPV4Og;full][/previewyoutube]  "
-edit_text(2330670954, null, "[video mp4=https://archive.org/download/youtube-_Q_xappAvJw/_Q_xappAvJw.mp4][/video][video mp4=https://archive.org/download/facebook-641077586663363/641077586663363.mp4][/video][video mp4=https://ia802502.us.archive.org/31/items/scanlover-fourm-teaser-videos/ScanLover%20Forum%20Teaser%20-%20Jessica%20Gomes.ia.mp4][/video][video mp4=https://archive.org/download/youtube-PNHQCdVBGOs/PNHQCdVBGOs.mp4][/video] [previewyoutube=wiXOXUleP7E;full][/previewyoutube] [previewyoutube=qUhBFHizUHk;full] [/previewyoutube] [previewyoutube=AnkKN5ghzfA;full][/previewyoutube]  ")
-edit_text(2330670969, null, "[video mp4=https://archive.org/download/youtube-BD1HusIXOPc/SpaceLab_Restaurant-_Food_Delivered_By_Gravity_Sled_w_Moza_Mini-S_Gimbal-BD1HusIXOPc.mp4][/video][video mp4=https://archive.org/download/facebook-437646335095516/437646335095516.mp4][/video][video mp4=https://ia902502.us.archive.org/31/items/scanlover-fourm-teaser-videos/ScanLover%20Forum%20Teaser%20-%20Natsuko%20Tatsumi.ia.mp4][/video][video mp4=https://archive.org/download/youtube-XWoSuyoJtqI/XWoSuyoJtqI.mp4][/video] [previewyoutube=sxcpzCKgI98;full][/previewyoutube] [previewyoutube=nQnRcOK69Eo;full] [/previewyoutube] [previewyoutube=2t5k5AlYyG4;full][/previewyoutube]  ")
-edit_text(2351646009, null, "[video mp4=https://archive.org/download/youtube-hsRfNhpuMNg/FIMI_Palm_Unboxing_and_Review-hsRfNhpuMNg.mp4][/video][video mp4=https://archive.org/download/facebook-422306265207164/422306265207164.mp4][/video][video mp4=https://ia802502.us.archive.org/31/items/scanlover-fourm-teaser-videos/ScanLover%20Forum%20Teaser%20-%20Aya%20Kiguchi.ia.mp4][/video][video mp4=https://archive.org/download/youtube-M7EIz2TNpWQ/M7EIz2TNpWQ.mp4][/video] [previewyoutube=YXJ5ywT_Az8;full][/previewyoutube] [previewyoutube=YBAOme9dUA0;full] [/previewyoutube] [previewyoutube=J6Dbt_y-GHQ;full][/previewyoutube]  ")
-!!!edit_text(3145842695, null, "[video mp4=https://archive.org/download/youtube-1ZKyx8LifHk/1ZKyx8LifHk.mp4][/video][video mp4=https://archive.org/download/facebook-1087963051946389/1087963051946389.mp4][/video][video mp4=https://ia802502.us.archive.org/31/items/scanlover-fourm-teaser-videos/Jun%20Amaki.mp4][/video][video mp4=https://archive.org/download/youtube-aRsYlXr8_sU/aRsYlXr8_sU.mp4][/video] [previewyoutube=ditOP_3ai5U;full][/previewyoutube] [previewyoutube=hdGmaRiavpE;full] [/previewyoutube] [previewyoutube=pABG6TcLPMs;full][/previewyoutube]  ")
-https://steamcommunity.com/sharedfiles/filedetails/?id=3139797755 cant delete
-//------------------------------------------------------------------------------ FavoriteRemovers
-[].forEach((e) => 
-  Object.keys(s.favorites).forEach((_e) =>
-    (s.favorites[_e].includes(e)) && (
-      http(A[0], 'sharedfiles/unfavorite', { appid: 0, id: e }),
-      console.log(_e),
-      s.favorites[_e].splice(s.favorites[_e].indexOf(+e), 1))))
-[].forEach((e) => (
-  http(A[0], 'sharedfiles/unfavorite', { appid: 0, id: e }),
-  s.favorites['Wallpaper Engine'].splice(s.favorites['Wallpaper Engine'].indexOf(+e), 1))
-//------------------------------------------------------------------------------ FillFavorites
-fill_favorites = (a, p = 1) =>
-  http(a, 'my/myworkshopfiles/?browsefilter=myfavorites&p=' + p, null, (_b, r, x, b = Cheerio.load(_b), E = [...Array(b('div.itemContents').length).keys() ]) =>
+//------------------------------------------------------------------------------ FindMissing
+find_missing = (g) => (
+  Object.entries(s.collections).some(_e => _e[1].includes(""+e) && console.log('https://steamcommunity.com/sharedfiles/filedetails/?id=' + _e[0])),
+  pool_ugc(undefined, 'myworkshopfiles', 'favorites', 431960).includes(+e) && 'missing from favorite')
+//------------------------------------------------------------------------------ UGCFill
+get_ugc(0, 'guides')
+get_ugc(0, 'guides', 'favorites')
+get_ugc(0, 'collections')
+get_ugc(0, 'collections', 'favorites')
+get_ugc(0, 'merchandise')
+get_ugc(0, 'merchandise', 'favorites')
+get_ugc(0, 'myworkshopfiles')
+get_ugc(0, 'myworkshopfiles', 'favorites')
+get_ugc(0, 'myworkshopfiles', 'subscriptions')
+get_ugc(0, 'videos')
+get_ugc(0, 'videos', 'favorites')
+get_ugc(0, 'images')
+get_ugc(0, 'images', 'favorites')
+get_ugc(0, 'screenshots')
+get_ugc(0, 'screenshots', 'favorites')
+s.ugc['76561197961017729'][431960].myworkshopfiles.favorites = [];
+get_ugc(431960, 'myworkshopfiles', 'favorites', 1, A[96], A[0].steamID)
+//------------------------------------------------------------------------------ GifSquareUploadCouldBeIPBlocked
+gif_square_upload = (i = 96, g = 202351) =>
+  upload_ugc(A[i], './images/guide_gif_square/' + w.readdirSync('./images/guide_gif_square').filter(e => e != 'uploaded')[0], 9, g, messages[2][0](null, null, 72), emote(14, undefined, ' & ', true).replace(/&/g, () => " " + pool(d.ascii) + " " + pool(d.emojis_sexy) + " " + pool(d.ascii) + " ") + " " + pool(d.emojis_sexy), (g, file) => (
+    http(A[i], 'sharedfiles/ajaxupdatecontentdescriptors/', { publishedfileid: g, "add[0]": 5, "add[1]": 1, "remove[0]": 2, "remove[1]": 4, "remove[2]": 3 }),
+    w.renameSync(file, file.match(/.*\//)[0] + "uploaded/" + g + ".gif"),
+    completed_uploads = mix(w.readdirSync('./images/guide_gif_square/uploaded').map(e => e.slice(0, -4)))));
+//------------------------------------------------------------------------------ UploadUGCCompletions
+upload_ugc(A[96], '/mnt/d/Work/node-byteframe/images/guide_gif_long/footer/' + mix(w.readdirSync('/mnt/d/Work/node-byteframe/images/guide_gif_long/footer').filter(e => !s.completed_guides_files.includes(e)))[0], 9, 202351, pool(s.wikipedia.selected, 1, null)[0].pages.map(e => e.extract).join('').substr(0,127).replace(/\n/g, ' '), emote(14, undefined, ' & ', true).replace(/&/g, () => " " + pool(d.ascii) + " " + pool(d.emojis_sexy) + " " + pool(d.ascii) + " ") + " " + pool(d.emojis_sexy), finish_gif_guide)
+finish_gif_guide = (g, file) => (
+  http(A[96], 'sharedfiles/addcontributor/', { id: g, steamid: A[0].steamID }, (b) => (
+  http(A[96], 'sharedfiles/ajaxupdatecontentdescriptors/', { publishedfileid: g, "add[0]": 5, "add[1]": 1, "remove[0]": 2, "remove[1]": 4, "remove[2]": 3 }),
+  (file.includes('_square')) ?
+    s.completed_guides.push(+g)
+  : s.completed_guides_footer.push(+g),
+  s.completed_guides_files.push(file.replace(/.*\//,'')));
+[...Array(3).keys() ].map(e => ((E = pool(d.emojis_food, 1, null)) => E[0][0] + "_" + mix(d.chinese.split('')).join('').substr(0,1) + "--" + E[0][1] + "--" + mix(d.chinese.split('')).join('').substr(0,1) + "_" + E[0][0])()).join(' ')
+//------------------------------------------------------------------------------ GatherCollectionsAndDiscussions
+get_discussion_links('https://steamcommunity.com/groups/primarydataloop/discussions/0/1290691937724869711/')
+get_discussion_links('https://steamcommunity.com/groups/primarydataloop/discussions/0/4358997447065431365/')
+[ 3225362116,3225361313,3225342753,3225328926,3225324896,3225319403,3225312030,3225296828,3225285968,3225227560,
+  3225283718,3225281845,3225270907,3225262336,3225255099,3225251492,3225242940,3225241409,3225240847,3225233553,
+  3225221417,3225195601,3225192185,3225189211,3225183640,3225174519,3225154581,3225134161,3225069533 ].forEach((e,i) => setTimeout(() => // .forEach((e,i) => setTimeout(get_collection_items, 20000*i, e))
+    http(A[0], 'sharedfiles/filedetails/discussions/' + e, null, (b, r, x) =>  get_discussion_links(b.match(/https:\/\/steamcommunity.com\/workshop\/filedetails\/discussion\/[0-9]+\/[0-9]+/)[0])), 5000*i, e))
+//------------------------------------------------------------------------------ OldWorkshopGather
+get_workshop_items = (a = A[0], p = 1, g = 0, type = 'favorites') =>
+  http(a, 'my/myworkshopfiles/?appid=' + g + '&browsefilter=my' + type + '&view=imagewall&p=' + p, null, (_b, r, x, b = Cheerio.load(_b), E = [...Array(b('div.itemContents').length).keys() ]) =>
     (E.length > 0) && (
-      E.forEach((e, i, y, g = +b('div.itemContents .workshopItemPreviewHolderFloatLeft')[i].children[1].attribs.href.substr(55), m = b('div.itemContents .workshopItemApp')[i].children[0].data) => (
-        (!s.favorites.hasOwnProperty(m)) && (
-          s.favorites[m] = []),
-        (!s.favorites[m].includes(g)) && (
-          log(a, "SESSION | myfavorite: https://steamcommunity.com/sharedfiles/filedetails/?id=" + g),
-          s.favorites[m].push(g)))),
-      setTimeout(fill_favorites, 2000, a, p+1)))
-//------------------------------------------------------------------------------ HideFile
-http(A[0], 'sharedfiles/itemsetvisibility', { id: xxx, visibility: 0} );
-//------------------------------------------------------------------------------ GetFavorites2
-get_favorites2 = (a, p = 1) =>
+      E.some((e, i, y, g = +b('div.itemContents .workshopItemPreviewHolderFloatLeft')[i].children[1].attribs.href.substr(55), m = b('div.itemContents .workshopItemApp')[i].children[0].data) => (
+        (!s.A[a.i][type].hasOwnProperty(m)) && (
+          s.A[a.i][type][m] = []),
+        (!s.A[a.i][type][m].includes(g) || s.A[a.i][type][m].slice(-20).includes(g)) ?
+          (!s.A[a.i][type][m].includes(g)) && (
+            s.A[a.i][type][m].push(g),
+            log(a, "SESSION | myworkshopfiles: " + (type.toUpperCase() + "/" + m + " - https://steamcommunity.com/sharedfiles/filedetails/?id=" + g).yellow),
+            false)
+        : true))
+      || setTimeout(get_workshop_items, 3000, a, p+1, g, type))),
+//------------------------------------------------------------------------------ PsyKittyUploadUGCPHP
+$json = json_decode( ExecuteRequest( 'https://api.steampowered.com/IPlayerService/GetOwnedGames/v1/?key=XXX&steamid=76561197971080714&include_appinfo=true&include_played_free_games=true&include_free_sub=true' ), true );
+foreach( $json['response']['games'] as $games )
+{
+  $ret = ExecuteRequest( 'https://steamcommunity.com/sharedfiles/edititem/767/3/' );
+  if( preg_match( '~<form class="smallForm" enctype="multipart/form-data" method="POST" name="SubmitItemForm" id="SubmitItemForm" action="(.*?)" >\r\n		<input type="hidden" name="redirect_uri" value="https://steamcommunity.com/sharedfiles/filedetails/" >\r\n		<input type="hidden" name="wg" value="(.*?)" >\r\n		<input type="hidden" name="wg_hmac" value="(.*?)" >\r\n		<input type="hidden" name="realm" value="1">\r\n		<input type="hidden" name="appid" value="767" >\r\n		<input type="hidden" name="consumer_app_id" value="767" id="ConsumerAppID">\r\n		<input type="hidden" name="sessionid" value="(.*?)" />\r\n		<input type="hidden" name="token" value="(.*?)" >~', $ret, $out ) )
+  {
+    $fields = array("redirect_uri"=>"https://steamcommunity.com/sharedfiles/filedetails/", "wg"=>$out[2], "wg_hmac" => $out[3], "realm" => 1, "appid" => 767, "consumer_app_id" => $games['appid'], "sessionid" => $sessionid, "token" => $out[5], "cloudfilenameprefix" => strtotime( 'now' ) . "_new_", "publishedfileid" => 0, "id" => 0, "file_type" => 3, "image_width" => 1005, "image_height" => 670, "title" => "liquid");
+    $filenames = array( __DIR__ . '/liquid.png' );
+    $files = array();
+    foreach ($filenames as $f){
+       $files[$f] = file_get_contents($f);
+    }
+    $boundary = uniqid();
+    $delimiter = '-------------' . $boundary;
+    $post_data = build_data_files($boundary, $fields, $files);
+    $parsedUrl = parse_url( $out[1] );
+    $port = ( string ) $parsedUrl['port'];
+    $req = ExecuteRequest( $out[1], $post_data, array( "Content-Type: multipart/form-data; boundary=" . $delimiter, "Content-Length: " . strlen($post_data) ), $port );
+    echo $req;
+  }
+}
+function build_data_files( $boundary, $fields, $files )
+{
+    $data = '';
+    $eol = "\r\n";
+    $delimiter = '-------------' . $boundary;
+    foreach( $fields as $name => $content )
+    {
+      $data .= "--" . $delimiter . $eol
+	    . 'Content-Disposition: form-data; name="' . $name . "\"".$eol.$eol
+	    . $content . $eol;
+    }
+    foreach( $files as $name => $content )
+    {
+	    $data .= "--" . $delimiter . $eol
+	    . 'Content-Disposition: form-data; name="file"; filename="liquid.png"' . $eol
+	    . 'Content-Type: image/png'.$eol;
+      $data .= $eol;
+      $data .= $content . $eol;
+    }
+    $data .= "--" . $delimiter . "--".$eol;
+    return $data;
+}
+//------------------------------------------------------------------------------ UploadAttempts
+cookie = {
+  creation: "2023-12-28T20:33:19.851Z",
+  key: 'youtube_authaccount',
+  value: 'primarydataloop',
+  secure: false
+}
+A[0].c._jar.setCookie(cookie, "https://steamcommunity.com");
+http(a, 'https://steamcommunity.com/id/byteframe/videos/add', {
+  "action": "add",
+  "videos": 'li3uJyRCiH0',
+  "app_assoc": 388390
+}, (b, r, x) => global.result = [b, r, x])
+A[0].c._setCookie(Request.cookie('youtube_authaccount=primarydataloop%20'));
+http_request(accounts[0], 'my/videos/', { videos: [ 'youtube_id' ], action: 'add', app_assoc: '250820' });
+account.http_request('my/videos/add', { action: "add", sessionid: account.community.sessionID, videos: [ "qQpxmGnzYa0" ], app_assoc: "602630", other_assoc: "" });
+accounts[0].http_request('/my/videos/add', {   "action": "add", "videos[]": "pQwRiDhikL4",  "app_assoc": "", "other_assoc": "byteframe" })
+jQuery.post('https://steamcommunity.com/id/byteframe/videos/add', {
+  "action": "add",
+  "videos[]": "pQwRiDhikL4",
+  "app_assoc": 440,
+  "other_assoc": ""
+});
+//------------------------------------------------------------------------------ HideVideoPage
+(hide_video_page = (page = 1) =>
+  http(accounts[0], "https://steamcommunity.com/id/byteframe/videos/?p=" + page + "&privacy=8", null, (body, response, error) => (
+    setTimeout(hide_video_page, 8000, page++),
+    body.match(/https:\/\/steamcommunity.com\/sharedfiles\/filedetails\/\?id=[0-9]+/g).forEach((id) =>
+      http(accounts[0], 'https://steamcommunity.com/sharedfiles/itemsetvisibility', { visibility: 2, id: id.substr(55)})))))()
+//------------------------------------------------------------------------------ FindIdsOnPage
+var jq = document.createElement('script');
+jq.src = "https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js";
+document.getElementsByTagName('head')[0].appendChild(jq);
+setTimeout(() => (
+  jQuery.noConflict(),
+  jQuery(".profile_media_item").each((i, e) => console.log(e.href))), 1500)
+  jQuery(".workshopItemCollection").each((i, e) => console.log(e.href))), 1500)
+//------------------------------------------------------------------------------ GetFavorites
+get_favorites = (a, p = 1) =>
   http(a, '/my/myworkshopfiles/?browsefilter=myfavorites&p=' + p, null, (_b, r, x, b = Cheerio.load(_b)) =>
     [...Array(b('div.itemContents').length).keys() ].some((e, i, y, g = b('div.itemContents .workshopItemPreviewHolderFloatLeft')[i].children[1].attribs.href.substr(55)) =>
       (!s.favorites.hasOwnProperty(g)) ? (
@@ -54,54 +149,6 @@ get_favorites2 = (a, p = 1) =>
           name: b('div.itemContents .workshopItemTitle')[i].children[0].data,
           game: b('div.itemContents .workshopItemApp')[i].children[0].data })) : true)
     || setTimeout(get_favorites, 3000, a, p+1)),
-//------------------------------------------------------------------------------ GetFavorites1
-get_favorites1 = (a, p = 1) =>
-  (p > 0) &&
-    http(a, '/my/myworkshopfiles/?browsefilter=myfavorites&p=' + p, null, (_b, r, x, b = Cheerio.load(_b)) => (
-      setTimeout(get_favorites, 3000, a, p-1),
-      [...Array(b('div.itemContents').length).keys() ].forEach((e, i) =>
-        s.accounts[a.i].favorites[b('div.itemContents .workshopItemPreviewHolderFloatLeft')[i].children[1].attribs.href.substr(55)] = {
-          name: b('div.itemContents .workshopItemTitle')[i].children[0].data,
-          game: b('div.itemContents .workshopItemApp')[i].children[0].data }))),
-//------------------------------------------------------------------------------ UGCEnum
-enum EWorkshopFileType {
-	First = 0;
-	Community	= 0;
-	Microtransaction	= 1;
-	Collection	= 2;
-	Art	= 3;
-	Video	= 4;
-	Screenshot	= 5;
-	Game	= 6;
-	Software	= 7;
-	Concept	= 8;
-	WebGuide	= 9;
-	IntegratedGuide	= 10;
-	Merch	= 11;
-	ControllerBinding	= 12;
-	SteamworksAccessInvite = 13;
-	SteamVideo = 14;
-	GameManagedItem = 15; };
-//------------------------------------------------------------------------------ CountVideos
-array1 = JSON.parse(fs.readFileSync('/mnt/c/Users/byteframe/Desktop/443.json')).map((file)=>file.slice(0,-4))
-array2 = JSON.parse(fs.readFileSync('/mnt/c/Users/byteframe/Desktop/2874.json')).map((file)=>file.slice(0,-4))
-files = array1.concat(array2)
-files.push('Across the Line - {HTC VIVE VR}');
-files.push('Coffee Vendor - Artificial Arm {HTC VIVE VR}');
-files.push('Abode 2 - {VALVE INDEX VR}');
-files.push('Attack of the Bugs - {HTC VIVE VR}');
-files.push('Cliffstone Manor - {VALVE INDEX VR}');
-files.push('Summerland');
-state_titles = [];
-Object.values(state.videos).forEach((video) => state_titles.push(video.title));
-state_titles.length;
-state_titles = state_titles.map((name) => name.replace(/-/g, ' '))
-state_titles = state_titles.map((name) => name.replace(/,/g, ''))
-files = files.map((name) => name.replace(/-/g, ' '))
-files = files.map((name) => name.replace(/,/g, ''))
-files.forEach((title) =>
-  (state_titles.indexOf(title) == -1) && (
-    console.log(title + "(file) not found in state")))
 //------------------------------------------------------------------------------ SubscribeManual
 [XXX].forEach((index) =>
   ((appid = state.accounts[index].subscriptions.pop()) => (
@@ -124,43 +171,7 @@ check_content_files = (account, content_files = {}, page = 1, base = 'my/videos'
             , 0 ],
           console.dir(content_files[files[f].substr(16)]),
           get_content_details(f-1))))());
-//------------------------------------------------------------------------------ GenericFunction
-file = (account, id, action = 'favorite', callback = null) =>
-  http_request(account, 'sharedfiles/' + action + '?' + id, { id: id, appid: 0 }, (body, response, err) =>
-    (callback !== null) &&
-      callback(body), true)
-//------------------------------------------------------------------------------ SubcribeAllPage
-jQuery('div.subscribeIcon').each((index, icon) => icon.click());
-//------------------------------------------------------------------------------ AddVideo
-http_request(accounts[0], 'my/videos/', { videos: [ 'youtube_id' ], action: 'add', app_assoc: '250820' });
-account.http_request('my/videos/add', { action: "add", sessionid: account.community.sessionID, videos: [ "qQpxmGnzYa0" ], app_assoc: "602630", other_assoc: "" });
-accounts[0].http_request('/my/videos/add', {   "action": "add", "videos[]": "pQwRiDhikL4",  "app_assoc": "", "other_assoc": "byteframe" })
-jQuery.post('https://steamcommunity.com/id/byteframe/videos/add', {
-  "action": "add",
-  "videos[]": "pQwRiDhikL4",
-  "app_assoc": 440,
-  "other_assoc": ""
-});
-//------------------------------------------------------------------------------ GetPeople1
-people = [];
-Object.keys(accounts[0].user.myFriends).forEach((friend, n, name = find_name(accounts[0], friend)) => (name.length < 13) && people.push([friend, name]));
-//------------------------------------------------------------------------------ GetPeople2
-people = [];
-Object.keys(accounts[0].user.users).forEach((friend, n) =>
-  (accounts[0].user.users[friend].persona_state == 3) &&
-    people.push([friend, accounts[0].user.users[friend].player_name]));
-//------------------------------------------------------------------------------ GetPeopleJQuery
-people = [];
-jQuery(".friend_block_v2").each((n, block) =>
-  people.push([block.dataset.steamid, block.outerText.split('\n')[0]]));
-people.forEach((person, n, array, name = person[1].trim()) =>
-  (name.length < 13 && name.length > 4 && name.indexOf('"') == -1) &&
-    console.log("[ \"" + person[0] + "\", \"" + person[1] + "\" ],"))
-//------------------------------------------------------------------------------ AddContributorsSimple
-data.guides.forEach((guide_id, n) =>
-  setTimeout(() =>
-    http_request(accounts[0], 'sharedfiles/addcontributor/', { id: guide_id, steamid: '76561198050000229'}), n*3500))
-//------------------------------------------------------------------------------ AddContributorComplex BUGGED!?
+//------------------------------------------------------------------------------ AddContributor
 last_index = 0;
 (contribute = (n, characters = 0) =>
   (n < data.guides.length) && (
@@ -172,8 +183,7 @@ last_index = 0;
     : contribute(n+1)))(last_index);
 //------------------------------------------------------------------------------ SetVisibility
 data.guide_favorite.concat(data.guide_favorite_showcase).forEach((guide_id) =>
-  setTimeout(() =>
-    http_request(accounts[0], 'sharedfiles/itemsetvisibility', { id: guide_id, visibility: 2}), n*1500))
+  setTimeout(() => http_request(accounts[0], 'sharedfiles/itemsetvisibility', { id: guide_id, visibility: 2}), n*1500))
 //------------------------------------------------------------------------------ RateAccordingly
 verbose = true;
 [...Array(69).keys()].forEach((i) =>
@@ -204,7 +214,7 @@ shuffle_array(new_guides),
                   rate(m+1)), frequency, err)), true),
             true)
           : false))())))()
-//------------------------------------------------------------------------------ SmatterFavorite
+//------------------------------------------------------------------------------ RateSmatter
 smatter = [ 1780348952,1780350483,1780351096,1780351340,1780351371,1780351492,
   1780351538,1780351583,1780351613,1780352505,1780351718,1780351777,
   1780351799,1780351845,1780351875,1780352205,1780352231,1780352403 ];
@@ -213,14 +223,6 @@ smatter.forEach((id, n) =>
     [...Array(Math.floor(Math.random()*(12-8)+8)).keys()].forEach((i) => (
       http_request(a(i), 'sharedfiles/voteup', { "appid": 0, "id": id }),
       http_request(a(i), 'sharedfiles/favorite', { "appid": 0, "id": id }))), 9999*n, id))
-//------------------------------------------------------------------------------ GatherVideosIds
-temp_videos = [],
-(check_videos = (p = 91) =>
-  (p > 0) &&
-    http_request(accounts[0], 'my/videos/?p=' + p + '&privacy=2&sort=newestfirst', null, (body, response, err) => (
-      body.match(/OnVideoClicked\( \d+/g).forEach((file) =>
-        temp_videos.push(file.substr(16)),
-        check_videos(p-1)))))()
 //------------------------------------------------------------------------------ GatherVideos1
 get_video_details = (i = 0) =>
   (i < temp_videos.length) &&
@@ -362,7 +364,6 @@ videos2 = [];
     request_video_details(f+1);
   });
 })();
-
 videos3 = [];
 (process_video_details = (f = 0) => {
   if (f == videos2.length) {
@@ -388,7 +389,6 @@ videos3 = [];
   videos3.push({name: name, my_link: my_link, appid_link: appid_link, steam_link: videos1[f], ytlink: ytlink});
   process_video_details(f+1);
 })();
-
 videos4 = [];
 videos3.forEach((video3) => {
   if (video3.appid_link.indexOf('NONSTEAM') == -1)
@@ -402,10 +402,3 @@ for (var i = 0; i < sorted_arr.length - 1; i++) {
   }
 }
 console.log(results);
-//------------------------------------------------------------------------------ VideoRater
-shuffle_array(Object.keys(state.videos).slice(-50)).some((video) =>
-  (config.state[video][2] != 0 && state.videos[video][3] < Math.floor(Math.random()*(99-33)+33)) && (
-    file(accounts[a], video, 'voteup', () =>
-      config.byteframe.videos[video][3]++),
-    true))
-//------------------------------------------------------------------------------

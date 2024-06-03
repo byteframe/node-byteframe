@@ -47,13 +47,6 @@ post_status = (account, text, appid) =>
   http(account, "my/ajaxpostuserstatus", { status_text: (account.index == 0 ? text : emoticon_convert(text)), appid: appid }, (body, response, err) =>
     log(account, 'SUCCESS | ajaxpostuserstatus: ' + ('https://steamcommunity.com/' + profile_url(account) + '/status/' + body.blotter_html.match(/userstatus_\d+_/)[0].slice(11, -1)).yellow)),
 //------------------------------------------------------------------------------
-"cat_apps": [
-  500580,451010,330180,253110,384740,329860,418960,474980,742980,895750,914150,
-  677290,336380,384120,369400,686180,350610,95700,343780,706980,913150,913120,
-  510740,565190,492270,453340,491000,645500,656970,715440,667430,911270,863780,
-  496120,236290,328550,637880,748110,772410,918180 ],
-"question_apps": [ 716920,771320,628570,701280,99200,549280,727860,648780,664420,686550 ],
-"meme_apps": [ 748600,833920 ],
 running_video_post = false,
 run_status_poster = (account, date = new Date()) => {
   if (Date.now() > config.status_poster.cat_time) {
@@ -199,3 +192,27 @@ status_posts = [
     () => pool([755770,689750,428690]) ],
   [ () => comment_message_bot(6000).replace(/\[\/*h1\]/g, ''),
     () => pool(profile.game_favorite.slots[0]).match(/\d+/)[0] ] ];
+//------------------------------------------------------------------------------ StatusPostRemnants
+if (Date.now() > config.cat_time) {
+  if (config.cat >= byteframe.cats.length) {
+    config.cat = 0;
+    byteframe.cats[config.cat] + " https://steamcommunity.com/sharedfiles/filedetails/?id=" + byteframe.cats[config.cat+1]
+  config.cat_time = Date.now()+16200000;
+  config.cat += 2;
+} else if (Date.now() > config.meme_time) {
+  if (config.joke >= jokes.length) {
+    config.joke = 0;
+    "[b] * " + jokes[config.joke] + "[/b]\n\n" +
+    " [b] * " + jokes[config.joke+1] + "[/b]\n\n" +
+    "[b] * " + jokes[config.joke+2] + "[/b]\n\n" +
+    " [b] * " + jokes[config.joke+3] + "[/b] [spoiler]" + app1 + " | " + app2 + "[/spoiler]"
+  config.meme_time = config.cat_time+3600000;
+  config.joke = config.joke+5;
+} else if (Date.now() > config.question_time && account.backgrounds.pool.length) {
+  config.question_time = config.cat_time+7200000;
+if (date.getUTCDay() != config.video_day) {
+  var index = videos.indexOf(config.last_video);
+  if (config.last_video !== 0 && config.last_video != videos[0]) {
+    f = videos.indexOf(config.last_video)-1;
+      config.video_day = new Date().getUTCDay();
+      config.last_video = videos[f];
