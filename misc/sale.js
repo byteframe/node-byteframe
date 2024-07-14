@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------ GenerateToken2023
 const readline = require('readline').createInterface({ input: process.stdin });
 fs = require('fs');
-s = JSON.parse(fs.readFileSync('./node-byteframe/state.json', 'utf8'));
+s = JSON.parse(fs.readFileSync('state.json', 'utf8'));
 base64 = (data) => new Buffer(data).toString('base64');
 google = require('googleapis').google;
 (generate_auth_token = () => {
@@ -22,7 +22,7 @@ google = require('googleapis').google;
     });
   });
 })();
-//------------------------------------------------------------------------------ 2023Expressions
+//------------------------------------------------------------------------------ Expressions
 sale = (i = 1, o = A.length-1) =>
   (i <= o) && (
     (!A[i].limited) ? (

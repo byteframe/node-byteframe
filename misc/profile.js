@@ -1,5 +1,63 @@
-//------------------------------------------------------------------------------ GroupChangerSeemsLimited
-http(a, 'my/edit', { type: 'favoriteclan', primary_group_steamid: pool(d.group_primary) }, null, false, 'POST', false, true),
+//------------------------------------------------------------------------------ ReplicantSaleRoutine
+bedazzle = (m) =>
+  split_words([1,2].map(e=>
+    pool([
+      "","","","",
+      ((m = pool(d.ascii)) => m)(),
+      ((m = pool(d.emojis_people.flat(), 1)) => m)(),
+      ((m = pool(d.emojis_sexy.flat(), 1)) => m)() ])).join(" " + m + " ")).map(e => Math.random() < 0.25 ? font(e, rand(0,d.fonts.length-3)) : e).join(' ').trim(),
+emoticon_convert = (m, g = -1) =>
+  m = m.replace(/(:|ː)[0-9a-zA-Z_]+:/g, () => g == -1 ? pool(pool(d.emojis, 1, null, false)[0]) : pool(d.emojis[g])),
+sale = (i = 1, o = i, a = A[i], first = pool(d.first_female), last = pool(d.last_name), _country = pool([ 'US','CA','GB','US','CA','GB','DE','IT','FR','VG','VI','DK' ]), country = d.countries.find(e => e[0] == _country), state_index = Math.floor(Math.random()*country[1].length), hr = pool([ [ '[h1]', '[/h1]' ], [ '[h2]', '[/h2]' ], [ '[h3]', '[/h3]' ], [ '\n','\n' ], [ '\n','\n' ], [ '\n','\n' ], [ '\n','\n' ], [ '\n','\n' ], [ '\n','\n' ], [ '\n','\n' ], [ '\n','\n' ] ], 2, null)) =>
+  i <= o && logon(a, '', () => (
+    setTimeout((i, o) => ( logout(A[i]), sale(++i, o) ), 60000, i, o),
+    Object.entries(a.u.myFriends).filter(e => e[1] == 2 || e[1] == 4).forEach(e => a.u[e[1] == 2 ? 'addFriend' : 'removeFriend'](e[0])),
+    Object.keys(a.u.myGroups).includes('103582791462974104') && a.c.leaveGroup('103582791462974104'),
+    mix(Object.keys(A[0].u.myGroups).filter(e => !a.u.myGroups.hasOwnProperty(e))).slice(0,4).forEach(e => a.c.joinGroup(e)),
+    a.chats.find(e => e[0] == '10276749') || a.u.chat.joinGroup(10276749),
+    a.chats.filter(e => e[0] != '10276749').forEach(e => a.u.chat.leaveGroup(e[0])),
+    a.u.setPersona(1),
+    !a.limited && (
+      a.c.clearPersonaNameHistory(x => (
+        x && log(a, 'FAILURE | clearPersonaNameHistory: ' + x.message.yellow),
+        http(a, 'actions/selectPreviousAvatar', { sha: pool(d.avatar_sha), json: 1 })
+        a.inventory.backgrounds.length && http(a, 'https://api.steampowered.com/IPlayerService/SetProfileBackground/v1', { access_token: a.access_token, communityitemid: +pool(a.inventory.backgrounds, 1, null)[0].id }),
+        http(a, 'https://api.steampowered.com/IPlayerService/SetProfileTheme/v1', { access_token: a.access_token, theme_id: pool(['','Summer','Midnight','Steel','Cosmic','DarkMode' ]) }),
+        ((g = pool(a.badges, 1, null)[0]) => ( http(a, 'https://api.steampowered.com/IPlayerService/SetFavoriteBadge/v1', { access_token: a.access_token, badgeid: g.badgeid, communityitemid: g.communityitemid } )))()
+        a.edit_1 = "&type=profileSave&json=1&hide_profile_awards=0&weblink_1_title=&weblink_1_url=&weblink_2_title=&weblink_2_url=&weblink_3_title=&weblink_3_url=" +
+          "&customURL=" + ((profile_url(a).startsWith('id/byte') || profile_url(a).startsWith('profiles/')) ? mix([ pool([ () => pool(d.pickups), () => fortune('love'), () => fortune('men-women') ], 1, null)[0]().replace(/(\w)(\w*)/g, (g0, g1, g2) => g1.toUpperCase() + g2.toLowerCase()).replace(/[^a-zA-Z0-9\ ]+/g, '').split(' ').reduce((e, _e) => e.length < 22 ? e +_e : e), ""+a.i]).join('') : profile_url(a).slice(3)) +
+          "&personaName=" + ((Math.random() < 0.25 ? pool(d.words_sexy.filter(e => !e.startsWith('Sex'))) : '') + " " + bedazzle(first)).trim() +
+          "&real_name=" + bedazzle(first + " " + pool(['', last])) +
+          "&summary=" + emoticon_convert(mix([
+            pool([ "", "", "", jitter(), messages[1][2](), "[i]" + fortune('men-women', 1, 1,75) + "[/i]", "[b]" + fortune('love', 1, 1,75) + "[/b]", pool_discussion_links(rand(1,3)) + " ", fortune('jokes', 1, 1), jitter() ]),
+            ((i = +(""+a.i).slice(-1)) =>
+              i == 0 ? messages[0][3]()
+            : i == 1 ? messages[0][5]()
+            : i == 2 ? messages[0][44]()
+            : i == 3 ? messages[2][0]()
+            : i == 4 ? messages[0][29]()
+            : i == 5 ? "[h1]" + messages[1][5]() + "[/h1]"
+            : i == 6 ? "[b]" + messages[1][0]() + "[/b]"
+            : i == 7 ? bedazzle(fortune('men-women', 1, 150,300).replace(/ -- .*?/, '')) + hr[0][1] + " " + hr[1][0] + bedazzle(fortune('love', 1, 150,300).replace(/ -- .*?/, ''))
+            : i == 8 ? messages[0][33]() 
+            : fortune('people', 1, 75).replace(/\s+--.*/, ''))() ], 1, null).join('\n') + (Math.random() < 0.25 ? "\n\n" + text_art('anime') : (Math.random() < 0.5 ? messages[2][2](a.steamID, new Date(), [ rand(1,2), rand(8,16)  ]) : '')), rand(0,3)).trim() +
+          "&country=" + country[0],
+        country[1].length && (
+          a.edit_1 += "&state=" + country[1][state_index][0],
+          country[1][state_index][1].length  && Math.random() < 0.5 && (
+            a.edit_1 += "&city=" + country[1][state_index][1][Math.floor(Math.random()*country[1][state_index][1].length)] )),
+        http(a, 'my/edit', a.edit_1),
+        a.level > 9 && d.workshop_favorite_long[a.i].length == 5 &&
+          setTimeout(http, 50000, a, 'my/edit', "&type=showcases&json=1&profile_showcase_style_5_0=1&rgShowcaseConfig[24_0][0][replay_year]=2022" + "&profile_showcase%5B%5D=" + '12' + "&profile_showcase_purchaseid%5B%5D=0" +
+            d.workshop_favorite_long[a.i].map((e, i) => "&rgShowcaseConfig%5B12_0%5D%5B" + i + "%5D%5Bappid%5D=0&rgShowcaseConfig%5B12_0%5D%5B" + i + "%5D%5Bpublishedfileid%5D=" + e)))),
+      setTimeout(a => http(a, 'my/edit', { type: 'favoriteclan', primary_group_steamid: mix(Object.keys(a.u.myGroups).filter(e => A[0].u.myGroups[e] && !d.group_favorite.includes(e)))[0] }), 40000, a),
+      claim(a),
+      wish(a),
+      discover(a, true),
+      s.A[a.i].privacy != 3 && http(a, 'my/ajaxsetprivacy', { eCommentPermission: 1, Privacy: JSON.stringify({ "PrivacyProfile": 3, "PrivacyInventory": 3, "PrivacyInventoryGifts": 3, "PrivacyOwnedGames": 3, "PrivacyPlaytime": 3, "PrivacyFriendsList": 3 })}, (b, r, x) => ( s.A[a.i].privacy = 3 ), false, 'POST', true))))
+//------------------------------------------------------------------------------ CardSetLogic
+d.items_cards_array = mix(Object.values(d.items_cards_array).flat())
+  [ d.items_cards_array, 'item_showcase', 0 ],
 //-------------------------------------------------------------------------------------- GroupFormPriorToWikipedia
 { "abbreviation": "pdl-stm",
   "country": "PS",
@@ -116,12 +174,12 @@ item_showcase2: { moves: [], types: [ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
 print_weather_discussion_post = (E) =>
   '[olist]' + E.map(e => "[*]" + fortune('zippy', 1, 50, 80) + "\n" + " " + pool(d.items_emoticons_array, 1, null)[0].map(e => A[0].inventory.emoticons.find(_e => _e.id == e.substr(6)).name).join(' - ') + " + " + mix(d.barcode.split('')).join('') + " + " + mix(d.chinese.split('')).slice(0,8).join('') + " https://www.youtube.com/watch?v=" + e).join('\n') + "\n[/olist]"
 //------------------------------------------------------------------------------ OldGenerators
-generate_emoticon_fortune = (text, length, emoticon_index, file = 'all', fortune = fortune(file).replace(/\n/g, ' ').split(/\s+/)) =>
-  (fortune.length < length) ?
+generate_emoticon_fortune = (text = '', length, emoticon_index, file = 'all', m = fortune(file).replace(/\n/g, ' ').split(/\s+/)) =>
+  m.length < length ?
     generate_emoticon_fortune(text, length, emoticon_index, file)
-  :([...Array(length).keys()].forEach((i) =>
-      text += pool(data.emotes[emoticon_index], i) + " " + pool(data.ascii) + " " + fortune[i] + "\n"),
-    text.trim() + ' ' + fortune.slice(length).join(' ')),
+  :([...Array(length).keys()].forEach(i =>
+      text += pool(d.emotes[emoticon_index], i) + " " + pool(d.ascii) + " " + m[i] + "\n"),
+    text.trim() + ' ' + m.slice(length).join(' ')),
 generate_emoticons = (length, text = '', delimiter = '', indexes = [ 2,3,4,5,6,7,8,9,10,11 ]) => (
   pool(indexes, length, null).forEach((index) =>
     text += pool(data.emotes[index]) + delimiter),
@@ -133,10 +191,10 @@ generate_emoticons = (length, text = '', delimiter = '', indexes = [ 2,3,4,5,6,7
 //------------------------------------------------------------------------------ OldUtilityFunctions
 edit_text = (account, publishedfileid, title, description = '') =>
   http(account, 'sharedfiles/itemedittext?' + publishedfileid, { id: publishedfileid, language: 0, title: title, description: description }),
-emoticon_convert = (text) => (
-  text = text.replace(/ː/g, ':').replace(/:[0-9a-zA-Z_]+:/g, () => pool(pool(data.emojis, 1, null)[0])),
+emoticon_convert = (m) => (
+  m = m.replace(/ː/g, ':').replace(/:[0-9a-zA-Z_]+:/g, () => pool(pool(data.emojis, 1, null)[0])),
   data.emojis.index = 0,
-  text),
+  m),
 shuffle_string = (s) =>
   shuffle_array(s.split("")).join(""),
 pad = (i, zeros = "00") =>
@@ -733,77 +791,3 @@ gamesPlayed: { shuffle_slots: [], shuffle_types: [ 0 ], slots: [ [
   "ːrighteyeː","ːgarfunkelː","ːrainbowː","ːThe_Ballː",
   "ːcandyrainbowː","ːtisdestroyerː","ːtiselementsː","ːtisbombː",
   "ːuno_Wildː","ːclownhairː","ːglasswindowː","ːshockedIroː" ],
-//------------------------------------------------------------------------------ WorkshopLifts
-https://steamcommunity.com/id/lordmartin5531/
-https://steamcommunity.com/id/n50
-https://steamcommunity.com/id/svn_XCVII/myworkshopfiles/?section=guides&p=6
-https://steamcommunity.com/profiles/76561198964190411
-https://steamcommunity.com/profiles/76561198877940428
-https://steamcommunity.com/id/neptunevsnepgear
-https://steamcommunity.com/id/Pakitogamer2009
-[3134796871,3134799680,3134799828,3134799953,3134800074],
-[3134796871,3134799680,3134799828,3134799953,3134800074],
-[2943688669,2943688767,2943688882,2943689056,2943689182],
-[3155320429,3155320586,3155320719,3155320871,3155320989],
-[3155323286,3155323583,3155323708,3155323903,3155324073],
-[3155325956,3155326122,3155326316,3155326531,3155326690],
-[3145772123,3145772420,3145772651,3145772844,3145773060],
-[3155295793,3155295969,3155296127,3155296323,3155296513],
-[3155304847,3155305027,3155305166,3155305348,3155305518],
-[2966510987,2966511189,2966511349,2966511487,2966511566],
-[2676530241,2676530703,2676530920,2676531160,2676531353],
-[3162369718,3162369888,3162372615,3162372752,3162370370],
-[3162386260,3162386396,3162386605,3162386771,3162386947],
-[3162328631,3162328886,3162329133,3162329351,3162329599],
-[2946784364,2946785008,2946785250,2946785435,2946785581],
-[2869768160,2869768200,2869768230,2869768273,2869768303],
-[2869766887,2869766931,2869766973,2869767004,2869767064],
-[2796269592,2796269635,2796269653,2796269694,2796269712],
-[2834441723,2834443812,2834443880,2834443951,2834444027],
-[2832763227,2832763591,2832763921,2832764171,2832764424],
-[2834435990,2834436471,2834436683,2834436973,2834437236],
-[2832332214,2832332730,2832333029,2832333176,2832333317],
-[3086176281,3086176810,3086177338,3086177728,3086181263],
-[3086188524,3086188963,3086189467,3086189984,3086190420],
-[2857312333,2857312450,2857312575,2857312729,2857312910],
-[2958308185,2958309144,2958309240,2958309295,2958309295],
-[2857305267,2857305519,2857305828,2857306057,2857306194], 
-[2857308229,2857308370,2857308482,2857308653,2857308799],
-[2857314820,2857314903,2857315012,2857315158,2857315293],
-[2713696865,2713697337,2713697922,2713698382,2713698658],
-[2955735825,2955735852,2955735857,2955736177,2955735912],
-[2930716967,2930716998,2930717038,2930717079,2930717100],
-[2835865440,2835865532,2835865579,2835865621,2835865666],
-[2836469467,2836469629,2836469710,2836469850,2836469981],
-[3050085670,3050085994,3050087853,3050086607,3050086762],
-[2836475061,2836475149,2836475204,2836475260,2836475316],
-[3002019021,3002019140,3002019241,3002019327,3002019410],
-[3166424931,3166425266,3166425443,3166425502,3166425563],
-[3166426432,3166426502,3166426555,3166426618,3166426695],
-[3053754764,3053755253,3053755406,3053755508,3053755628],
-[3046486920,3046486948,3046486989,3046487041,3046487095],
-[2896749974,2896750017,2896750061,2896750105,2896750151],
-[2896752051,2896752264,2896752153,2896752328,2896752375],
-[3124566831,3124566858,3124566913,3124566983,3124567038],
-[2707368643,2707369291,2707369652,2707370008,2707370260],
-[2992736779,2992736854,2992736944,2992737052,2992737177],
-[2852569473,2852569484,2852569496,2852569507,2852569536],
-[3066490578,3066490697,3066490848,3066491002,3066491098],
-[3038550158,3038550889,3038551317,3038551881,3038552470],
-[2778407689,2778408249,2778408795,2778409223,2778409764],
-[3071385341,3071386785,3071387916,3071389042,3071390135],
-[2834007456,2834008076,2834008622,2834009092,2834009429],
-[2871903023,2871903247,2871903551,2871903784,2871904033],
-[2973481360,2973481671,2973481960,2973482282,2973482568],
-[2851393942,2851394066,2851394188,2851394311,2851394389],
-[2851379962,2851380067,2851380154,2851380329,2851380420],
-[2851367097,2851367260,2851367480,2851367627,2851366272],
-[2211769466,2211770001,2211770415,2211770773,2211771091],
-[2930974428,2930974694,2930974903,2930975826,2930975984],
-[3018857535,3018857802,3018857913,3018858005,3018859703],
-[2626749180,2626749383,2626749517,2626749661,2626749778],
-[2962658614,2962659129,2962659348,2962659543,2962659719],
-[2962665504,2962665944,2962666113,2962666306,2962666482],
-[2579036015,2579038908,2579036367,2579036957,2579037115],
-[3010504500,3010504658,3010504725,3010504938,3010505502],
-[2975703124,2975703245,2975703338,2975703459,2975703752]

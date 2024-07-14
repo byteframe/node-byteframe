@@ -1,3 +1,5 @@
+//------------------------------------------------------------------------------ GroupChangerSeemsLimited
+http(a, 'my/edit', { type: 'favoriteclan', primary_group_steamid: pool(d.group_primary) }, null, false, 'POST', false, true)
 //------------------------------------------------------------------------------ GroupChatJoin
 A[0].u.chat.getGroups((x,r) =>
   (x) ? log(a, 'FAILURE | getGroups ' + (x.message).yellow)

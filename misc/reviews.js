@@ -1,9 +1,3 @@
-//------------------------------------------------------------------------------ DeleteReviewAndCollection
-delete_review = (g, i = profile.review.slots[0].indexOf(+g)) => (
-  http(A[0], 'https://store.steampowered.com/curator/2751860-primarydataloop/admin/ajaxdeletereview/', { appid: g }),
-  http(A[0], 'https://steamcommunity.com/id/byteframe/recommended/', { action: 'delete', appid: g }),
-  i > -1 && profile.review.slots[0].splice(i, 1),
-  delete s.A[0].reviews[g])
 //------------------------------------------------------------------------------ PriorCuration
 curate = (a = A[0], g, rating = s.A[a.i].reviews[g].rating, t = s.A[a.i].reviews[g].contents) =>
   http(a, 'https://store.steampowered.com/curator/2751860-primarydataloop/admin/ajaxgetassociatedappslist/', null, (b) => (

@@ -1,3 +1,12 @@
+//------------------------------------------------------------------------------ ForceOnPrivate
+(privacy == 1) ?
+  s.force_steamid = mix(Object.keys(A[0].u.myFriends))[0]
+: delete s.force_steamid,
+//------------------------------------------------------------------------------ SelfBumper
+A[0].c.postUserComment(A[0].steamID, fortune(), (x) =>
+  !x && setTimeout(() => http(A[0], 'my/allcomments', null, (_b, r, x, b = Cheerio.load(_b)) => 
+    b('.commentthread_comment').toArray().some((e, i, E, id = e.attribs['id'].substr(8), steamid = "765"+(+b('#comment_' + id + " a")[0].attribs['data-miniprofile'] + 61197960265728)) =>
+      steamid == A[0].steamID && ( A[0].c.deleteUserComment(A[0].steamID, id), true)))), 20000),
 //------------------------------------------------------------------------------ LastProfilesScrap
 get_friends(a, 'profiles/' + s.last_profiles[Math.floor(Math.random()*s.last_profiles.length)] + "/friends", (F) =>
   commenter(a, check_replies, false, strangers = F.filter((f) => s.last_profiles.indexOf(f) == -1).map((f) => [ '', f ])))

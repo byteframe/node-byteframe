@@ -1,3 +1,38 @@
+//------------------------------------------------------------------------------ starters
+pkg install screen nodejs
+npm install \
+  colors \
+  steam-user \
+  steamcommunity \
+  weather-js \
+  cheerio \
+  mispell \
+  image-size \
+  imagemagick \
+  steam-tradeoffer-manager \
+  wikipedia \
+  giphy \
+  adventurejs \
+  figlet \
+  googleapis \
+  rivescript@1.19.0
+cd ~/node-byteframe ; screen -dmS node-byteframe node --inspect=192.168.50.102:9229 byteframe.js
+//------------------------------------------------------------------------------ check_achievements
+check_achievements = (a = A[0], i = 0, q = 250, E = a.ownedapp.slice(i*q, i*q+q)) => (
+  !s.A[a.i].achievements && ( s.A[a.i].achievements = {} ),
+  !E.length ?
+    console.log('done')
+  : http(A[0], "https://api.steampowered.com/IPlayerService/GetAchievementsProgress/v1/", { access_token: A[0].access_token, steamid: A[0].steamID, appids: E }, (b, r, x) => (
+      b.response.achievement_progress.filter(e => e.total > 0).forEach(e => s.A[a.i].achievements[e.appid] = (e)),
+      setTimeout(check_achievements, (global.check_achievements_timeout || 10000), a, i+1, q))));
+//------------------------------------------------------------------------------ GenerateSamBatch
+generate_sam_batch = (batch = 'C:\ncd "C:\\Users\\byteframe\\Downloads\\SteamAchievementManager-7.0.25"', index = 0) => (
+  Object.entries(s.A[0].achievements).filter(e=>e[1].percentage != 100).map(e => e[1].appid).forEach(e => (
+    (index !== 0 && index % 20 == 0) &&
+      ( batch += '\ntimeout /t 30000' ),
+    batch += '\nstart SAM.Game.exe ' + e,
+    index++)),
+  console.log(batch));
 //------------------------------------------------------------------------------ Quitting
 (quitting > 0 && --quitting < 1) && setTimeout(process.exit, 3000, 0)),
 http(A[0], 'https://steamcommunity.com/actions/selectPreviousAvatar', { json: 1, sha: 'db02ac5a0970af2a79cd08d07e4f1a20b4e76133' }),

@@ -1,3 +1,32 @@
+//------------------------------------------------------------------------------ GatherShaAndCheckWorkshop
+following = s.A[0].following,
+following = Object.keys(A[0].u.myFriends).slice(1750),
+following = Object.keys(A[0].u.myFriends).slice(1500,1750),
+following = Object.keys(A[0].u.myFriends).slice(1250,1500),
+following = Object.keys(A[0].u.myFriends).slice(1000,1250),
+following = Object.keys(A[0].u.myFriends).slice(750,1000),
+following = Object.keys(A[0].u.myFriends).slice(500,750),
+following = Object.keys(A[0].u.myFriends).slice(250,500),
+following = Object.keys(A[0].u.myFriends).slice(0,250),
+following_sha = [],
+following_workshops = [],
+following_index = 0,
+following_paused = false,
+following_delay = 1250,
+(check_following = (i = following_index, f = following[i]) =>
+  !following_paused &&
+    http(A[0], 'profiles/' + f, null, (b) => (
+      following_sha[i] = b.match(/[a-z0-9]*_full.jpg/)[0].slice(0,-9),
+      b.includes('\'s Workshop') && following_workshops.push("https://steamcommunity.com/profiles/" + f),
+      i < following.length-1 ?
+        setTimeout(check_following, following_delay, ++following_index)
+      : console.log('DONE'))))()
+((H = following_sha) =>
+  "<html><body><table>" +
+  H.map(e => "<tr><td><img src=\"https://avatars.akamai.steamstatic.com/" + e + "_full.jpg\"></img></td><td>" + e + "</td></tr>").join('\n') +
+  "</table></body><html>")()
+//------------------------------------------------------------------------------ BlockedAnnouncer
+Object.entries(a.u.myFriends).filter(e => e[1] >= 5).forEach(e => log(a, 'NOTICES | EFriendRelationshipIgnoredFriend: https://steam.pm/' + e[0])),
 //------------------------------------------------------------------------------ StateFriendChecker
 diff_array = (array1, array2) =>
   array1.filter((i) => array2.indexOf(i) < 0),
@@ -54,7 +83,7 @@ account.http_request('my/following', null, (body, response, err, followed = Chee
     (config.byteframe.follows.indexOf(followee) == -1) &&
   accounts[a].follow(followee, 'follow',() =>
     config.byteframe.follows.push(followee)))))
-//-------------------------------------------------------------------------------- NoFiringFriendChatEvents
+//------------------------------------------------------------------------------ NoFiringFriendChatEvents
 a.u.chat.on('friendLeftConversation', (m) =>
   log(a, 'NOTICES | friendLeftConversation: ' + ("https://steam.pm/" + f).yellow)),
 a.u.chat.on('friendLeftConversationEcho', (m) =>
@@ -62,11 +91,11 @@ a.u.chat.on('friendLeftConversationEcho', (m) =>
 //-------------------------------------------------------------------------------- GetFriendLevels
 accounts[0].user.getSteamLevels(Object.entries(account.user.myFriends).filter((i) => i[1] == 3).map((i) => i[0]), (err, users) =>
   console.dir(Object.entries(users).sort((a, b) => a[1] - b[1])))
-//-------------------------------------------------------------------------------- group/friend event 2023 removal
+//------------------------------------------------------------------------------ group/friend event 2023 removal
 accounts[0].user.on('friendRelationship', (steamid, relationship) =>
 (relationship == SteamUser.EFriendRelationship.RequestRecipient) &&
   state.adds.push(steamid.toString())),
-//-------------------------------------------------------------------------------- FriendsStatsLastBroken
+//------------------------------------------------------------------------------ FriendsStatsLastBroken
 http_request(accounts[0], 'https://steamcommunity.com/id/byteframe', null, (body) => global.body = body);
 body.match(/friendPlayerLevelNum\"\>\d+/)[0].match(/\d+/)[0];
 (body.indexOf('in common') > -1) && body.match(/[\d,]+ friends\<\/a\> in common/)[0].replace(',', '').match(/\d+/)[0];
@@ -224,3 +253,4 @@ jQuery(".friend_block_v2").each((n, block) =>
 people.forEach((person, n, array, name = person[1].trim()) =>
   (name.length < 13 && name.length > 4 && name.indexOf('"') == -1) &&
     console.log("[ \"" + person[0] + "\", \"" + person[1] + "\" ],"))
+    

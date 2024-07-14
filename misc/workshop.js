@@ -1,7 +1,33 @@
-//------------------------------------------------------------------------------ FindMissing
+//------------------------------------------------------------------------------ GifSquareUploadCouldBeIPBlocked
+gif_square_upload = (i = 96, g = 202351) =>
+  upload_ugc(A[i], './images/guide_gif_square/' + w.readdirSync('./images/guide_gif_square').filter(e => e != 'uploaded')[0], 9, g, messages[2][0](null, null, 72), emote(14, undefined, ' & ', true).replace(/&/g, () => " " + pool(d.ascii) + " " + pool(d.emojis_sexy) + " " + pool(d.ascii) + " ") + " " + pool(d.emojis_sexy), (g, file) => (
+    http(A[i], 'sharedfiles/ajaxupdatecontentdescriptors/', { publishedfileid: g, "add[0]": 5, "add[1]": 1, "remove[0]": 2, "remove[1]": 4, "remove[2]": 3 }),
+    w.renameSync(file, file.match(/.*\//)[0] + "uploaded/" + g + "___" + file.match(/\d+/)[0] + ".gif"),
+    completed_uploads = mix(w.readdirSync('./images/guide_gif_square/uploaded').map(e => e.slice(0, -4)))));
+//------------------------------------------------------------------------------ UploadUGCCompletions
+upload_ugc(A[96], '/mnt/d/Work/node-byteframe/images/guide_gif_long/footer/' + mix(w.readdirSync('/mnt/d/Work/node-byteframe/images/guide_gif_long/footer').filter(e => !s.completed_guides_files.includes(e)))[0], 9, 202351, pool(s.wikipedia.selected, 1, null)[0].pages.map(e => e.extract).join('').substr(0,127).replace(/\n/g, ' '), emote(14, undefined, ' & ', true).replace(/&/g, () => " " + pool(d.ascii) + " " + pool(d.emojis_sexy) + " " + pool(d.ascii) + " ") + " " + pool(d.emojis_sexy), finish_gif_guide)
+finish_gif_guide = (g, file) => (
+  http(A[96], 'sharedfiles/addcontributor/', { id: g, steamid: A[0].steamID }, (b) => (
+  http(A[96], 'sharedfiles/ajaxupdatecontentdescriptors/', { publishedfileid: g, "add[0]": 5, "add[1]": 1, "remove[0]": 2, "remove[1]": 4, "remove[2]": 3 }),
+  (file.includes('_square')) ?
+    s.completed_guides.push(+g)
+  : s.completed_guides_footer.push(+g),
+  s.completed_guides_files.push(file.replace(/.*\//,'')));
+[...Array(3).keys() ].map(e => ((E = pool(d.emojis_food, 1, null)) => E[0][0] + "_" + mix(d.chinese.split('')).join('').substr(0,1) + "--" + E[0][1] + "--" + mix(d.chinese.split('')).join('').substr(0,1) + "_" + E[0][0])()).join(' ')
+d.guide_upload = mix(w.readdirSync('./images/guide_gif_square/uploaded').map(e => e.match(/\d+/)[0]).filter(e => !d.guide_collector_upload_culls.includes(+e))),
+//------------------------------------------------------------------------------ Missing
 find_missing = (g) => (
   Object.entries(s.collections).some(_e => _e[1].includes(""+e) && console.log('https://steamcommunity.com/sharedfiles/filedetails/?id=' + _e[0])),
   pool_ugc(undefined, 'myworkshopfiles', 'favorites', 431960).includes(+e) && 'missing from favorite')
+(b.hasOwnProperty('success') && b.success == 1 && privacy != 1) &&
+  setTimeout(http, 30000, a, 'my', null, (b, r, x) => (
+    profile.game_collector.selection.concat(profile.game_collector2.selection).forEach((e, i) =>
+      (b.indexOf("app/" + e + '"') == -1) && log(a, 'WARNING | unknown #' + i + ': ' + ('https://steamcommunity.com/app/' + e).yellow)),
+    profile.guide_collector.selection.concat(profile.workshop_collector.selection).concat(profile.workshop_collector2.selection).forEach((e, i) =>
+      (b.indexOf('?id=' + e + '"') == -1) && (
+        !s.hasOwnProperty('missing') && ( s.missing = [] ),
+        !s.missing.includes(+e) && s.missing.push(+e),
+        s.verbose && log(a, 'WARNING | missing #' + i + ': ' + ('https://steamcommunity.com/sharedfiles/filedetails/?id=' + e).yellow)))))
 //------------------------------------------------------------------------------ UGCFill
 get_ugc(0, 'guides')
 get_ugc(0, 'guides', 'favorites')
@@ -18,24 +44,6 @@ get_ugc(0, 'images')
 get_ugc(0, 'images', 'favorites')
 get_ugc(0, 'screenshots')
 get_ugc(0, 'screenshots', 'favorites')
-s.ugc['76561197961017729'][431960].myworkshopfiles.favorites = [];
-get_ugc(431960, 'myworkshopfiles', 'favorites', 1, A[96], A[0].steamID)
-//------------------------------------------------------------------------------ GifSquareUploadCouldBeIPBlocked
-gif_square_upload = (i = 96, g = 202351) =>
-  upload_ugc(A[i], './images/guide_gif_square/' + w.readdirSync('./images/guide_gif_square').filter(e => e != 'uploaded')[0], 9, g, messages[2][0](null, null, 72), emote(14, undefined, ' & ', true).replace(/&/g, () => " " + pool(d.ascii) + " " + pool(d.emojis_sexy) + " " + pool(d.ascii) + " ") + " " + pool(d.emojis_sexy), (g, file) => (
-    http(A[i], 'sharedfiles/ajaxupdatecontentdescriptors/', { publishedfileid: g, "add[0]": 5, "add[1]": 1, "remove[0]": 2, "remove[1]": 4, "remove[2]": 3 }),
-    w.renameSync(file, file.match(/.*\//)[0] + "uploaded/" + g + ".gif"),
-    completed_uploads = mix(w.readdirSync('./images/guide_gif_square/uploaded').map(e => e.slice(0, -4)))));
-//------------------------------------------------------------------------------ UploadUGCCompletions
-upload_ugc(A[96], '/mnt/d/Work/node-byteframe/images/guide_gif_long/footer/' + mix(w.readdirSync('/mnt/d/Work/node-byteframe/images/guide_gif_long/footer').filter(e => !s.completed_guides_files.includes(e)))[0], 9, 202351, pool(s.wikipedia.selected, 1, null)[0].pages.map(e => e.extract).join('').substr(0,127).replace(/\n/g, ' '), emote(14, undefined, ' & ', true).replace(/&/g, () => " " + pool(d.ascii) + " " + pool(d.emojis_sexy) + " " + pool(d.ascii) + " ") + " " + pool(d.emojis_sexy), finish_gif_guide)
-finish_gif_guide = (g, file) => (
-  http(A[96], 'sharedfiles/addcontributor/', { id: g, steamid: A[0].steamID }, (b) => (
-  http(A[96], 'sharedfiles/ajaxupdatecontentdescriptors/', { publishedfileid: g, "add[0]": 5, "add[1]": 1, "remove[0]": 2, "remove[1]": 4, "remove[2]": 3 }),
-  (file.includes('_square')) ?
-    s.completed_guides.push(+g)
-  : s.completed_guides_footer.push(+g),
-  s.completed_guides_files.push(file.replace(/.*\//,'')));
-[...Array(3).keys() ].map(e => ((E = pool(d.emojis_food, 1, null)) => E[0][0] + "_" + mix(d.chinese.split('')).join('').substr(0,1) + "--" + E[0][1] + "--" + mix(d.chinese.split('')).join('').substr(0,1) + "_" + E[0][0])()).join(' ')
 //------------------------------------------------------------------------------ GatherCollectionsAndDiscussions
 get_discussion_links('https://steamcommunity.com/groups/primarydataloop/discussions/0/1290691937724869711/')
 get_discussion_links('https://steamcommunity.com/groups/primarydataloop/discussions/0/4358997447065431365/')

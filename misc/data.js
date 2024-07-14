@@ -1,37 +1,34 @@
 //------------------------------------------------------------------------------ CurrentGenDupeChecking
-array_duplicates = (array, sorted_arr = array.slice().sort(), results = []) => (
-  [...Array(sorted_arr.length-1).keys()].forEach((item, i) =>
-    (sorted_arr[i+1] == sorted_arr[i]) &&
-      results.push(sorted_arr[i])),
-  results);
-array_duplicates(Object.values(s.discussions).flat()).forEach(
-  e => (console.log('https://youtube.com/watch?v=' + e + '\n'), Object.entries(s.discussions).forEach(_e => _e[1].includes(e) && console.log(_e[0])))),
-array_duplicates(d.avatar_sha.concat(d.avatar_sha_2).concat(d.avatars.map((e) => e.join('_')))).forEach(
-  e => console.log("AVATARS: https://avatars.akamai.steamstatic.com/" + e + "_full.jpg")),
-array_duplicates(A[0].wishlist.concat(A[0].followed).concat(A[0].ignored).concat(A[0].ignored2).concat(profile.review.slots[0]).concat(profile.review2.slots[0]).concat(Object.entries(d).filter(e => e[0].startsWith('games_dlc')).map(e => e[1]).flat(2))).forEach(
-  e => console.log("GAMES: https://store.steampowered.com/app/" + e)),
-array_duplicates(d.achievements).forEach(
-  e => console.log("nACHIEVEMENT: https://store.steampowered.com/app/" + e)),
-array_duplicates(d.completionist_array.flat()).forEach(
-  e => console.log("nCOMPLETIONIST: https://store.steampowered.com/app/" + e)),
-array_duplicates(Object.entries(d).filter(e => e[0].startsWith('links')).map(e => e[1]).flat(2)).forEach(
-  e => console.log("LINKS: https://store.steampowered.com/app/" + e)),
-array_duplicates(Object.entries(d).filter(e => e[0].startsWith('items_')).map(e => e[1]).flat(2)).forEach(
-  e => console.log("ITEMS: https://steamcommunity.com/id/byteframe/inventory/#" + e)),
-array_duplicates(Object.entries(d).filter((e) => e[0].includes("workshop_") || e[0].includes("screenshot_") || e[0].includes("artwork_") || e[0].includes("guide_")).map(e => e[1]).flat(2)).forEach(
-  e => console.log("UGC: https://steamcommunity.com/sharedfiles/filedetails/?id=" + e)),
-array_duplicates(Object.values(A[0].inventory).flat().map(e => e.name + " | " + e.market_fee_app)).forEach(
-  e => console.log("duplicate items in (steam community) inventory: " + e)),
-inventory = Object.values(A[0].inventory).flat().map(e => e.appid + "_" + e.contextid + "_" + e.id),
-Object.entries(d).filter(e => e[0].startsWith('items')).map(e => e[1]).flat(2).forEach(e =>
-  (e.startsWith("753_6") && !inventory.includes(e)) && console.log("inventory doesn't have profile item: " + e)),
-A[0].inventory.emoticons.filter((e) =>
-  (!d.items_emoticons_array.flat().includes("753_6_"+e.id) && !d.emotes.flat().concat(d.emotes_green_stuff.flat()).map((e) => e.toLowerCase()).includes(e.name.toLowerCase()))).forEach((e) =>
-     console.log('UNUSED EMOTICONS: https://steamcommunity.com/id/byteframe/inventory/#753_6_' + e.id + "\n" + e.name));
+duplicates(Object.values(s.discussions).flat()).forEach(e => (console.log('https://youtube.com/watch?v=' + e + '\n'), Object.entries(s.discussions).forEach(_e => _e[1].includes(e) && console.log(_e[0])))),
+duplicates(d.avatar_sha.concat(d.avatar_sha_2).concat(d.avatars.map((e) => e.join('_')))).forEach(e => console.log("AVATARS: https://avatars.akamai.steamstatic.com/" + e + "_full.jpg")),
+duplicates(A[0].wishlist.concat(A[0].followed).concat(A[0].ignored).concat(A[0].ignored2).concat(profile.review.slots[0]).concat(profile.review2.slots[0]).concat(Object.entries(d).filter(e => e[0].startsWith('games_dlc')).map(e => e[1]).flat(2))).forEach(  e => console.log("GAMES: https://store.steampowered.com/app/" + e)),
+duplicates(d.achievements).forEach(e => console.log("ACHIEVEMENT: https://store.steampowered.com/app/" + e)),
+duplicates(d.completionist_array.flat()).forEach(e => console.log("COMPLETIONIST: https://store.steampowered.com/app/" + e)),
+duplicates(Object.entries(d).filter(e => e[0].startsWith('links')).map(e => e[1]).flat(2)).forEach(e => console.log("LINKS: https://store.steampowered.com/app/" + e)),
+duplicates(Object.entries(d).filter(e => e[0].startsWith('items_')).map(e => e[1]).flat(2)).forEach(e => console.log("ITEMS: https://steamcommunity.com/id/byteframe/inventory/#" + e)),
+duplicates(Object.entries(d).filter((e) => e[0].includes("workshop_") || e[0].includes("screenshot_") || e[0].includes("artwork_") || e[0].includes("guide_")).map(e => e[1]).flat(2)).forEach(e => console.log("UGC: https://steamcommunity.com/sharedfiles/filedetails/?id=" + e)),
+duplicates(Object.values(A[0].inventory).flat().map(e => e.name + " | " + e.market_fee_app)).forEach(e => console.log("duplicate item in (steam community) inventory: " + e)),
+items = Object.values(A[0].inventory).flat().map(e => e.appid + "_" + e.contextid + "_" + e.id),
+Object.entries(d).filter(e => e[0].startsWith('items')).map(e => e[1]).flat(2).forEach(e => (e.startsWith("753_6") && !items.includes(e)) && console.log("inventory doesn't have profile item: " + e)),
+items = Object.entries(d).filter(e => e[0].includes('background') || e[0].includes('wallpaper') || e[0] == 'item_showcase_array').map(e => e[1]).flat(2);
+A[0].inventory.backgrounds.filter(e => !items.includes("753_6_"+e.id)).sort((e, f) => +e.market_fee_app - +f.market_fee_app).forEach(e => console.log('UNUSED backgrounds: {' + e.market_fee_app + '} https://steamcommunity.com/id/byteframe/inventory/#753_6_' + e.id + " | " + e.name));
+items = d.items_cards_array.flat().concat(d.items_showcase_array.flat()),
+A[0].inventory.cards.filter(e => !items.includes("753_6_"+e.id)).forEach(e => console.log('UNUSED CARDS: {' + e.market_fee_app + '} https://steamcommunity.com/id/byteframe/inventory/#753_6_' + e.id + " | " + e.name));
+A[0].inventory.emoticons.filter((e) => (!d.items_emoticons_array.flat().includes("753_6_"+e.id) && !d.emotes.flat().concat(d.emotes_green_stuff.flat()).map((e) => e.toLowerCase()).includes(e.name.toLowerCase()))).forEach((e) => console.log('UNUSED EMOTICONS: https://steamcommunity.com/id/byteframe/inventory/#753_6_' + e.id + "\n" + e.name));
+A[0].inventory.stickers.filter(e => !d.items_stickers.includes(e.name)).forEach(e => console.log('UNUSED STICKER: {' + e.market_name + '}'));
+//------------------------------------------------------------------------------ GenerateYTDLP
+Object.values(s.discussions).flat().filter(e => !s.discussions['1290691937724869711'].includes(e)).forEach(e => console.log('yt-dlp -o "%(channel)s {%(id)s} %(title)s" https://youtube.com/watch?v=' + e))
+//------------------------------------------------------------------------------ CheckSetTypes
+d.items_trade_array.map((e) => e[0].substr(6)).filter(
+  (e) => A[0].inventory['emoticons/cards/backgrounds'].findIndex((_e) => _e.assetid == e) > -1)
+d.items_showcase_array.map((e) => e[0].substr(6)).filter(
+  (e) => A[0].inventory['cards'].findIndex((_e) => _e.assetid == e) > -1)
+d.items_showcase_array.filter(e => A[0].inventory['cards'].findIndex((_e) => _e.assetid == e[0].substr(6)) > -1)
+d.items_showcase_array.filter(e => A[0].inventory['cards'].findIndex((_e) => _e.assetid == e[0].substr(6)) == -1)
 //------------------------------------------------------------------------------ MiscDupeChecking
 console.log('duplicate emoticon text vs id: '),
 emotes = d.items_emoticons_array.flat().map((e) => A[0].inventory.emoticons.find((_e) => _e.id == e.substr(6)).name.toLowerCase()),
-console.log(array_duplicates(emotes.concat(d.emotes.flat().map((e) => e.toLowerCase()))))
+console.log(duplicates(emotes.concat(d.emotes.flat().map((e) => e.toLowerCase()))))
 check_appid_duplicates = (with_sc = [], with_yt = [], wout_mm = []) => (
   Object.keys(sharedconfig).forEach((app, i) =>
     (sharedconfig[app].hidden == 1
@@ -47,26 +44,22 @@ check_appid_duplicates = (with_sc = [], with_yt = [], wout_mm = []) => (
     + '\nwith_yt.length: ' + with_yt.length
     + '\nwout_mm.length: ' + wout_mm.length
     + '\nnot_faking.length: ' + data.not_faking.length),
-  console.log(array_duplicates(profile.game_favorite.slots[0].map((game) => parseInt(game.match(/\d+/)[0]))
+  console.log(duplicates(profile.game_favorite.slots[0].map((game) => parseInt(game.match(/\d+/)[0]))
     .concat(data.not_faking).concat(data.faker_apps)
     .concat(profile.game_collector.slots[0]).concat(profile.game_collector.slots[1])
     .concat(profile.game_collector.slots[2]).concat(profile.game_collector.slots[3])
     .concat(profile.review.slots[0]))),
   with_sc.concat(with_yt).concat(wout_mm));
+//------------------------------------------------------------------------------ SortInventoryByNameLength
+accounts[0].inventory.cards.sort((a,b) => b.market_name.length - a.market_name.length).forEach((item) => console.log("https://steamcommunity.com/id/byteframe/inventory/#753_6_" + item.id + "\"" + item.market_name + "\" {CARD}"));
+accounts[0].inventory.boosters.sort((a,b) => b.market_name.length - a.market_name.length).forEach((item) => console.log("https://steamcommunity.com/id/byteframe/inventory/#753_6_" + item.id + "\"" + item.market_name + "\" {BOOSTER}"));
+accounts[0].inventory.backgrounds.sort((a,b) => b.market_name.length - a.market_name.length).forEach((item) => console.log("https://steamcommunity.com/id/byteframe/inventory/#753_6_" + item.id + "\"" + item.market_name + "\" {BACKGROUND}"));
 //------------------------------------------------------------------------------ SortStoreResultsByLength
 r0 = jQuery('#search_resultsRows'), r1 = r0.children("a.search_result_row"), r2 = r1.sort((e, _e) => _e.innerText.length - e.innerText.length);
 r0.append(r2);
 //------------------------------------------------------------------------------ ShowStoreResultsByLength
 jQuery("a.search_result_row").toArray().sort((e, i) => e.innerText.length - i.innerText.length).map((e) => e.name + e.innerText.trim().replace(/\n.*/g, '') + ' -- https://store.steampowered.com/app/' + e.attributes['data-ds-appid'].value).forEach((e) => console.log(e))
-//------------------------------------------------------------------------------ GetAppidsOnPage
-var jq = document.createElement('script');
-jq.src = "https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js";
-document.getElementsByTagName('head')[0].appendChild(jq);
-setTimeout(() => (
-  jQuery.noConflict(),
-  setTimeout(() => jQuery("a.search_result_row").each((i, e) => console.log(e.href.match(/\d+/)[0])), 2000)), 1500)
 //------------------------------------------------------------------------------ OriginalLinkGather
-review_yout_links = [], review_item_links = [], review_game_links = [];
 d.review.forEach((e, i) => (
   review_yout_links.push(s.A[0].reviews[e].contents.match(/https:\/\/(www.)?youtu.+ \[h/)[0].slice(0,-3).slice(8).replace('www\.', '').replace('youtu.be/', '').replace('youtube.com/watch?v=', '').replace(/\?.*/, '').replace(/\&.*/, '')),
   review_item_links = review_item_links.concat(s.A[0].reviews[e].contents.match(/https:\/\/steamcommunity.com\/id\/byteframe\/inventory\/#[0-9_]+/)),
@@ -99,42 +92,8 @@ print_achievement_page = (account, appid = 710780, text = '<html><head><style>.t
     text += '\n</table>\n</body></html>',
     fs.writeFileSync(appid + '.html', text),
     console.log(text)));
-//------------------------------------------------------------------------------ StoreLinksOldAugmented
-jQuery('.apphub_OtherSiteInfo a.btnv6_blue_hoverfade.btn_medium').eq(0).clone().attr('href',
-  jQuery('a.btnv6_blue_hoverfade.btn_medium').eq(0).attr('href').replace(
-    '/app/','/ogg/') + "/Avatar/List").html('<span>Group</span>').appendTo('.apphub_OtherSiteInfo');
 //------------------------------------------------------------------------------ SharedConfig
 sharedconfig = SimpleVDF.parse(fs.readFileSync("./sharedconfig.vdf", 'utf8')).UserLocalConfigStore.Software.Valve.steam.Apps,
 sharedconfig = Object.keys(sharedconfig).filter((appid) =>
   sharedconfig[appid].hidden == 1 && !sharedconfig[appid].tags);
 other.concat(sharedconfig).forEach((appid) => { try { console.log("  \"https://steamdb.info/appid/"+appid+" -- "+accounts[0].user.picsCache.apps[appid].appinfo.common.name + (accounts[0].user.picsCache.apps[appid].appinfo.common.type == 'Demo' ? " *** DEMO ***" : "")) } catch (ex) { console.log('fail: ' + appid) } });
-//------------------------------------------------------------------------------ BashExtractGames
-SRC=/home/byteframe/150_GB_SATA_25
-DST=/run/media/byteframe/Games
-unset UNKNOWN
-find ${SRC}/ -maxdepth 2 -type f -iname "*.rar" -or -iname "*.zip" -or -iname "*.7z" \
-  | grep -v __UNPLAYED > ${SRC}/filelist.tmp
-while read FILE; do
-  FILE="${FILE/${SRC}\//}"
-  DIR="${FILE%\/*}"
-  FILE="${FILE##*\/}"
-  mkdir -p "${DST}/${DIR}"
-  if [ ! -e "${DST}"/"${DIR}"/"${FILE}" ] ; then
-    cp -v "${SRC}/${DIR}/${FILE}" "${DST}/${DIR}/${FILE}"
-  fi
-  mkdir -p "${DST}/${DIR}/${FILE%.*}"
-  if [ ${FILE##*.} = "rar" ]; then
-    COMMAND="unrar x"
-  elif [ ${FILE##*.} = "zip" ]; then
-    COMMAND="unzip"
-  elif [ ${FILE##*.} = "7z" ]; then
-    COMMAND="7z x"
-  else
-    UNKNOWN="${UNKNOWN}___${FILE}"
-    echo "UNKNOWN FILE TYPE: ${FILE}"
-    continue
-  fi
-  cd "${DST}/${DIR}/${FILE%.*}"
-  echo "extracting: ${FILE}"
-  ${COMMAND} "${DST}/${DIR}/${FILE}"
-done < ${SRC}/filelist.tmp

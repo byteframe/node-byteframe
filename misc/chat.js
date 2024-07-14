@@ -1,3 +1,31 @@
+//------------------------------------------------------------------------------ WorseGroupSpammer
+!s.disable_sending &&
+  A[0].u.chat.getGroups((x,r) =>
+    (x) ? log(A[0], 'FAILURE | chatGetGroups: ' + x.message.yellow)
+    :(A[0].chat_rooms = Object.entries(r.chat_room_groups).filter(e => e[1].group_summary.active_member_count > 0).map(e => [ e[0], e[1].group_summary.chat_rooms.map(e => e.chat_id), e[1].group_summary.chat_group_name ]),
+      ((m = pool([ () => '/sticker ' + pool(d.items_stickers), () => message("my friends", 2), () => jitter(Math.random() < 0.69 ? undefined : fortune('questions')) ], 1, null)[0](),
+        f = pool(A[0].chat_rooms, 1, null)[0], _f = pool(f[1])) => (
+        log(A[0], 'SUCCESS | sendChatMessage: ' + f[2] + (' #' + f[0] + "|" + _f + " = \"" + m + '"').yellow),
+        chat(0, m, f[0], _f)))()))))
+//------------------------------------------------------------------------------ GetGroupChat
+get_group_chat = (a = A[0], h = (s.A[a.i].group || '103582791432273268')) => (
+  !s.group_chat && ( s.group_chat = {} ),
+  a.u.chat.getClanChatGroupInfo(h, (x, b) => (
+    x ? log(a, 'FAILURE | getClanChatGroupInfo: ' + h + " " + (x.message).yellow)
+    : s.group_chat[h] = b.chat_group_summary)),
+        !s.disable_sending &&
+          A[0].u.chat.getGroups((x,r) =>
+            (x) ? log(A[0], 'FAILURE | chatGetGroups: ' + x.message.yellow)
+            :(A[0].chat_rooms = Object.entries(r.chat_room_groups).filter(e => e[1].group_summary.active_member_count > 0).map(e => [ e[0], e[1].group_summary.chat_rooms.map(e => e.chat_id), e[1].group_summary.chat_group_name ]),
+              ((m = pool([ () => '/sticker ' + pool(d.items_stickers), () => message("my friends", 2), () => jitter(Math.random() < 0.69 ? undefined : fortune('questions')) ], 1, null)[0](),
+                f = pool(A[0].chat_rooms, 1, null)[0], _f = pool(f[1])) => (
+                log(A[0], 'SUCCESS | sendChatMessage: ' + f[2] + (' #' + f[0] + "|" + _f + " = \"" + m + '"').yellow),
+                chat(A[0], m, f[0], _f)))())))
+//------------------------------------------------------------------------------ ActiveGroupsAndEvent
+A[0].u.chat.setSessionActiveGroups(['37338'], (x, r) => x ? console.dir(x) : console.dir(r))
+a.u.chat.on('chatRoomGroupMemberStateChange', (r) =>
+  a.i == 0 && r.chat_group_id == '37338' &&
+    log(a, 'NOTICES | chatRoomGroupMemberStateChange/' + SteamUser.EChatRoomMemberStateChange[r.change].toUpperCase() + (" -- #" + r.chat_group_id + " = https://steam.pm/" + r.member.steamid).yellow)),
 //------------------------------------------------------------------------------ SlowerDelay
 Math.max(Math.min(n.length, 75)*speed+delay, 2000)+1000)), 
 //------------------------------------------------------------------------------ OldSpamBlocking
