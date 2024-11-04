@@ -1,29 +1,3 @@
-//------------------------------------------------------------------------------ GooglePhotos
-googleAPIsPhotos = require('googlephotos'),
-google_photos = new googleAPIsPhotos(google_auth.credentials.access_token),
-google_photos.albums.list().then((result) =>
-  ((total_count = +result.albums[0].mediaItemsCount + +result.albums[1].mediaItemsCount,
-    picture = Math.floor(Math.random() * total_count),
-    album = (picture > 19999 ? result.albums[0].id : result.albums[1].id) ) =>
-      google_photos.mediaItems.search(album).then((result) =>
-        global.result1 = result
-      );
-  )()
-//------------------------------------------------------------------------------ GoogleOAuth2
-scopes = [
-  "https://www.googleapis.com/auth/youtube.readonly",
-  "https://www.googleapis.com/auth/youtubepartner",
-  "https://www.googleapis.com/auth/youtube",
-  "https://www.googleapis.com/auth/gmail.readonly",
-  "https://www.googleapis.com/auth/youtube.upload",
-  "https://www.googleapis.com/auth/photoslibrary.readonly",
-  "https://www.googleapis.com/auth/drive.metadata.readonly",
-  "https://www.googleapis.com/auth/drive.file",
-  "https://www.googleapis.com/auth/drive.readonly"
-];
-google_auth.generateAuthUrl({ access_type: 'offline', scope: scopes.join(' ') });
-code = 'CODE_FROM_GOOGLE';
-google_auth.getToken(code, (err, token) => (err) ? console.error(err) : (console.log(token), state.google_token = token));
 //------------------------------------------------------------------------------ ShareFunction
 imgur.shareImage = function (shareid, title) {
   var deferred = Q.defer();
@@ -339,22 +313,6 @@ run_tweet_post = (account) => {
   twitchChat.onPrivmsg((channel, user, message) => 
     (user != 'byteframe' && message.indexOf('@byteframe ') == 0) &&
       twitchChat.say('byteframe', '@' + user + ' ' + get_reply(user, message.substr(11))))))()
-//------------------------------------------------------------------------------ VDF/sharedconfig
-(process.platform === 'win32') ? (
-  dir_path = 'D:/',
-  steam_path = 'C:/Program Files (x86)/Steam/userdata/752001/')
-: (dir_path = '/mnt/Datavault',
-  steam_path = '.'),
-SimpleVDF = require('simple-vdf'),
-data.faker_apps = [],
-sharedconfig_vdf = SimpleVDF.parse(fs.readFileSync(steam_path + "/7/remote/sharedconfig.vdf", 'utf8')).UserLocalConfigStore.Software.Valve.Steam.Apps,
-Object.keys(sharedconfig_vdf).filter((appid) =>
-  (sharedconfig_vdf[+appid].hidden && sharedconfig_vdf[+appid].hidden == 1 && state.not_faking.indexOf(+appid) == -1) &&
-    data.faker_apps.push(+appid)),
-remove_appid = (appid, index = data.faker_apps.indexOf(appid)) =>
-  (index > -1) && (
-    state.not_faking.push(appid),
-    data.faker_apps.splice(index, 1)),
 //------------------------------------------------------------------------------ screenshots-twitter
 twitter_screenshots = [],
 (fs.existsSync(steam_path + '760/screenshots.vdf')) && (

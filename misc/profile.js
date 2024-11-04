@@ -1,3 +1,88 @@
+//------------------------------------------------------------------------------ AddAppidToIdForJson
+E.map(e => e.map(e => e + " {" + A[0].inventory.backgrounds.find(_e => _e.id == e.substr(6)).market_fee_app + "}"))
+//------------------------------------------------------------------------------ MiscDupeChecking
+console.log('duplicate emoticon text vs id: '),
+emotes = d.items_emoticons_array.flat().map((e) => A[0].inventory.emoticons.find((_e) => _e.id == e.substr(6)).name.toLowerCase()),
+console.log(duplicates(emotes.concat(d.emotes.flat().map((e) => e.toLowerCase()))))
+check_appid_duplicates = (with_sc = [], with_yt = [], wout_mm = []) => (
+  Object.keys(sharedconfig).forEach((app, i) =>
+    (sharedconfig[app].hidden == 1
+    && data.faker_apps.indexOf(+app) == -1
+    && data.not_faking.indexOf(+app) == -1) &&
+      (fs.existsSync('/mnt/Datavault/Work/Steam/screenshots/760/remote/' + app)) ?
+        with_sc.push(app)
+      : (!sharedconfig[app].hasOwnProperty('tags') || sharedconfig[app].tags['0'] !== 'favorite') ?
+        with_yt.push(app)
+      : wout_mm.push(app)),
+  console_log('fakersd.length: ' + data.faker_apps.length
+    + '\nwith_sc.length: ' + with_sc.length
+    + '\nwith_yt.length: ' + with_yt.length
+    + '\nwout_mm.length: ' + wout_mm.length
+    + '\nnot_faking.length: ' + data.not_faking.length),
+  console.log(duplicates(profile.game_favorite.slots[0].map((game) => parseInt(game.match(/\d+/)[0]))
+    .concat(data.not_faking).concat(data.faker_apps)
+    .concat(profile.game_collector.slots[0]).concat(profile.game_collector.slots[1])
+    .concat(profile.game_collector.slots[2]).concat(profile.game_collector.slots[3])
+    .concat(profile.review.slots[0]))),
+  with_sc.concat(with_yt).concat(wout_mm));
+//------------------------------------------------------------------------------ FindOwnedGameFavorites
+data.game_favorite.map((game) => parseInt(game.match(/\d+/)[0])).forEach((appid) => (accounts[0].ownedapps.indexOf(appid) > -1) && console.log('owned appid: ' + appid))
+//------------------------------------------------------------------------------ SortInventoryByNameLength
+accounts[0].inventory.cards.sort((a,b) => b.market_name.length - a.market_name.length).forEach((item) => console.log("https://steamcommunity.com/id/byteframe/inventory/#753_6_" + item.id + "\"" + item.market_name + "\" {CARD}"));
+accounts[0].inventory.boosters.sort((a,b) => b.market_name.length - a.market_name.length).forEach((item) => console.log("https://steamcommunity.com/id/byteframe/inventory/#753_6_" + item.id + "\"" + item.market_name + "\" {BOOSTER}"));
+accounts[0].inventory.backgrounds.sort((a,b) => b.market_name.length - a.market_name.length).forEach((item) => console.log("https://steamcommunity.com/id/byteframe/inventory/#753_6_" + item.id + "\"" + item.market_name + "\" {BACKGROUND}"));
+//------------------------------------------------------------------------------ SortStoreResultsByLength
+r0 = jQuery('#search_resultsRows'), r1 = r0.children("a.search_result_row"), r2 = r1.sort((e, _e) => _e.innerText.length - e.innerText.length);
+r0.append(r2);
+//------------------------------------------------------------------------------ ShowStoreResultsByLength
+jQuery("a.search_result_row").toArray().sort((e, i) => e.innerText.length - i.innerText.length).map((e) => e.name + e.innerText.trim().replace(/\n.*/g, '') + ' -- https://store.steampowered.com/app/' + e.attributes['data-ds-appid'].value).forEach((e) => console.log(e))
+//------------------------------------------------------------------------------ FindUnboughtMarketAppid
+http(A[0], 'https://steamcommunity.com/id/byteframe/inventory', null, (_b1, r, x, b1 = _b1.match(/inventory_link_[0-9]*/g).map(e => e.substr(15))) =>
+  http(A[0], 'https://steamcommunity.com/market/', null, (b2) => 
+    b2.match(/search\?appid=[0-9]*/g).map(e => e.substr(13)).filter(e => !b1.includes(e)).sort((e, _e) => +e - +_e).map(e => "https://steamcommunity.com/market/search?appid=" + e).forEach(e => console.log(e))))
+//------------------------------------------------------------------------------ CheckSetTypes
+d.items_trade_array.map((e) => e[0].substr(6)).filter(
+  (e) => A[0].inventory['emoticons/cards/backgrounds'].findIndex((_e) => _e.assetid == e) > -1)
+d.items_showcase_array.map((e) => e[0].substr(6)).filter(
+  (e) => A[0].inventory['cards'].findIndex((_e) => _e.assetid == e) > -1)
+d.items_showcase_array.filter(e => A[0].inventory['cards'].findIndex((_e) => _e.assetid == e[0].substr(6)) > -1)
+d.items_showcase_array.filter(e => A[0].inventory['cards'].findIndex((_e) => _e.assetid == e[0].substr(6)) == -1)
+//------------------------------------------------------------------------------ OriginalLinkGather
+d.review.forEach((e, i) => (
+  review_yout_links.push(s.A[0].reviews[e].contents.match(/https:\/\/(www.)?youtu.+ \[h/)[0].slice(0,-3).slice(8).replace('www\.', '').replace('youtu.be/', '').replace('youtube.com/watch?v=', '').replace(/\?.*/, '').replace(/\&.*/, '')),
+  review_item_links = review_item_links.concat(s.A[0].reviews[e].contents.match(/https:\/\/steamcommunity.com\/id\/byteframe\/inventory\/#[0-9_]+/)),
+  review_game_links.push(s.A[0].reviews[e].contents.match(/https:\/\/store.steampowered.com\/app\/[0-9]+\/.+/)[0].match(/\/[0-9]+\//)[0].slice(1, -1))));
+d.review_3507533.forEach((e, i) =>
+  review_item_links = review_item_links.concat(s.A[0].reviews[e].contents.match(/https:\/\/steamcommunity.com\/id\/byteframe\/inventory\/#[0-9_]+/)));
+//------------------------------------------------------------------------------ CheckIfAppIsDLC
+checkDlcInterval = 8000;
+(check_app_if_dlc = (i = 0) =>
+  (!(data.game_favorite[i] in state.dlccheck)) ?
+    http(accounts[0], 'https://store.steampowered.com/app/' + data.game_favorite[i], null, (body, response, error) => (
+      (error) ?
+        console.log(body)
+      : (body.indexOf('>Downloadable Content</a>') > -1) ?
+          state.dlccheck[data.game_favorite[i]] = true
+        : state.dlccheck[data.game_favorite[i]] = false,
+        console.log("[" + i + "/" + data.game_favorite.length + "] " + data.game_favorite[i] + " is " + state.dlccheck[data.game_favorite[i]]),
+        setTimeout(check_app_if_dlc, checkDlcInterval, i+1)), true)
+  : check_app_if_dlc(i+1))();
+//------------------------------------------------------------------------------ print_achievement_page
+print_achievement_page = (account, appid = 710780, text = '<html><head><style>.td1 { background-color: white; font-weight: bold; } .td2 { background-color: #C1C1C1; font-weight: italic; } body { font-color: #123123; background-color: #333333; }</style></head><body>\n<table border="1">') =>
+  http(account, 'my/ajaxgetachievementsforgame/' + appid, {}, (body) => (
+    Cheerio.load(body)('div.achievement_list_item').each((i, item) =>
+      text += "\n  <tr>\n    <td><img src=\"" + item.children[1].attribs.src + "\" width=\"48\" length=\"48\"></td>\n"
+        + '    <td class="td1">' + appid + '_' + item.attribs['data-statid'] + '_' + item.attribs['data-bit'] + '</td>\n'
+        + '    <td class="td2">' + item.children[3].children[1].children[0].data + '</td>\n'
+        + '  </tr>'),
+    text += '\n</table>\n</body></html>',
+    fs.writeFileSync(appid + '.html', text),
+    console.log(text)));
+//------------------------------------------------------------------------------ SharedConfig
+sharedconfig = SimpleVDF.parse(fs.readFileSync("./sharedconfig.vdf", 'utf8')).UserLocalConfigStore.Software.Valve.steam.Apps,
+sharedconfig = Object.keys(sharedconfig).filter((appid) =>
+  sharedconfig[appid].hidden == 1 && !sharedconfig[appid].tags);
+other.concat(sharedconfig).forEach((appid) => { try { console.log("  \"https://steamdb.info/appid/"+appid+" -- "+accounts[0].user.picsCache.apps[appid].appinfo.common.name + (accounts[0].user.picsCache.apps[appid].appinfo.common.type == 'Demo' ? " *** DEMO ***" : "")) } catch (ex) { console.log('fail: ' + appid) } });
 //------------------------------------------------------------------------------ ReplicantSaleRoutine
 bedazzle = (m) =>
   split_words([1,2].map(e=>
@@ -55,10 +140,7 @@ sale = (i = 1, o = i, a = A[i], first = pool(d.first_female), last = pool(d.last
       wish(a),
       discover(a, true),
       s.A[a.i].privacy != 3 && http(a, 'my/ajaxsetprivacy', { eCommentPermission: 1, Privacy: JSON.stringify({ "PrivacyProfile": 3, "PrivacyInventory": 3, "PrivacyInventoryGifts": 3, "PrivacyOwnedGames": 3, "PrivacyPlaytime": 3, "PrivacyFriendsList": 3 })}, (b, r, x) => ( s.A[a.i].privacy = 3 ), false, 'POST', true))))
-//------------------------------------------------------------------------------ CardSetLogic
-d.items_cards_array = mix(Object.values(d.items_cards_array).flat())
-  [ d.items_cards_array, 'item_showcase', 0 ],
-//-------------------------------------------------------------------------------------- GroupFormPriorToWikipedia
+//------------------------------------------------------------------------------ GroupFormPriorToWikipedia
 { "abbreviation": "pdl-stm",
   "country": "PS",
   "state": "",
@@ -95,7 +177,7 @@ d.items_cards_array = mix(Object.values(d.items_cards_array).flat())
   I nonetheless consider you a true and valued friend.[/quote][/list]
   [spoiler]You aren't supposed to be here.[/spoiler]` }
 //------------------------------------------------------------------------------ MostRecentBotChanges
-((file = pool(data.artwork2)) => (
+((file = pool(d.artwork2)) => (
   http(bots[i], 'sharedfiles/voteup?' + file, { id: file , appid: 0 }),
   http(bots[i], 'sharedfiles/favorite?' + file, { id: file , appid: 0 })))(),
 bots.forEach((bot) => bot.user.logOff())
@@ -114,7 +196,14 @@ http(bot, 'https://steamcommunity.com/games/' + avatar[0] + '/selectAvatar', { s
 bot.community.editProfile({ name: "_" + bot.index, summary: '<< first-thought // giver of will >>' }, (err) => console.log(err));
 http(bot, 'my/ajaxsetprivacy/', { eCommentPermission: 2, Privacy: JSON.stringify({ "PrivacyProfile": 2, "PrivacyInventory": 2, "PrivacyInventoryGifts": 1, "PrivacyOwnedGames": 2, "PrivacyPlaytime": 2, "PrivacyFriendsList": 2 }) }),
 //------------------------------------------------------------------------------ OldRoutines
-data.workshop_collector.flat().forEach((id, i) =>
+[ d.completionist2_array_, 'completionist2', 0 ], 
+  mix(d.completionist2_array),
+  d.completionist2_array_ = [],
+  (arrange_completionist = (E = d.completionist2_array.splice(0,3)) =>
+    E.length == 3 && (
+      d.completionist2_array_.push(E.flat()),
+      arrange_completionist()))(),
+d.workshop_collector.flat().forEach((id, i) =>
   console.log('edit_text(' + id + ', "' + ( fortune('platitudes', 1, 75, 85).replace(/[\s\t]+--[\s\t]+/g, ' ').replace(/"/g, '\\"') + '",        "' + generate_emoji_fortune(300, 'startrek').replace(/"/g, '\\"', ' ')/*.replace(/\s+--\s+/g + "\")")*/ + '")')))
 showcase('group_primary', 0, (i, e) => a.edit_1 += "&primary_group_steamid=" + e),
 (a.u.playingState.blocked && profile.persona_name.hasOwnProperty('selection')) ?
@@ -124,6 +213,7 @@ showcase('group_primary', 0, (i, e) => a.edit_1 += "&primary_group_steamid=" + e
 (s.A[a.i].persona != -1) && (
   s.A[a.i].persona = pool([2,5,6])),
 //------------------------------------------------------------------------------ OldElements
+uiMode: { moves: [], types: [ 0 ], slots: [ [ 1, 2 ] ] },
 var line = font('ITEMS = \ ', 13);
 for (var i = 0; i < 19; i++)
   line += pool_elements(pool_elements(emojis, 1, null)[0]) + "-";
@@ -132,21 +222,21 @@ haiku = require('haiku-random'),
 (args, pools = shuffle_array([8, 2, 3, 4, 5]),
   haikus = [...Array(3).keys()].map((i) =>
     haiku.random("html").toString().replace(/<br>/g, '\n').split('\n'))) =>
-  pool(data.emoticons[pools[0]], 10) + "\n[i]"
+  pool(d.emoticons[pools[0]], 10) + "\n[i]"
   + "[b][u] Here's Some Haiku for You...[/u][/b]\n"
-  + pool(data.emoticons[pools[1]], 10) + "\n"
-  + " » " + haikus[0][0] + " " + pool(data.ascii) + " \n"
-  + " » " + haikus[0][1] + " " + pool(data.ascii) + " \n"
-  + " » " + haikus[0][2] + " " + pool(data.ascii) + " \n"
-  + pool(data.emoticons[pools[2]], 10) + "\n"
-  + " » " + haikus[1][0] + " " + pool(data.ascii) + " \n"
-  + " » " + haikus[1][1] + " " + pool(data.ascii) + " \n"
-  + " » " + haikus[1][2] + " " + pool(data.ascii) + " \n"
-  + pool(data.emoticons[pools[3]], 10) + "\n"
-  + " » " + haikus[2][0] + " " + pool(data.ascii) + " \n"
-  + " » " + haikus[2][1] + " " + pool(data.ascii) + " \n"
-  + " » " + haikus[2][2] + " " + pool(data.ascii) + " \n"
-  + pool(data.emoticons[pools[4]], 10)
+  + pool(d.emoticons[pools[1]], 10) + "\n"
+  + " » " + haikus[0][0] + " " + pool(d.ascii) + " \n"
+  + " » " + haikus[0][1] + " " + pool(d.ascii) + " \n"
+  + " » " + haikus[0][2] + " " + pool(d.ascii) + " \n"
+  + pool(d.emoticons[pools[2]], 10) + "\n"
+  + " » " + haikus[1][0] + " " + pool(d.ascii) + " \n"
+  + " » " + haikus[1][1] + " " + pool(d.ascii) + " \n"
+  + " » " + haikus[1][2] + " " + pool(d.ascii) + " \n"
+  + pool(d.emoticons[pools[3]], 10) + "\n"
+  + " » " + haikus[2][0] + " " + pool(d.ascii) + " \n"
+  + " » " + haikus[2][1] + " " + pool(d.ascii) + " \n"
+  + " » " + haikus[2][2] + " " + pool(d.ascii) + " \n"
+  + pool(d.emoticons[pools[4]], 10)
 (f, comment_message_bot = (o = 900, format = pool([ "","i","b","u","spoiler" ]), t = ("[" + format + "]" + fortune('all') + "[/" + format + ']\n').replace(/\[\]/g, '').replace(/\[\/\]/g, '') + pool(d.emojis_smileys)) =>
   (t.length >= o) ? t : comment_message_bot()) =>
 (f) => emote(12, [15]) + "\n" + emote(12, [15]) + "\n" + "[i]" + split_words(fortune('cookie')).join('\n') + "[/i]\n" + emote(12, [15]) + "\n" + emote(12, [15]),
@@ -164,16 +254,16 @@ information_text2: { moves: [], types: [ 0 ], slots: [ [ (a, lite, i, emoticon_i
   emoticon_index + ": " + emote(4, [emoticon_index]) + "[/b] / [spoiler]" + pool(d.links_social) + "[/spoiler] / - " + shuffle(d.chinese.split('')).join('').substr(0, 4) + " - [" + shuffle(d.barcode.split('')).join('') +
   "][hr][/hr][u]𝐖𝐀𝐋𝐋𝐏𝐀𝐏𝐄𝐑[/u]: " + emote(1, [1]) + ' [url=steamdb.info/app/' + profile.background.selection[0].market_fee_app + ']' + profile.background.selection[0].tags[1].name + '[/url] ' + emote(1, [1]) + ' [url=steamcommunity.com/profiles/76561197961017729/inventory/#753_6_' + profile.background.selection[0].id + ']' + profile.background.selection[0].name.replace(' (Profile Background)', '').replace(/background/gi, '') + '[/url]' ] ] }
 item_showcase2: { moves: [], types: [ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ], slots: [ [],[],[],[],[],[],[],[],[],[],[],[],[ (a) => "753_6_"+pool(a.inventory.boosters, 1, null)[0].id ], [ (a) => "753_6_"+pool(a.inventory.boosters, 1, null)[0].id ], [ (a)=> "753_6_"+pool(a.inventory.boosters, 1, null)[0].id ], [ (a) => "753_6_"+pool(a.inventory.boosters, 1, null)[0].id ] ] }
-'[b][u]Wallpaper (' + data.avatars[data.avatars.index-1] + ')[/u][/b]\n'
-+ pool(data.emotes[1]) + ' [url=steamdb.info/app/' + profile.background.selection[0].appid + ']'
-+ profile.background.selection[0].game + '[/url] ' + pool(data.emotes[1]) + ' [url=steamcommunity.com/id/byteframe/inventory/#753_6_'
+'[b][u]Wallpaper (' + d.avatars[d.avatars.index-1] + ')[/u][/b]\n'
++ pool(d.emotes[1]) + ' [url=steamdb.info/app/' + profile.background.selection[0].appid + ']'
++ profile.background.selection[0].game + '[/url] ' + pool(d.emotes[1]) + ' [url=steamcommunity.com/id/byteframe/inventory/#753_6_'
 + profile.background.selection[0].id + ']' + profile.background.selection[0].name.replace(' (Profile Background)', '') + '[/url]\n\n'
 "[i]" + fortune('all', 1, 192, 196) + "[/i]\n\n" +
 "[b]#" + emoticon_index + ": " + 
 //------------------------------------------------------------------------------ WeatherDiscussionPost
 print_weather_discussion_post = (E) =>
   '[olist]' + E.map(e => "[*]" + fortune('zippy', 1, 50, 80) + "\n" + " " + pool(d.items_emoticons_array, 1, null)[0].map(e => A[0].inventory.emoticons.find(_e => _e.id == e.substr(6)).name).join(' - ') + " + " + mix(d.barcode.split('')).join('') + " + " + mix(d.chinese.split('')).slice(0,8).join('') + " https://www.youtube.com/watch?v=" + e).join('\n') + "\n[/olist]"
-//------------------------------------------------------------------------------ OldGenerators
+//------------------------------------------------------------------------------ OldUtilityFunctions
 generate_emoticon_fortune = (text = '', length, emoticon_index, file = 'all', m = fortune(file).replace(/\n/g, ' ').split(/\s+/)) =>
   m.length < length ?
     generate_emoticon_fortune(text, length, emoticon_index, file)
@@ -182,18 +272,13 @@ generate_emoticon_fortune = (text = '', length, emoticon_index, file = 'all', m 
     text.trim() + ' ' + m.slice(length).join(' ')),
 generate_emoticons = (length, text = '', delimiter = '', indexes = [ 2,3,4,5,6,7,8,9,10,11 ]) => (
   pool(indexes, length, null).forEach((index) =>
-    text += pool(data.emotes[index]) + delimiter),
-  text),
-((delimiter = "/", t = '') => (
-  shuffle(data.links_steam_greetings).forEach((e) =>
-    t += e + '[/url] ' + delimiter + ' '),
-  t.trim().slice(0, -2)))() + "\n" +
-//------------------------------------------------------------------------------ OldUtilityFunctions
+    text += pool(d.emotes[index]) + delimiter),
+  text), 
 edit_text = (account, publishedfileid, title, description = '') =>
   http(account, 'sharedfiles/itemedittext?' + publishedfileid, { id: publishedfileid, language: 0, title: title, description: description }),
 emoticon_convert = (m) => (
-  m = m.replace(/ː/g, ':').replace(/:[0-9a-zA-Z_]+:/g, () => pool(pool(data.emojis, 1, null)[0])),
-  data.emojis.index = 0,
+  m = m.replace(/ː/g, ':').replace(/:[0-9a-zA-Z_]+:/g, () => pool(pool(d.emojis, 1, null)[0])),
+  d.emojis.index = 0,
   m),
 shuffle_string = (s) =>
   shuffle_array(s.split("")).join(""),
@@ -201,8 +286,8 @@ pad = (i, zeros = "00") =>
   (zeros + i).substr(-zeros.length, zeros.length),
 font = (input, f, output = '') => (
   [...Array(input.length).keys()].forEach((e, i) =>
-    (data.fonts[f][input[i]] !== undefined) ?
-      output += data.fonts[f][input[i]]
+    (d.fonts[f][input[i]] !== undefined) ?
+      output += d.fonts[f][input[i]]
     : output += input[i]),
   output),
 pool = (pool, length = 1, join = '', reset = false, E = []) => (
@@ -251,21 +336,20 @@ generate_todo_list = (
     console.log(modifier + (modifier ? ' ' : '') + addSuffix(verb, ending) + ' ' + noun)
 //------------------------------------------------------------------------------ KnowledgeRiveScriptToFortune
 knowledge = fs.readFileSync('rivescript/knowledge.rive', 'utf-8').match(/\n\n+.*\n-.*/g).filter((text) => text.indexOf('*') == -1).map((text) => text.replace(/<set .+>/g, '').replace(/{random}/g, '').trim()),
-//------------------------------------------------------------------------------ Backgrounds
+//------------------------------------------------------------------------------ Old Background+Badges Gather
 account.backgrounds = [],
 (a.inventory.backgrounds.length > 0) &&
   showcase('background', 0, (i, e) => a.edit_1 += "&profile_background=" + e.id),
 http(account, 'https://steamcommunity.com/' + profile_url(account) + '/ajaxgetplayerbackgrounds', {}, (body, response, err) => 
-  (body.data.profilebackgroundsowned) &&
-    body.data.profilebackgroundsowned.forEach((background) =>
-      (data.background_blacklist.indexOf(""+background.communityitemid) == -1 || account.index != 0) &&
+  (body.d.profilebackgroundsowned) &&
+    body.d.profilebackgroundsowned.forEach((background) =>
+      (d.background_blacklist.indexOf(""+background.communityitemid) == -1 || account.index != 0) &&
         accounts[account.index].backgrounds.push({
           id: background.communityitemid,
           appid: background.appid,
-          game: body.data.backgroundappnames[background.appid],
+          game: body.d.backgroundappnames[background.appid],
           name: background.name,
           image: "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/" + background.image_large })))//)),
-//------------------------------------------------------------------------------ Badges
 (!account.badges) &&
   http(account, 'my/badges', null, (body, response, err,
     links = Cheerio.load(body)('a.btn_green_white_innerfade')) => (
@@ -289,11 +373,11 @@ replicant_profile = {
   game_favorite: profile.game_favorite,
   game_collector:  profile.game_collector,
   group_favorite:  profile.group_favorite,
-  group_primary: { shuffle_slots: [], shuffle_types: [ 0 ], slots: [ [ () => pool(data.group_favorite), ] ] },
+  group_primary: { shuffle_slots: [], shuffle_types: [ 0 ], slots: [ [ () => pool(d.group_favorite), ] ] },
   gamesPlayed: { shuffle_slots: [ 0 ], shuffle_types: [ 0 ], slots: [ [ (account) =>
     (account.badges && account.badges.length > 0) ?
       account.user.gamesPlayed(account.badges)
-    : account.user.gamesPlayed([ +pool(data.sharedconfig), +pool(data.sharedconfig), +pool(data.sharedconfig), +pool(data.sharedconfig), +pool(data.sharedconfig), +pool(data.sharedconfig), +pool(data.sharedconfig), +pool(data.sharedconfig), +pool(data.sharedconfig) ]) ] ] } },
+    : account.user.gamesPlayed([ +pool(d.sharedconfig), +pool(d.sharedconfig), +pool(d.sharedconfig), +pool(d.sharedconfig), +pool(d.sharedconfig), +pool(d.sharedconfig), +pool(d.sharedconfig), +pool(d.sharedconfig), +pool(d.sharedconfig) ]) ] ] } },
 Object.assign(replicant_profile.persona_name, profile.persona_name),
 showcases.slots = [ [ 8 ] ],
 group_primary.slots[0] = group_primary.slots[0].concat(group_favorite.slots[0]),
@@ -362,13 +446,13 @@ alter_showcase(countries, (i, element) => {
   http(edit_process.url, edit_process.data, (body, response, error) => {
     body = Cheerio(Cheerio.load(body)('state')).find('state').prevObject;
     if (body.length > 1) {
-      edit_process.data.state = body[Math.floor(Math.random() * (body.length-1)+1)].attribs.key;
-      text += "&state=" + edit_process.data.state;
+      edit_process.d.state = body[Math.floor(Math.random() * (body.length-1)+1)].attribs.key;
+      text += "&state=" + edit_process.d.state;
       return http(edit_process.url, edit_process.data, (body, response, error) => {
         body = Cheerio(Cheerio.load(body)('city')).find('city').prevObject;
         if (body.length > 1) {
-          edit_process.data.city = body[Math.floor(Math.random() * (body.length-1)+1)].attribs.key;
-          text += "&city=" + edit_process.data.city;
+          edit_process.d.city = body[Math.floor(Math.random() * (body.length-1)+1)].attribs.key;
+          text += "&city=" + edit_process.d.city;
         }
         post_profile();
       });
@@ -403,7 +487,7 @@ for_country = (e = 0) => {
         if (s == array[1].length) {
           return finish();
         }
-        edit_process.data.state = array[1][s][0];
+        edit_process.d.state = array[1][s][0];
         http(edit_process.url, edit_process.data, (body, response, error) => {
           cities = Cheerio(Cheerio.load(body)('city')).find('city').prevObject;
           if (cities.length > 1) {
@@ -430,8 +514,8 @@ var showcase_delay = 0;
 SetShowcaseConfig = (showcase, slot, data) => {
   if (account.friends_level >= 20) {
     showcase_delay++;
-    data.customization_type = showcase;
-    data.slot = slot;
+    d.customization_type = showcase;
+    d.slot = slot;
     account.http('my/ajaxsetshowcaseconfig?' + Object.values(data).join('|'), data, null, 'POST', true, false);
   }
 };
@@ -461,7 +545,7 @@ run_randomized_profile = (account, profile, callback = null, lite = false) => {
         return account.http('https://store.steampowered.com/account/', null, (body, response, err) => {
           body = Cheerio.load(body);
           account.money1 = [body('.accountLabel').text()];
-          account.money2 = [body('.accountData.price').text()];
+          account.money2 = [body('.accountd.price').text()];
           account.community.getUserInventoryContents(account.user.steamID, 753, 6, false, 'english', (err, inventory, currencies, count) => {
             inventory.forEach((item) => {
               if (item.tags[2].name == 'Profile Background') {
@@ -624,47 +708,47 @@ run_randomized_profile = (account, profile, callback = null, lite = false) => {
 //------------------------------------------------------------------------------ ProfileIntermediateEditTexts
 generate_artwork_text = (text = [ haiku.random("html").toString(), haiku.random("html").toString(), haiku.random("html").toString() ]
     .reduce((a, v) => a && a.length <= v.length ? a : v, '').toLowerCase().replace(/<br>/g, '\n').split('\n')) =>
-  pool(pool(data.emojis, 1, null)[0]) + " " + text[0] + " " + pool(pool(data.emojis, 1, null)[0]) + " " + text[1] + " "
-  + pool(pool(data.emojis, 1, null)[0]) + " " + text[2] + " " + pool(pool(data.emojis, 1, null)[0]),
+  pool(pool(d.emojis, 1, null)[0]) + " " + text[0] + " " + pool(pool(d.emojis, 1, null)[0]) + " " + text[1] + " "
+  + pool(pool(d.emojis, 1, null)[0]) + " " + text[2] + " " + pool(pool(d.emojis, 1, null)[0]),
 generate_big_fortune_headline = (size, file = 'all', text = fortune(file, 1, -1, size).split(' ')) => (
   [...Array(6).keys()].forEach((i) =>
     text[(i+1)*(Math.floor((text.length+1)/6)-1)] += " YYY"),
   insert_emojis("YYY " + text.join(' ') + " YYY"))
 profile_intermediate = (account,
   group_url = profile.group_favorite.selection[0].substr(19),
-  rainbow = pool(data.rainbows, 1, null)[0],
+  rainbow = pool(d.rainbows, 1, null)[0],
   rainbow_cut = (205-rainbow.join('').length)/3,
   big_fortune = generate_big_fortune(175),
   big_fortune_split = [ big_fortune.substr(0, rainbow_cut).trim(), big_fortune.substr(rainbow_cut, rainbow_cut).trim(), big_fortune.substr((rainbow_cut*2)-1, rainbow_cut-1).trim() ]) => (
-  edit_group(account, group_url, generate_big_fortune_headline(212), data.group_forms[group_url]),
+  edit_group(account, group_url, generate_big_fortune_headline(212), d.group_forms[group_url]),
   edit_text(account, profile.artwork.selection[0], generate_artwork_text()),
   edit_text(account, profile.guide_collector.selection[0], generate_big_fortune_headline(84, 'zippy')),
   edit_text(account, profile.guide_collector.selection[1], generate_big_fortune_headline(84, 'wisdom')),
   edit_text(account, profile.guide_collector.selection[2], generate_big_fortune_headline(84, 'cookie')),
   edit_text(account, profile.guide_collector.selection[3], generate_big_fortune_headline(84, 'definitions')),
   edit_text(account, profile.guide_favorite.selection[0]
-    , pool(pool(data.emojis, 1, null)[0]) + " Lucky Numbers: " + Math.floor(Math.random()*9) + ',' + Math.floor(Math.random()*9) + ',' + Math.floor(Math.random()*9) + " " + pool(pool(data.emojis, 1, null)[0]) + " [̲̅$̲̅(̲̅5̲̅)̲̅$̲̅]"
-    , "\nEQ: [u]" + shuffle_array(data.equalizer).join(' ') + "[/u]\n"
-    + "| " + pool(data.ascii) + " " + pool(data.guide_rainbows) + ' '
-    + pool(data.ascii) + ' ' + pool(data.guide_rainbows) + ' '
-    + pool(data.ascii) + ' ' + pool(data.guide_rainbows) + ' '
-    + pool(data.ascii) + ' ' + pool(data.guide_rainbows) + ' '
-    + pool(data.ascii) + ' ' + pool(data.guide_rainbows) + ' '
-    + pool(data.ascii) + ' ' + pool(data.guide_rainbows) + ' '
-    + pool(data.ascii) + ' ' + pool(data.guide_rainbows) + ' '
-    + pool(data.ascii) + "\n"
+    , pool(pool(d.emojis, 1, null)[0]) + " Lucky Numbers: " + Math.floor(Math.random()*9) + ',' + Math.floor(Math.random()*9) + ',' + Math.floor(Math.random()*9) + " " + pool(pool(d.emojis, 1, null)[0]) + " [̲̅$̲̅(̲̅5̲̅)̲̅$̲̅]"
+    , "\nEQ: [u]" + shuffle_array(d.equalizer).join(' ') + "[/u]\n"
+    + "| " + pool(d.ascii) + " " + pool(d.guide_rainbows) + ' '
+    + pool(d.ascii) + ' ' + pool(d.guide_rainbows) + ' '
+    + pool(d.ascii) + ' ' + pool(d.guide_rainbows) + ' '
+    + pool(d.ascii) + ' ' + pool(d.guide_rainbows) + ' '
+    + pool(d.ascii) + ' ' + pool(d.guide_rainbows) + ' '
+    + pool(d.ascii) + ' ' + pool(d.guide_rainbows) + ' '
+    + pool(d.ascii) + ' ' + pool(d.guide_rainbows) + ' '
+    + pool(d.ascii) + "\n"
     + "[i]" + haiku.random("html").toString().replace(/<br>/g, '/').trim().toLowerCase().replace(/[.,'"?!]/g, '').replace(/ \//g, '/') + "[/i] "
-    + shuffle_string(data.barcode) + "_" + pool(pool(data.emojis, 1, null)[0]) + "_" + shuffle_string(data.chinese).substr(0, 4) + ' (' + pool(data.alphabet).toUpperCase() + ') + ' + pool(pool(data.emojis, 1, null)[0])),
+    + shuffle_string(d.barcode) + "_" + pool(pool(d.emojis, 1, null)[0]) + "_" + shuffle_string(d.chinese).substr(0, 4) + ' (' + pool(d.alphabet).toUpperCase() + ') + ' + pool(pool(d.emojis, 1, null)[0])),
   edit_text(account, profile.ugcfavorite.selection[0]
-    , data.chinese.substr(0, 2) + " " + pool(pool(data.emojis, 1, null)[0]) + " "
-    + data.chinese.substr(2, 2) + " " + pool(pool(data.emojis, 1, null)[0]) + " "
-    + data.chinese.substr(4, 2) + " " + pool(pool(data.emojis, 1, null)[0]) + " "
-    + data.chinese.substr(6, 2) + " " + pool(pool(data.emojis, 1, null)[0]) + " "
-    + data.chinese.substr(8, 2)
-    , (rainbow[0] + "●▬▬▬▬▬▬▬▬▬▬▬▬▬ 웃" + pool(pool(data.emojis, 1, null)[0]) + "유 ▬▬▬▬▬▬▬▬▬▬▬▬▬●\n"
-    + rainbow[1] + "[i] → " + big_fortune_split[0] + " " + pool(pool(data.emojis, 1, null)[0]) + "\n"
-    + rainbow[2] + " → " + big_fortune_split[1] + " " + pool(pool(data.emojis, 1, null)[0]) + "\n"
-    + rainbow[3] + " → " + big_fortune_split[2] + " " + pool(pool(data.emojis, 1, null)[0]) + "\n"
+    , d.chinese.substr(0, 2) + " " + pool(pool(d.emojis, 1, null)[0]) + " "
+    + d.chinese.substr(2, 2) + " " + pool(pool(d.emojis, 1, null)[0]) + " "
+    + d.chinese.substr(4, 2) + " " + pool(pool(d.emojis, 1, null)[0]) + " "
+    + d.chinese.substr(6, 2) + " " + pool(pool(d.emojis, 1, null)[0]) + " "
+    + d.chinese.substr(8, 2)
+    , (rainbow[0] + "●▬▬▬▬▬▬▬▬▬▬▬▬▬ 웃" + pool(pool(d.emojis, 1, null)[0]) + "유 ▬▬▬▬▬▬▬▬▬▬▬▬▬●\n"
+    + rainbow[1] + "[i] → " + big_fortune_split[0] + " " + pool(pool(d.emojis, 1, null)[0]) + "\n"
+    + rainbow[2] + " → " + big_fortune_split[1] + " " + pool(pool(d.emojis, 1, null)[0]) + "\n"
+    + rainbow[3] + " → " + big_fortune_split[2] + " " + pool(pool(d.emojis, 1, null)[0]) + "\n"
     + rainbow[4]).replace(/[-.,"']/g, '').toLowerCase())),
 //------------------------------------------------------------------------------ AltGamesPlayedRoutines
 gamesPlayed: { shuffle_slots: [], shuffle_types: [ 0 ], slots: [ [
@@ -672,122 +756,12 @@ gamesPlayed: { shuffle_slots: [], shuffle_types: [ 0 ], slots: [ [
     account.user.gamesPlayed(),
     (!account.user.playingState.blocked) && (
       account.user.setPersona(0),
-      setTimeout(() => account.user.gamesPlayed([+pool(data.faker_apps),+pool(data.faker_apps),+pool(data.faker_apps)]), 1000),
+      setTimeout(() => account.user.gamesPlayed([+pool(d.faker_apps),+pool(d.faker_apps),+pool(d.faker_apps)]), 1000),
       setTimeout(() => account.user.gamesPlayed(
-        pool(data.emojis[0]) + " " + pool(data.emojis[1]) + " "
-        + pool(data.emojis[2]) + " " + pool(data.emojis[3]) + " "
-        + pool(data.emojis[0]) + " " + pool(data.emojis[1]) + " "
-        + pool(data.emojis[2]) + " " + pool(data.emojis[3]) + " "
-        + pool(data.emojis[0]) + " " + pool(data.emojis[1]) + " "
-        + pool(data.emojis[2])), 2000),
+        pool(d.emojis[0]) + " " + pool(d.emojis[1]) + " "
+        + pool(d.emojis[2]) + " " + pool(d.emojis[3]) + " "
+        + pool(d.emojis[0]) + " " + pool(d.emojis[1]) + " "
+        + pool(d.emojis[2]) + " " + pool(d.emojis[3]) + " "
+        + pool(d.emojis[0]) + " " + pool(d.emojis[1]) + " "
+        + pool(d.emojis[2])), 2000),
       setTimeout(() => account.user.setPersona(1), 3000)) ) ] ] } }
-//------------------------------------------------------------------------------ OldData
-"f11 Gamer", [
-  2860172025,2849329738,2860175921,2860177118,2860171802,2860171213,2860171169,
-  2860171015,2860165356,2855385517,2855391001,2855388982,2855389130,2860165228,2855384601,
-  2855382216,2860165138,2854790343,2854787157,2854786321,2854778563,2854777128,2854768043,
-  2854767205,2854767587,2854760205,2852459192,2852456573,2852457552,2852456514,2852454959,
-  2852454994,2852451804,2852451501,2852451601,2852451238,2852446411,2852442937,2852442472,
-  2852442713,2852441975,2849346566,2849347632,2849344215,2849342486,2849341125,2849339271,
-  2849337921,2849335620,2849337001,2849330518,2849334530,2849334659,2849334269,2849329673,
-  2849328524,2849335425,2848763529,2848497941,2848498245,2848758883,2848492501,2848758966,
-  2848491471,2848496595,2848756731,2848491341,2848759326,2848490533,2848762879,2846700701,
-  2845290536,2846700337,2843623130,2845289409,2845287287,2845289684,2843621165,2843621627,
-  2848762602,2843619398,2843619006,2843620359,2843619941,2843620226,2843618233,2848762781,
-  2843618899,2842498961,2843617898,2843618852,2842498107,2842500155,2848761511,2842488942,
-  2842489736,2842489613,2842494666,2842485194,2842485840,2842483052,2842484452,2842482950,
-  2862969671,2860174235,2841860936,2860174531,2841861051,2841862055,2860174790,2841861203,
-  2860174977,2841856581,2842483610,2860174359,2841856814,1968218225,2841860419,2841860741,
-  2143300660,2860173286,2841860602,2860173162,2841857442,2842482846,2841858197,
-  2860172634,2860175415,2860175578,2841859162,2860172747,3075604838,3075703505,
-  2841859107,3082386827,2870873879,2571798003,2862975887,2841855712,2862975080,2862975473,
-  2862974646,2841033955,2862975646,2862970422,2841034694,2862966715,2862968406,2862969041,
-  2862966966,2862966330,2862966622,2841035120,2862023890,2862965684,2862024438,2862966248,
-  2862023803,2862023989,2862022392,2862024036,2862021729,2862021877,2862022034,2862022209,
-  2862019136,2862021410,2862016715,2862021200,2862021553,2862017484,2862021639,2862013676,
-  2862016675,2862011307,2862012899,2862013121,2862010942,2862010849,2862011022,2862010796,
-  2860177211 ]
-"achievement_array_busted": [
-[ [ "836200_85_13","836200_91_11","836200_91_19","776960_7_26","836200_75_0","836200_95_30","836200_90_11" ], "the New girl + sos pie" ],
-[ [ "1024500_3_28","1024500_3_6","1024500_3_5","828960_11_7","1024500_3_1","1024500_1_7","1024500_1_1" ], "one boobs em up + radlis from reflex" ],
-[ [ "625400_28_8","625400_255_13","625400_50_6","667120_2_12","625400_283_18","625400_58_14","625400_42_12" ], "Sisters in Hotel | I Town" ],
-[ [ "860910_85_24","860910_85_34","860910_85_22","860910_77_10","860910_83_7","860910_83_6","860910_83_5" ], "CHESTNUT TREE wonderwomen, im not mad +2" ],
-[ [ "860910_85_21","860910_85_20","860910_85_19","860910_85_18","860910_85_17","860910_85_16","860910_85_15" ], "3018BP" ],
-[ [ "860910_48_5","860910_48_4","860910_48_3","860910_47_31","860910_48_2","860910_48_1","860910_48_0" ], "3018=knihazsx7coloredhearts" ],
-[ [ "860910_12_23","860910_12_22","860910_12_21","860910_12_17","860910_12_20","860910_12_19","860910_12_18" ], "3018=animegirlinswimsuit" ],
-[ [ "860910_41_18","860910_41_17","860910_41_16","860910_41_15","860910_41_14","860910_41_13","860910_41_12" ], "3018=purpleOnesOmg" ],
-[ [ "860910_45_3","860910_45_2","860910_45_1","860910_16_10","860910_45_0","860910_44_31","860910_39_25" ], "3018=5 new blue, last historiayuri w/irill" ],
-[ [ "860910_9_15","860910_47_12","860910_41_26","860910_48_7","860910_41_22","860910_35_1","860910_39_26" ], "3018=irlgen2 w/ rainbowDash" ],
-[ [ "860910_74_16","860910_74_15","860910_74_14","860910_71_19","860910_74_13","860910_74_12","860910_74_11" ], "3018 new KR + high af" ],
-[ [ "860910_80_3","860910_80_2","860910_80_1","860910_80_10","860910_79_31","860910_79_30","860910_80_0" ], "WILL,3018redhyewonOnly5soVicAngelli" ],
-[ [ "860910_30_24","860910_35_0","860910_35_2","860910_53_28","860910_44_28","860910_52_20","860910_53_9" ], "hent3018Aug1" ],
-[ [ "860910_53_7","860910_53_5","860910_53_15","860910_48_9","860910_53_13","860910_53_10","860910_53_6" ], "hent3018Aug2" ],
-[ [ "860910_20_30","860910_20_29","860910_20_28","860910_32_20","860910_20_25","860910_20_26","860910_19_2" ], "Hent3018_AAA_Sementalx5+Sextu+RBRussian" ],
-[ [ "860910_72_7","860910_72_6","860910_72_5","860910_70_5","860910_72_4","860910_72_3","860910_70_6" ], "bvdnituwu4 + 2x andriana" ],
-[ [ "860910_65_5","860910_65_4","860910_65_3","860910_60_31","860910_65_2","860910_65_1","806140_82_26" ], "twice3018darkMagicGirl" ],
-[ [ "860910_41_0","860910_56_3","860910_64_4","828960_4_1","860910_64_3","860910_64_1","860910_64_0" ], "margotMisc" ],
-[ [ "860910_72_26","860910_72_25","860910_72_24","860910_59_26","860910_72_23","860910_72_22","860910_70_3" ], "pitchpl" ],
-[ [ "860910_72_18","860910_72_17","860910_72_16","860910_72_15","860910_72_14","860910_72_13","860910_72_12" ], "miyawaki" ],
-[ [ "860910_60_11","860910_60_10","860910_60_9","745740_27_13","860910_60_8","860910_60_7","860910_53_7" ], "hent3018=itzy+reflexgotti+redswap" ],
-[ [ "860910_57_7","860910_57_5","860910_57_4","828960_11_14","860910_57_3","860910_57_2","860910_57_1" ], "hent3018=jeongyeonnnnnnnn+bdriver_jamieRB" ],
-[ [ "860910_30_23","860910_30_22","860910_30_21","745740_10_6","860910_30_20","860910_30_19","860910_30_18" ], "Hent3018Jvckx6+Reflex AnimalLion" ],
-[ [ "860910_31_2","860910_31_1","860910_31_0","506730_37_11","860910_29_7","860910_30_2","860910_26_4" ], "Hent3018Blons+DinoForestBlackAlphabet" ],
-[ [ "860910_35_8","860910_32_27","860910_35_6","745740_26_26","860910_3_7","860910_35_4","860910_39_31" ], "Hent3018Pales+ReflexDay69cover2" ],
-[ [ "860910_61_25","860910_61_24","860910_61_23","828960_4_3","860910_60_25","860910_60_24","860910_60_23" ], "mariana/viktoria" ],
-[ [ "806140_63_12","806140_63_11","806140_63_9","776960_7_31","806140_66_4","806140_55_18","806140_62_2"], "Achievement printer gen2 1 + sos rbf" ],
-[ [ "806140_59_30","806140_56_30","806140_56_29","675460_10_21","806140_53_10","806140_53_8","806140_31_8" ], "Achievement printer gen2 1 + crumulent rb" ],
-[ [ "818730_19_31","806140_61_28","806140_60_10","776960_16_31","806140_53_4","806140_57_0","806140_61_31"], "Achievement printer gen2 1 + tower aznr2 + sos rb other q" ],
-[ [ "806140_69_28","806140_69_27","806140_69_26","745740_33_13","806140_69_25","806140_69_24","806140_69_22" ], "achprinter=GFriend2" ],
-[ [ "806140_73_13","806140_73_12","806140_73_11","806140_73_7","806140_73_10","806140_73_9","806140_73_8" ], "achprinter=Fromis_9" ],
-[ [ "806140_73_28","806140_73_27","806140_73_26","818730_18_14","806140_73_25","806140_73_24","806140_73_23" ], "achprinter=GFriend1+squirtleTOwerClimber" ],
-[ [ "806140_90_9","806140_90_7","806140_90_6","806140_89_27","806140_90_5","806140_90_0","806140_89_29" ], "happyruuuX4_new fromis x2+chef wabbit" ],
-[ [ "806140_88_1","806140_88_0","806140_87_31","860910_9_4","806140_87_30","806140_87_29","860910_57_6" ], "ITZY new x5 || catMyraMIDDLE + missed/new jeonungg" ],
-[ [ "806140_85_6","806140_85_5","806140_85_4","806140_24_24","806140_85_3","806140_85_2","806140_85_1" ], "RemiYasuda - top one + ah ha ha cat" ],
-[ [ "806140_49_9","806140_49_8","806140_49_7","806140_29_1","806140_49_6","806140_49_5","806140_48_26" ], "Achievement printer 3" ],
-[ [ "806140_40_1","806140_40_0","806140_39_31","806140_39_19","806140_39_29","806140_30_28","806140_30_27" ], "Achievement Printer 3" ],
-[ [ "806140_32_4","806140_33_7","806140_31_23","776340_1_0","806140_33_23","806140_32_5","806140_28_8" ], "Achievement Printer 2 3" ],
-[ [ "806140_31_13","806140_23_26","806140_22_22","806140_29_12","806140_32_18","806140_26_26","806140_29_4" ], "Achievement Printer 1" ],
-[ [ "806140_26_2","806140_26_25","806140_22_21","806140_27_6","806140_23_25","806140_25_31","806140_29_3" ], "Achievement Printer 2" ],
-[ [ "806140_53_19","806140_68_24","806140_66_0","401190_21_29","806140_63_10","860910_35_3","860910_39_29" ], "Mixed3=ACHPx4_dinoFakeCrocoRB_HentHistorCRY+BeautifulRebel" ],
-[ [ "806140_97_12","806140_97_11","806140_97_10","860910_80_11","806140_97_9","806140_97_8","806140_97_7" ], "HANNIBAL,ACHprinterYellowGFRIEND" ],
-[ [ "860910_39_30","776960_40_21","806140_53_6","401190_24_17","745740_43_31","860910_18_4","806140_48_25" ], "Mixed1=Hentx2,Achpx2,sosi,dinH,reflx" ],
-[ [ "806140_82_13","806140_82_11","806140_82_10","763680_2_2","860910_64_5","806140_82_23","776960_68_8" ], "miscWithMineyTubes" ],
-[ [ "806140_83_18","806140_83_17","806140_82_28","763680_2_3","806140_82_27","806140_82_24","806140_82_22" ], "twiceAchMineyTree" ],
-[ [ "806140_83_16","806140_83_15","806140_83_14","776960_49_8","806140_83_13","806140_83_11","806140_83_10" ], "miscMiscMISC" ],
-[ [ "806140_87_3","818730_22_4","860910_26_6","860910_2_10","860910_53_12","806140_69_19","806140_77_1" ], "miscMiscMISC" ],
-[ [ "806140_89_15","806140_89_14","806140_89_13","745740_31_15","776960_68_10","745740_44_3","745740_44_2" ], "ACH=fromis new +3 || Reflex CatWTF hollyhenry7+6 || sos Allison" ],
-[ [ "818730_22_6","818730_22_4","806140_82_25","763680_2_0","806140_82_12","860910_63_19","776960_66_1" ], "miscWIthMineySmiley" ],
-[ [ "745740_12_0","745740_37_10","776960_15_7","745740_38_3","806140_68_22","860910_39_27","401190_40_3" ], "Mixed2=RefleX3RB_SosiMorgan_AchpWendy_HistorEARS_DinoHuntMadMan" ],
-[ [ "828960_5_15","828960_10_25","745740_26_10","745740_46_12","776960_60_18","776960_63_8","860910_46_31" ], "Bdriver,etc" ],
-[ [ "745740_46_15","745740_19_29","745740_19_27","745740_10_8","745740_48_25","860910_39_28","776960_36_10" ], "Reflex4Pale+Wolf+HentBlue+SosiPink" ],
-[ [ "776960_18_26","776960_18_24","776960_22_28","776960_16_28","776960_1_5","776960_5_23","776960_4_18" ], "Sos Pos 1" ],
-[ [ "776960_10_16","776960_18_25","776960_18_23","776960_6_4","776960_6_18","776960_16_5","776960_28_0" ], "Sos Pos 2" ],
-[ [ "776960_63_9","776960_63_7","776960_63_6","776960_58_11","776960_61_30","776960_61_29","776960_61_28" ], "SOS_SANA" ],
-[ [ "776960_54_24","776960_52_13","776960_52_5","844380_1_25","776960_40_20","776960_39_22","776960_12_30" ], "sosipieosIRLremainders+caveDigger" ],
-[ [ "776960_49_5","776960_49_4","776960_49_2","776960_42_5","776960_49_1","776960_49_0","776960_48_31" ], "sosIPieSos Weeb + rb Paw" ],
-[ [ "745740_46_12","745740_13_18","644560_1_14","1026820_2_10","745740_46_10","745740_31_28","745740_48_0" ], "reflex with mirror and coloring game middle" ],
-[ [ "745740_49_31","745740_49_30","745740_49_29","745740_10_7","745740_49_27","745740_44_5","745740_31_26" ], "Reflex_BBB_AnimalCat+Azn4+fay+iloveu" ],
-[ [ "828960_13_18","828960_13_17","828960_13_16","828960_13_14","828960_13_15","828960_13_13","828960_13_12" ], "blondeDriverColoredAnime" ],
-[ [ "828960_12_2","828960_12_1","828960_12_0","710780_25_20","828960_11_31","828960_11_30","828960_11_28" ], "blonde driver one dalejplotka | cat from skyjump" ],
-[ [ "710780_36_16","710780_36_18","818730_19_0","710780_37_10","710780_36_17","710780_36_15","710780_36_24" ], "skyjump + towerclimber BlonAzn" ],
-[ [ "710780_31_30","710780_31_23","710780_30_29","710780_37_26","710780_36_19","710780_35_25","818730_20_0" ], "skyjump + towerclimber aznr1" ],
-[ [ "710780_37_30","710780_32_5","710780_37_11","710780_32_9","710780_31_25","710780_36_14","776960_38_13" ], "skyjump + sosipieos Green" ],
-[ [ "1000550_1_8","1000550_1_7","1000550_1_6","1000550_1_5","1000550_1_4","1000550_1_3","1000550_1_2" ], "hacking Tests dat new game" ],
-[ [ "855320_1_9","855320_1_5","776960_75_16","860910_80_9","776960_74_31","860910_64_2","806140_90_5" ], "18floorsx2, sos, hannibal, sos, 3018+ach" ],
-[ [ "601980_2_23","601980_2_18","601980_2_22","776340_1_7","601980_2_21","601980_2_12","601980_2_10" ], "DeepFear 1 + Gayworld" ],
-[ [ "601980_2_17","601980_2_14","601980_2_20","776340_1_6","601980_2_19","601980_2_7","601980_2_11" ], "DeepFear 2 + Gayworld" ],
-[ [ "601980_2_9","601980_2_8","601980_2_16","776340_1_5","601980_2_15","601980_2_2","601980_2_4" ], "DeepFear 3 + Gayworld" ],
-[ [ "601980_2_3","601980_2_1","601980_2_13","776340_1_4","601980_2_0","601980_2_6","601980_2_5" ], "DeepFear 4 + Gayworld" ],
-[ [ "629280_58_19","629280_204_0","629280_15_24","525500_1_2","629280_217_27","629280_68_15","629280_227_0" ], "Run Away | Candy Kingdom" ] ],
-"emoticons_green_icons": [ ":alliedstar:",":em03:",":melon:",":GreenSphere:",":weed:",":clover:",":neutralgear:",":TrollGerka:",":alkat:",":wazapple:",":greenlightorb:",":GreenCube:",":PlanetYelaxot:",":zzacid:",":ZE3_Escape:",":g_heart:" ],
-"emoticons_red_icons": [ ":gore:",":ZE3_GameOver:",":bloodsplat:",":zzenergy:",":LightRedCube:",":redlightorb:",":redrose:",":Angrygerka:",":bloodgear:",":em05:" ],
-"symbols": [ "☻", "☼", "☎", "♫", "♡", "❀" ],
-"to_like_long": [ "get a kick out of", "be entertained", "are pleased by", "take pleasure in" ],
-"ascii_equalizer": [ "▇","▅","█","▅","▇","▂","▃","▁","▁","▅","▃","▅","▅","▄","▅","▇" ],
-"guide_rainbows": [
-  "ːfivecolorsː","ːthreecolorsː","ːtrippybatː",
-  "ːheartlessː","ːTheDonutsː","ːcrystalsː","ːeggː",
-  "ːPrainbowː","ːrainbowfartː","ːlollypopː","ːpcarsː",
-  "ːrighteyeː","ːgarfunkelː","ːrainbowː","ːThe_Ballː",
-  "ːcandyrainbowː","ːtisdestroyerː","ːtiselementsː","ːtisbombː",
-  "ːuno_Wildː","ːclownhairː","ːglasswindowː","ːshockedIroː" ],

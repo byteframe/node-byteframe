@@ -1,9 +1,3 @@
-//------------------------------------------------------------------------------ GameFavoriteMassAdd
-wishlist_index = -1;
-wishlist_timeout = 3000;
-(wishlister = () =>
-  http(A[0], 'https://store.steampowered.com/api/addtowishlist', { appid: d.game_favorite[++wishlist_index].match(/\d+/)[0] }, (b, r, x) =>
-    setTimeout(wishlister, wishlist_timeout), true ))()
 //------------------------------------------------------------------------------ FinalDumbWishlisters
 wishlister = (a, g = profile.game_favorite.selection[0].replace(/\/.*/, "")) =>
   http(a, 'https://store.steampowered.com/api/removefromwishlist', { appid: g }, (b, r, x) =>

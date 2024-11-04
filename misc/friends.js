@@ -1,3 +1,7 @@
+//------------------------------------------------------------------------------ CheckBotInvitesToMain
+bot_steamids = s.A.filter((e,i) => !e.limited && i != 0 && (i <= 95 || i == 133 || i > 201 || (i >=101 && i <= 120))).map(e => e.steamID) //these are the appids minus athf 143 (95+20+1+32) - 4 limited = 144!!!!
+bot_invites = Object.entries(A[0].u.myFriends).filter(e => e[1] == 2).map(e => e[0])
+bot_steamids.filter(e => !bot_invites.includes(e))
 //------------------------------------------------------------------------------ GatherShaAndCheckWorkshop
 following = s.A[0].following,
 following = Object.keys(A[0].u.myFriends).slice(1750),

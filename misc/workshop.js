@@ -15,35 +15,22 @@ finish_gif_guide = (g, file) => (
   s.completed_guides_files.push(file.replace(/.*\//,'')));
 [...Array(3).keys() ].map(e => ((E = pool(d.emojis_food, 1, null)) => E[0][0] + "_" + mix(d.chinese.split('')).join('').substr(0,1) + "--" + E[0][1] + "--" + mix(d.chinese.split('')).join('').substr(0,1) + "_" + E[0][0])()).join(' ')
 d.guide_upload = mix(w.readdirSync('./images/guide_gif_square/uploaded').map(e => e.match(/\d+/)[0]).filter(e => !d.guide_collector_upload_culls.includes(+e))),
-//------------------------------------------------------------------------------ Missing
-find_missing = (g) => (
-  Object.entries(s.collections).some(_e => _e[1].includes(""+e) && console.log('https://steamcommunity.com/sharedfiles/filedetails/?id=' + _e[0])),
-  pool_ugc(undefined, 'myworkshopfiles', 'favorites', 431960).includes(+e) && 'missing from favorite')
-(b.hasOwnProperty('success') && b.success == 1 && privacy != 1) &&
-  setTimeout(http, 30000, a, 'my', null, (b, r, x) => (
-    profile.game_collector.selection.concat(profile.game_collector2.selection).forEach((e, i) =>
-      (b.indexOf("app/" + e + '"') == -1) && log(a, 'WARNING | unknown #' + i + ': ' + ('https://steamcommunity.com/app/' + e).yellow)),
-    profile.guide_collector.selection.concat(profile.workshop_collector.selection).concat(profile.workshop_collector2.selection).forEach((e, i) =>
-      (b.indexOf('?id=' + e + '"') == -1) && (
-        !s.hasOwnProperty('missing') && ( s.missing = [] ),
-        !s.missing.includes(+e) && s.missing.push(+e),
-        s.verbose && log(a, 'WARNING | missing #' + i + ': ' + ('https://steamcommunity.com/sharedfiles/filedetails/?id=' + e).yellow)))))
 //------------------------------------------------------------------------------ UGCFill
 get_ugc(0, 'guides')
 get_ugc(0, 'guides', 'favorites')
-get_ugc(0, 'collections')
-get_ugc(0, 'collections', 'favorites')
-get_ugc(0, 'merchandise')
-get_ugc(0, 'merchandise', 'favorites')
+    get_ugc(0, 'collections')
+    get_ugc(0, 'collections', 'favorites')
+    get_ugc(0, 'merchandise')
+    get_ugc(0, 'merchandise', 'favorites')
 get_ugc(0, 'myworkshopfiles')
 get_ugc(0, 'myworkshopfiles', 'favorites')
 get_ugc(0, 'myworkshopfiles', 'subscriptions')
 get_ugc(0, 'videos')
 get_ugc(0, 'videos', 'favorites')
 get_ugc(0, 'images')
-get_ugc(0, 'images', 'favorites')
+    get_ugc(0, 'images', 'favorites')
 get_ugc(0, 'screenshots')
-get_ugc(0, 'screenshots', 'favorites')
+    get_ugc(0, 'screenshots', 'favorites')
 //------------------------------------------------------------------------------ GatherCollectionsAndDiscussions
 get_discussion_links('https://steamcommunity.com/groups/primarydataloop/discussions/0/1290691937724869711/')
 get_discussion_links('https://steamcommunity.com/groups/primarydataloop/discussions/0/4358997447065431365/')
@@ -51,64 +38,6 @@ get_discussion_links('https://steamcommunity.com/groups/primarydataloop/discussi
   3225283718,3225281845,3225270907,3225262336,3225255099,3225251492,3225242940,3225241409,3225240847,3225233553,
   3225221417,3225195601,3225192185,3225189211,3225183640,3225174519,3225154581,3225134161,3225069533 ].forEach((e,i) => setTimeout(() => // .forEach((e,i) => setTimeout(get_collection_items, 20000*i, e))
     http(A[0], 'sharedfiles/filedetails/discussions/' + e, null, (b, r, x) =>  get_discussion_links(b.match(/https:\/\/steamcommunity.com\/workshop\/filedetails\/discussion\/[0-9]+\/[0-9]+/)[0])), 5000*i, e))
-//------------------------------------------------------------------------------ OldWorkshopGather
-get_workshop_items = (a = A[0], p = 1, g = 0, type = 'favorites') =>
-  http(a, 'my/myworkshopfiles/?appid=' + g + '&browsefilter=my' + type + '&view=imagewall&p=' + p, null, (_b, r, x, b = Cheerio.load(_b), E = [...Array(b('div.itemContents').length).keys() ]) =>
-    (E.length > 0) && (
-      E.some((e, i, y, g = +b('div.itemContents .workshopItemPreviewHolderFloatLeft')[i].children[1].attribs.href.substr(55), m = b('div.itemContents .workshopItemApp')[i].children[0].data) => (
-        (!s.A[a.i][type].hasOwnProperty(m)) && (
-          s.A[a.i][type][m] = []),
-        (!s.A[a.i][type][m].includes(g) || s.A[a.i][type][m].slice(-20).includes(g)) ?
-          (!s.A[a.i][type][m].includes(g)) && (
-            s.A[a.i][type][m].push(g),
-            log(a, "SESSION | myworkshopfiles: " + (type.toUpperCase() + "/" + m + " - https://steamcommunity.com/sharedfiles/filedetails/?id=" + g).yellow),
-            false)
-        : true))
-      || setTimeout(get_workshop_items, 3000, a, p+1, g, type))),
-//------------------------------------------------------------------------------ PsyKittyUploadUGCPHP
-$json = json_decode( ExecuteRequest( 'https://api.steampowered.com/IPlayerService/GetOwnedGames/v1/?key=XXX&steamid=76561197971080714&include_appinfo=true&include_played_free_games=true&include_free_sub=true' ), true );
-foreach( $json['response']['games'] as $games )
-{
-  $ret = ExecuteRequest( 'https://steamcommunity.com/sharedfiles/edititem/767/3/' );
-  if( preg_match( '~<form class="smallForm" enctype="multipart/form-data" method="POST" name="SubmitItemForm" id="SubmitItemForm" action="(.*?)" >\r\n		<input type="hidden" name="redirect_uri" value="https://steamcommunity.com/sharedfiles/filedetails/" >\r\n		<input type="hidden" name="wg" value="(.*?)" >\r\n		<input type="hidden" name="wg_hmac" value="(.*?)" >\r\n		<input type="hidden" name="realm" value="1">\r\n		<input type="hidden" name="appid" value="767" >\r\n		<input type="hidden" name="consumer_app_id" value="767" id="ConsumerAppID">\r\n		<input type="hidden" name="sessionid" value="(.*?)" />\r\n		<input type="hidden" name="token" value="(.*?)" >~', $ret, $out ) )
-  {
-    $fields = array("redirect_uri"=>"https://steamcommunity.com/sharedfiles/filedetails/", "wg"=>$out[2], "wg_hmac" => $out[3], "realm" => 1, "appid" => 767, "consumer_app_id" => $games['appid'], "sessionid" => $sessionid, "token" => $out[5], "cloudfilenameprefix" => strtotime( 'now' ) . "_new_", "publishedfileid" => 0, "id" => 0, "file_type" => 3, "image_width" => 1005, "image_height" => 670, "title" => "liquid");
-    $filenames = array( __DIR__ . '/liquid.png' );
-    $files = array();
-    foreach ($filenames as $f){
-       $files[$f] = file_get_contents($f);
-    }
-    $boundary = uniqid();
-    $delimiter = '-------------' . $boundary;
-    $post_data = build_data_files($boundary, $fields, $files);
-    $parsedUrl = parse_url( $out[1] );
-    $port = ( string ) $parsedUrl['port'];
-    $req = ExecuteRequest( $out[1], $post_data, array( "Content-Type: multipart/form-data; boundary=" . $delimiter, "Content-Length: " . strlen($post_data) ), $port );
-    echo $req;
-  }
-}
-function build_data_files( $boundary, $fields, $files )
-{
-    $data = '';
-    $eol = "\r\n";
-    $delimiter = '-------------' . $boundary;
-    foreach( $fields as $name => $content )
-    {
-      $data .= "--" . $delimiter . $eol
-	    . 'Content-Disposition: form-data; name="' . $name . "\"".$eol.$eol
-	    . $content . $eol;
-    }
-    foreach( $files as $name => $content )
-    {
-	    $data .= "--" . $delimiter . $eol
-	    . 'Content-Disposition: form-data; name="file"; filename="liquid.png"' . $eol
-	    . 'Content-Type: image/png'.$eol;
-      $data .= $eol;
-      $data .= $content . $eol;
-    }
-    $data .= "--" . $delimiter . "--".$eol;
-    return $data;
-}
 //------------------------------------------------------------------------------ UploadAttempts
 cookie = {
   creation: "2023-12-28T20:33:19.851Z",
@@ -144,19 +73,8 @@ jq.src = "https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js";
 document.getElementsByTagName('head')[0].appendChild(jq);
 setTimeout(() => (
   jQuery.noConflict(),
-  jQuery(".profile_media_item").each((i, e) => console.log(e.href))), 1500)
+  jQuery(".profile_media_item").each((i, e) => console.log(e.href)),
   jQuery(".workshopItemCollection").each((i, e) => console.log(e.href))), 1500)
-//------------------------------------------------------------------------------ GetFavorites
-get_favorites = (a, p = 1) =>
-  http(a, '/my/myworkshopfiles/?browsefilter=myfavorites&p=' + p, null, (_b, r, x, b = Cheerio.load(_b)) =>
-    [...Array(b('div.itemContents').length).keys() ].some((e, i, y, g = b('div.itemContents .workshopItemPreviewHolderFloatLeft')[i].children[1].attribs.href.substr(55)) =>
-      (!s.favorites.hasOwnProperty(g)) ? (
-        log(a, "SESSION | myfavorite: https://steamcommunity.com/sharedfiles/filedetails/?id=" + g),
-        chat('https://steamcommunity.com/sharedfiles/filedetails/?id=' + g),
-        !(s.favorites[g] = {
-          name: b('div.itemContents .workshopItemTitle')[i].children[0].data,
-          game: b('div.itemContents .workshopItemApp')[i].children[0].data })) : true)
-    || setTimeout(get_favorites, 3000, a, p+1)),
 //------------------------------------------------------------------------------ SubscribeManual
 [XXX].forEach((index) =>
   ((appid = state.accounts[index].subscriptions.pop()) => (
@@ -272,60 +190,6 @@ get_video_details = (i = 0) =>
     });
   })();
 })();
-//------------------------------------------------------------------------------ YoutubeJQuery
-if (typeof jq === 'undefined') {
-  var jq = document.createElement('script');
-  jq.src = "https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js";
-  document.getElementsByTagName('head')[0].appendChild(jq);
-  setTimeout(function() {
-    loaded = 1;
-    jQuery.noConflict();
-    proceed();
-  }, 2000);
-} else {
-  proceed();
-}
-function proceed() {
-  var videos = jQuery('.vm-thumbnail-container a.yt-uix-sessionlink');
-  (function youtube_video(v = videos.length-1) {
-    if (v == -1) {
-      console.log('youtube_page(p-1);');
-    }
-    jQuery.get(videos[v].href).done(function(response) {
-      var title = jQuery(response).find('h1.title').innerText;
-      var description = jQuery(response).find('#description')[0].innerText.split('\n');
-      console.log(title + " | " + description[0] + " | " + description[2]);
-      youtube_video(v--);
-    });
-  })();
-}
-} else if (loaded == 0){
-    console.log('still loading');
-} else if (loaded == 1){
-  (function youtube_page(p = 19) {
-    if (p == -1) {
-      return true;
-    }
-    jQuery.get('https://www.youtube.com/my_videos?o=U&pi=' + p,
-    ).done(function(response) {
-      var videos = jQuery(response).find('.vm-thumbnail-container a.yt-uix-sessionlink');
-      (function youtube_video(v = videos.length-1) {
-        if (v == -1) {
-          youtube_page(p-1);
-        }
-        console.log(videos[v].href);
-        return 1;
-        jQuery.get(videos[v].href).done(function(response) {
-          var title = jQuery(response).find('h1.title')[0].innerText;
-          var description = jQuery(response).find('#description')[0].innerText.split('\n');
-          console.log(title);
-          console.log(description[0]);
-          console.log(description[2]);
-        });
-      })();
-    });
-  })();
-}
 //------------------------------------------------------------------------------ RemoteStorageApp
 (get_page = (p = 0) => {
   account.http_request('https://store.steampowered.com/account/remotestorageapp?appid=760&index=' + p*50, {}, (body, response, error) => {

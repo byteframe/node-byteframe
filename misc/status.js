@@ -42,10 +42,6 @@ post_status = (account, text, appid) =>
     : state.videos[random_video].text.replace('id/byteframe/recommended', 'app').replace('steamcommunity.com', 'store.steampowered.com').slice(1).split('"')[1]) + "\n"
   + pool(data.emoticons[12], 34) + "\n"
   + generate_emoticons(34)
-//------------------------------------------------------------------------------ PostStatusFunctional
-post_status = (account, text, appid) =>
-  http(account, "my/ajaxpostuserstatus", { status_text: (account.index == 0 ? text : emoticon_convert(text)), appid: appid }, (body, response, err) =>
-    log(account, 'SUCCESS | ajaxpostuserstatus: ' + ('https://steamcommunity.com/' + profile_url(account) + '/status/' + body.blotter_html.match(/userstatus_\d+_/)[0].slice(11, -1)).yellow)),
 //------------------------------------------------------------------------------
 running_video_post = false,
 run_status_poster = (account, date = new Date()) => {

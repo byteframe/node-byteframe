@@ -1,3 +1,85 @@
+//------------------------------------------------------------------------------ FindChannelID
+(find_channel_id = (E) =>
+  http(A[0], E[0], null, (b) => (
+    console.log(E[0] + ": " + b.match(/https:\/\/www\.youtube\.com\/channel\/[A-Za-z0-9-_]*/)[0]),
+    E.length > 1 &&
+      setTimeout(find_channel_id, 3000, E.slice(1)))))()
+//------------------------------------------------------------------------------ SteamEndpoints
+"https://steamcommunity.com/sharedfiles/ajaxgetyoutubedetails/IaPo5io-Gfw"
+"https://steamcommunity.com/sharedfiles/youtube/IaPo5io-Gfw/?autoplay=1"
+//------------------------------------------------------------------------------ ScrapeAllVideosAndCompare
+var jq = document.createElement('script'); 
+jq.src = "https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js";
+document.getElementsByTagName('head')[0].appendChild(jq);
+jQuery.noConflict();
+setInterval(() => (
+  jQuery('a#video-title').each((I, E) =>  console.dir("--" + E.text.trim())),
+  setTimeout(() => jQuery('#navigate-after')[0].click(), 1000)), 7500)
+ls -1 /mnt/d/Video/Youtube | while read FILE; do
+  FILE="${FILE%.*}"
+  if ! grep -q "${FILE}" /mnt/c/Users/byteframe/Desktop/output.log; then
+    echo ${FILE}
+  fi
+done
+cat /mnt/c/Users/byteframe/Desktop/output.log | while read FILE; do
+  if [ $(find /mnt/d/Video/Youtube -name "${FILE}.*" | wc -l) != '1' ]; then
+    echo ${FILE}
+  fi
+done
+//------------------------------------------------------------------------------ YoutubeJQuery
+if (typeof jq === 'undefined') {
+  var jq = document.createElement('script');
+  jq.src = "https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js";
+  document.getElementsByTagName('head')[0].appendChild(jq);
+  setTimeout(function() {
+    loaded = 1;
+    jQuery.noConflict();
+    proceed();
+  }, 2000);
+} else {
+  proceed();
+}
+function proceed() {
+  var videos = jQuery('.vm-thumbnail-container a.yt-uix-sessionlink');
+  (function youtube_video(v = videos.length-1) {
+    if (v == -1) {
+      console.log('youtube_page(p-1);');
+    }
+    jQuery.get(videos[v].href).done(function(response) {
+      var title = jQuery(response).find('h1.title').innerText;
+      var description = jQuery(response).find('#description')[0].innerText.split('\n');
+      console.log(title + " | " + description[0] + " | " + description[2]);
+      youtube_video(v--);
+    });
+  })();
+}
+} else if (loaded == 0){
+    console.log('still loading');
+} else if (loaded == 1){
+  (function youtube_page(p = 19) {
+    if (p == -1) {
+      return true;
+    }
+    jQuery.get('https://www.youtube.com/my_videos?o=U&pi=' + p,
+    ).done(function(response) {
+      var videos = jQuery(response).find('.vm-thumbnail-container a.yt-uix-sessionlink');
+      (function youtube_video(v = videos.length-1) {
+        if (v == -1) {
+          youtube_page(p-1);
+        }
+        console.log(videos[v].href);
+        return 1;
+        jQuery.get(videos[v].href).done(function(response) {
+          var title = jQuery(response).find('h1.title')[0].innerText;
+          var description = jQuery(response).find('#description')[0].innerText.split('\n');
+          console.log(title);
+          console.log(description[0]);
+          console.log(description[2]);
+        });
+      })();
+    });
+  })();
+}
 //------------------------------------------------------------------------------ youtube_player.html
 fs.writeFileSync('misc/youtube_player.html',`<!DOCTYPE html>
   <html>
@@ -24,30 +106,37 @@ fs.writeFileSync('misc/youtube_player.html',`<!DOCTYPE html>
       </script>
     </body>
   </html>`)
-//------------------------------------------------------------------------------ Tags
-"old_youtube_tags": [ 
-  "HTC","VIVE","VR","STEAM","OCULUS","RIFT","PSVR","VIRTUAL","REALITY","360","GAMING","AR","PC","LINUX","WINDOWS","VULCAN","OPENGL","D3D" ],
-"new_youtube_tags": [
-  "VALVEINDEX","HTCVIVE","VR","STEAMVR","OCULUSRIFT","PSVR","VIRTUALREALITY","360","GAMING","OCULUS","AR","PC","STEAM","VULCAN","OCULUSQUEST" ],
-//------------------------------------------------------------------------------ FindDuplicateKeysInState
-Object.keys(state.videos).length
-Object.keys(state.videos).forEach((video1) =>
-  Object.keys(state.videos).forEach((video2) =>
-    (state.videos[video1].link_url == state.videos[video2].link_url && video1 != video2) &&
-      console.log(state.videos[video1].title + "|" + video1 + "|" + video2)))
+//------------------------------------------------------------------------------ ListAllVideosWithAPIHalfWorking
+videos = [],
+(get_youtube_videos = (pageToken = null, publishedBefore = null, options = {
+    "auth": google_auth,
+    "channelId": 'UCDDJ2AawF4Z67glwPW6pNDg',
+    "part": [ 'snippet' ],
+    "maxResults": 50,
+    "order": 'date',
+    "type": 'video' } ) => (
+  pageToken && ( options.pageToken = pageToken ),
+  publishedBefore && ( console.log(publishedBefore), options.publishedBefore = publishedBefore ),
+  setTimeout(() =>
+    googleAPIsYoutube.search.list(options, (x, r) =>
+      (x) ? console.error(x)
+      :(videos = videos.concat(r.data.items.map(e => ({ "id": e.id.videoId, "title": e.snippet.title, "description": e.snippet.description }))),
+        console.dir(videos.slice(-50).map(e => e.title).join('\n')),
+        r.data.items.length ?
+          get_youtube_videos('', r.data.items.at(-1).snippet.publishTime) // duplicates the last one
+        : console.log('done'))), 3000)))() 
 //------------------------------------------------------------------------------ GeneratePlaylistBatchDownloader
-googleAPIsYoutube = google.youtube({ version: 'v3', google })
-googleAPIsYoutube.playlists.list({auth: google_auth, channelId: 'UCDDJ2AawF4Z67glwPW6pNDg', part: 'snippet', maxResults: 50}, (err, response) =>
-  (err) ?
-    console.error(err)
-  : (global.response = response, console.dir(response)))
-playlists = response.data.items,
+w.mkdirSync('playlists'),
+googleAPIsYoutube = google.youtube({ version: 'v3', google_auth }),
+googleAPIsYoutube.playlists.list({auth: google_auth, channelId: 'UCDDJ2AawF4Z67glwPW6pNDg', part: 'snippet', maxResults: 50}, (x, r) =>
+  (x) ?
+    console.error(x)
+  : ( playlists = response.data.items )),
 batch = '',
 response.data.items.forEach((item) =>
   batch += '"C:\\\\Program Files\\mpv-x86_64-20170913\\youtube-dl.exe" -J --flat-playlist https://www.youtube.com/playlist?list=' + item.id + ' > ' + item.snippet.title.replace(/ /g, '_') + ".json\n")
-fs.writeFileSync('playlists/get_playlists.bat', batch);
-fs.mkdirSync('playlists');
-//------------------------------------------------------------------------------ FindPlaylistedButMussingInState
+w.writeFileSync('playlists/get_playlists.bat', batch);
+//------------------------------------------------------------------------------ OldFindPlaylistedButMussingInState
 fs.readdirSync('playlists').forEach((playlist) => (
   console.log(playlist),
   JSON.parse(fs.readFileSync('playlists/' + playlist)).entries.forEach((entry) => (
@@ -58,21 +147,18 @@ fs.readdirSync('playlists').forEach((playlist) => (
     (!bfound) &&
       console.log(entry)))))
 //------------------------------------------------------------------------------ FindDuplicatesInPlaylists
-playlisted = [];
-fs.readdirSync('playlists').forEach((playlist, i) => (
-  JSON.parse(fs.readFileSync('playlists/' + playlist)).entries.forEach((entry) => (
-    playlisted.push(entry.url)))))
-array_duplicates(playlisted);
-console.log(playlisted.length);
+playlisted = [],
+w.readdirSync('playlists').forEach((playlist, i) => (
+  JSON.parse(w.readFileSync('playlists/' + playlist)).entries.forEach((entry) => (
+    playlisted.push(entry.title))))),
+duplicates(playlisted);
 //------------------------------------------------------------------------------ GenerateLinksForUnplaylisted
-uploaded = [];
-Object.keys(state.videos).forEach((video) =>
-  uploaded.push(state.videos[video].link_url.substr(32))),
 console.log(uploaded.length),
-html = '';
+uploaded.filter(e => !playlisted.includes(e)),
+html = '',
 uploaded.forEach((video) =>
   (playlisted.indexOf(video) == -1) &&
-    (html += ('<a href="https://www.youtube.com/watch?v=' + video + '">' + video +"</a>\n" )))
+    (html += ('<a href="https://www.youtube.com/watch?v=' + video + '">' + video +"</a>\n" ))),
 fs.writeFileSync('missing.html', html)
 //------------------------------------------------------------------------------ YoutubeBannerResearch
 function getChannel(auth) {

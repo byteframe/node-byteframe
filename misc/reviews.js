@@ -1,99 +1,3 @@
-//------------------------------------------------------------------------------ PriorCuration
-curate = (a = A[0], g, rating = s.A[a.i].reviews[g].rating, t = s.A[a.i].reviews[g].contents) =>
-  http(a, 'https://store.steampowered.com/curator/2751860-primarydataloop/admin/ajaxgetassociatedappslist/', null, (b) => (
-    (b.recommendations.length >= 1999) &&
-      http(a, 'https://store.steampowered.com/curator/2751860-primarydataloop/admin/ajaxdeletereview/', { appid: b.recommendations.pop().appid }),
-    http(a, "https://store.steampowered.com/curator/2751860-primarydataloop/admin/ajaxcreatereview/", { appid: g, recommendation_state: (!rating ? 1 : 0),
-      link_url: "https://steamcommunity.com/" + profile_url(a) + "/recommended/" + g,
-      blurb: (!t.includes('sharedfiles') && !t.includes('[table]')) ? t.substr(0,197).replace(/\[[/]*spoiler\]/g, '') + "..." : pool(responses, 1, null)[0]().replace(/-- .*/, '') }, () =>
-        log(a, 'SUCCESS | ajaxcreatereview: ' + ("https://store.steampowered.com/curator/2751860-primarydataloop/admin/reviews_manage #(" + g +")").yellow)))),        
-//------------------------------------------------------------------------------ UpdateReviewOnMinute
-(profile.review.last != '') &&
-  get_reviews(a, 0, true, profile.review.last),
-//------------------------------------------------------------------------------ Review2024
-post_review_2024 = (g, q = 14, items = mix([pool(d.items_review2_a[0]), pool(d.items_review2_a[1])]), m = "[h1]" + pool(d.emojis.flat()) + " " + fortune('all', 1, 55, 60) + " " + pool(d.emojis.flat()) + "[/h1][table][tr][td]" + items[0] + "[/td][td]" + emote(q).replace(/:/g, 'ː') + "\n" + emote(q).replace(/:/g, 'ː') + "[/td][td]" + items[1] + "[/td][/tr][/table]", a= A[0]) =>
-  http(a, 'https://store.steampowered.com/friends/recommendgame', {
-    appid: g, steamworksappid: g, comment: m, rated_up: true, is_public: true, language: 'english', received_compensation: 0, disable_comments: 0}, (b, r, e) => (
-      log(a, 'SESSION | recommendgame: https://steamcommunity.com/my/recommended/' + g),
-      profile.review = { moves: [], types: [ -1 ], slots: [ [ g ] ] },
-      get_reviews(a, 0, true, [ g ])))
-insert_emoji_review = (g, q = 1, _t = s.A[0].reviews[g].contents.replace('[td]ː', '[td]' + emote(q).replace(/:/g, 'ː') + 'ː'), t = _t.replace('ː[/td]', 'ː' + emote(q).replace(/:/g, 'ː') + "[/td]")) => (
-  log(A[0], "SUCCESS | userreviews/update(ing): " + ("https://steamcommunity.com/" + profile_url(A[0]) + "/recommended/" + g).yellow),
-  http(A[0], 'userreviews/update/' + s.A[0].reviews[g].id, { received_compensation: false, voted_up: true, review_text: t }, (b, r, x) => (
-    s.A[0].reviews[g].contents = t)));
-//------------------------------------------------------------------------------ Review2023
-insert_emojis = (text) => (
-  d.emojis.i = 0,
-  text.replace(/YYY/g, () => pool(pool(d.emojis, 1, null, false)[0])))
-generate_emoji_fortune = (size, file = 'all', text = fortune(file, 1, size, size).split(' ')) => (
-  [...Array(3).keys()].forEach((i) =>
-    text[(i+1)*(Math.floor((text.length+1)/4)-1)] += " YYY"),
-  insert_emojis("YYY " + text.join(' ') + " YYY"))
-post_review_sheet_2023 = (a, g, h1, h2, h3, _m = shuffle(d.links_steam),
-  m = (pool(d.emotes[6], 1) + ' ' +
-    _m[0] + ' ' + pool(d.emotes[8], 1) + ' ' +
-    _m[1] + ' ' + pool(d.emotes[2], 1) + ' ' +
-    _m[2] + ' ' + pool(d.emotes[4], 1) + ' ' +
-    _m[3] + ' ' + pool(d.emotes[3], 1) + ' ' +
-    _m[4] + ' ' + pool(d.emotes[11], 1) + ' ' +
-    _m[5] + ' ' + pool(d.emotes[9], 1) + ' ' +
-    _m[6] + ' ' + pool(d.emotes[5], 1) + ' ' +
-    _m[7]).replace(/:/g, 'ː') + " " + h1 + " [h1]" + fortune('all', 1, 55, 60).replace(/[\[\]]g/, '') + "[/h1][quote=" + generate_emoji_fortune(50, 'all') + "][table][tr][td]" + h3 + "[/td][td]" + pool(d.ascii_face) + "[/td][td][b]" + fortune('knowledge').replace(/\n/, "[/b]\n[i]") + "[/i][/td][/tr][/table][/quote] " + h2) =>
-  (links[0].includes(h1.match(/https:\/\/(www.)?youtu.+/)[0].slice(8).replace('www\.', '').replace('youtu.be/', '').replace('youtube.com/watch?v=', '').replace(/\?.*/, '').replace(/\&.*/, ''))) ? console.log(h1)
-  : (links[1].map((e) => e.match(/\d+/)[0]).includes(h2.match(/\d+/)[0]) || A[0].wishlist.concat(d.game_collector.flat()).concat(d.game_collector_dlc.flat()).includes(h2.match(/\d+/)[0])) ? console.log(h2)
-  : (links[2].includes(h3)) ? console.log(h3)
-  : http(a, 'https://store.steampowered.com/friends/recommendgame', {
-      appid: g, steamworksappid: g, comment: m, rated_up: true, is_public: true, language: 'english', received_compensation: 0, disable_comments: 0}, (b, r, e) => (
-        log(a, 'SESSION | recommendgame: https://steamcommunity.com/my/recommended/' + g),
-        get_reviews(a, 0, true, [ g ])))
-emoji_update_review = (a, g, q) =>
-  http(a, 'userreviews/update/' + s.A[a.i].reviews[g].id, { received_compensation: false, voted_up: true, review_text: s.A[a.i].reviews[g].contents.replace("[/td]", "[/td][td]" + [...Array(q).keys()].map((e) => pool(pool(d.emojis, 1, null)[0])).join('') + "\n" + [...Array(q).keys()].map((e) => pool(pool(d.emojis, 1, null)[0])).join('') + "[/td]"        ) }, (b, r, x) =>
-    log(a, "SUCCESS | userreviews/update: " + ("https://steamcommunity.com/" + profile_url(a) + "/recommended/" + g).yellow),
-    get_reviews(a, 0, true, [g]))
-//------------------------------------------------------------------------------ FixReviews
-fix_reviews_multi = () =>
-  Object.entries(s.A[0].reviews).some((e, i) => (
-    ((e[1].contents.includes("youtube.com") || e[1].contents.includes("youtu.be")) && !e[1].banned) && (
-      {
-        review_edit_m = e[1].contents.replace(/.*\[h1]/, '[h1]' + pool(d.emojis_bulk) + " ").replace(/\[\/h1]/, " " + pool(d.emojis_bulk) + '[/h1]'),
-        review_text: e[1].contents.replace(/id\/byteframe/g, "profiles/76561197961017729")
-      }
-      {
-        review_text: ((state.accounts[account.index].reviews[data.review[index]].contents.indexOf('[/h1]') == -1) ? state.accounts[account.index].reviews[data.review[index]].contents : state.accounts[account.index].reviews[data.review[index]].contents.substr(0, state.accounts[account.index].reviews[data.review[index]].contents.indexOf('[/h1]'))) + "[/h1][quote=" + generate_emoji_fortune(50, 'all') + "][table][tr][td]" + data.review_items[index].join('[/td][td]') + "[/td][/tr][/table][/quote]" }, (body, response, error) => (
-      }
-      {
-        review_text: Cheerio.load(body)('textarea')[0].children[0].data + " [h1]" + generate_fortune('all', 1, 55, 60)
-      }
-      {
-        review_edit_m_a = pool(pool(d.items_review, 1, null, false)[0]),
-        review_edit_m_b = pool(pool(d.items_review, 1, null, false)[0]),
-        review_edit_m_c = (review_edit_m_a.includes('#845870') || review_edit_m_b.includes('#845870')) ? 11 : 10,
-        review_edit_m = "https://www.youtube.com/watch?v=" + e[1].contents.match(/https:\/\/(www.)?youtu.+ \[h/)[0].slice(0,-3).slice(8).replace('www\.', '').replace('youtu.be/', '').replace('youtube.com/watch?v=', '').replace(/\?.*/, '').replace(/\&.*/, '') + " [h1]" + fortune('all', 1, 55, 60).replace(/[\[\]]g/, '') + "[/h1][table][tr][td]" + review_edit_m_a + "[/td][td]" + emote(review_edit_m_c).replace(/:/g, 'ː') + "\n" + emote(review_edit_m_c).replace(/:/g, 'ː') + "[/td][td]" + review_edit_m_b + "[/td][/tr][/table]",
-      }
-      log(A[0], "SUCCESS | userreviews/update(ing): " + ("https://steamcommunity.com/" + profile_url(A[0]) + "/recommended/" + e[0] + " (" + i + ")" + " #" + e[1].id).yellow),
-      http(A[0], 'userreviews/update/' + e[1].id, { received_compensation: false, voted_up: true, review_text: review_edit_m }, (b, r, x) => (
-        profile.review.slots[0].push(e[0]),
-        profile.review.types[0] = -1,
-        s.A[0].reviews[e[0]].contents = review_edit_m)),
-      true))),
-//------------------------------------------------------------------------------ StartupLinkGather
-links = [ [], [], [] ],
-Object.entries(s.A[0].reviews).forEach((e) =>
-  (!e[1].banned) && (
-    e[1].contents.includes('[h1]') ? profile.review.slots[0].push(+e[0])
-    : e[1].contents.includes('[table]') ? profile.review2.slots[0].push(+e[0])
-    : profile.gamesPlayed.slots[0].push(+e[0]))),
-profile.review.slots[0].forEach((e) => (
-  (s.A[0].reviews.hasOwnProperty(e)) && (
-    links[0].push(s.A[0].reviews[e].contents.match(/https:\/\/(www.)?youtu.+ \[h/)[0].slice(0,-3).slice(8).replace('www\.', '').replace('youtu.be/', '').replace('youtube.com/watch?v=', '').replace(/\?.*/, '').replace(/\&.*/, '')),
-    links[1].push(s.A[0].reviews[e].contents.match(/https:\/\/store.steampowered.com\/app\/[0-9]+/)[0])))),
-profile.review.slots[0].concat(profile.review2.slots[0]).forEach((e) => (
-  (s.A[0].reviews.hasOwnProperty(e)) && (
-    links[2] = links[2].concat(s.A[0].reviews[e].contents.match(/inventory\/#[0-9_]+/).map((e) => e.substr(11))))))
-//------------------------------------------------------------------------------ ReviewVoteUp
-http_request(a(i), 'https://steamcommunity.com/userreviews/rate/$REVIEWID', { rateup: true });
-//------------------------------------------------------------------------------ FollowCurator
-http_request(account, 'https://store.steampowered.com/curators/ajaxfollow', { 'clanid': 2751860 }), 3000*i)));
 //------------------------------------------------------------------------------ CuratorBulkBaseFills
 timers.forEach((timer) => clearTimeout(timer));
 timers = [];
@@ -121,30 +25,7 @@ shuffle_array(Object.keys(state.reviews)).forEach((r) =>
         link_url: link_url[0],
         recommendation_state: (!state.reviews[r].rating ? 1 : 0) }, (body, response, error) =>
           state.reviews[r].curated = true), 20000*++timing, r)));
-//------------------------------------------------------------------------------ sort reviews and print
-sorted_reviews = Object.entries(s.A[0].reviews).sort((e, _e) => _e[1].time - e[1].time).filter((__e) => (d.review_3507533.includes(+__e[0])))
-text = '';
-for (var i = 0; i < sorted_reviews.length; i++) {
-  if (i % 10 == 0) {
-    console.log(text);
-    text = '';
-  }
-  text += sorted_reviews[i] + ",";
-}
-//------------------------------------------------------------------------------ ReviewVisbilityTogglers
-(profile.review.hasOwnProperty('last') && profile.review.last.length > 0) && (
-  http(account, 'userreviews/update/' + state.accounts[account.index].reviews[profile.review.last[0]].id, { is_public: false }),
-  http(account, 'userreviews/update/' + state.accounts[account.index].reviews[profile.review_3507533.last[0]].id, { is_public: false })),
-(!err) && (
-  http(account, 'userreviews/update/' + state.accounts[account.index].reviews[profile.review.selection[0]].id, { is_public: true }),
-  http(account, 'userreviews/update/' + state.accounts[account.index].reviews[profile.review_3507533.selection[0]].id, { is_public: true })),
-(public_review = (e = 0) => (e < data.review.length) && http(accounts[0], 'userreviews/update/' + state.accounts[0].reviews[data.review[e]].id, { is_public: true }, () => setTimeout(public_review, 5000, e+1), true))()
-(public_review = (e = 0) => (e < data.review_3507533.length) && http(accounts[0], 'userreviews/update/' + state.accounts[0].reviews[data.review_3507533[e]].id, { is_public: true }, () => setTimeout(public_review, 5000, e+1), true))()
 //------------------------------------------------------------------------------ FirstGenerationCuration
-: (a % 64 == 0) && (
-  wishlister(accounts[0]),
-  curate_reviews(accounts[0]),
-  curate_videos(accounts[0])))))), state.frequency),
 curate = (account, appid, blurb, link_url, rating, store) => (
   blurb = blurb.substr(0,203),
   log(account, 'SESSION | curate: ' + (appid + " " + link_url).yellow),
@@ -195,7 +76,112 @@ curate_videos = (account, p = 1) =>
               votes: +body.match(/"VotesUpCount"\>[0-9]*/)[0].slice(15) },
             (!state.reviews[state.videos[file].appid] || !state.reviews[state.videos[file].appid].curated) &&
               curate(account, state.videos[file].appid, state.videos[file].text.substr(1, state.videos[file].text.indexOf('http')-2), state.videos[file].link_url, true, state.videos[file]), 
-            get_content_details(f-1))))()),
+            get_content_details(f-1))))())
+//------------------------------------------------------------------------------ EditReviewsProcedural
+review_edit_screenshot = (G = mix(profile.review.slots[0]).filter(e => !s.A[0].reviews[e].contents.includes('sharedfiles')), _t = pool(d.screenshot_collector2), t = s.A[0].reviews[G[0]].contents.replace("[table]", "https://steamcommunity.com/sharedfiles/filedetails/?id=" + _t + "[table]")) => (
+  G.length && ( console.log('https://steamcommunity.com/id/byteframe/recommended/' + G[0]), http(A[0], 'userreviews/update/' + s.A[0].reviews[G[0]].id, { received_compensation: false, voted_up: true, review_text: t }, (b, r, x) => (
+    log(A[0], "SUCCESS | userreviews/update: " + ("https://steamcommunity.com/" + profile_url(A[0]) + "/recommended/" + G[0] + " #" + G.length).yellow),
+    s.A[0].reviews[G[0]].contents = t))))
+review_edit_screenshot2 = (g = profile.review.selection[0]) =>
+  http(A[0], 'sharedfiles/mediaedittext', { id: s.review_screenshots[0], language: 0, description: messages[2][0](A[0].steamID, minute, 80)}, (b, r, x) =>
+    http(A[0], 'userreviews/update/' + s.A[0].reviews[g].id, { received_compensation: false, voted_up: true, review_text: s.A[0].reviews[g].contents + " https://steamcommunity.com/sharedfiles/filedetails/?id=" + s.review_screenshots[0] }, (b, r, x) =>
+      s.review_screenshots.unshift()))
+insert_link_review = (g = profile.review2.selection[0], ___t = s.A[0].reviews[g].contents + ' https://steamcommunity.com/tradeoffer/new/?partner=752001 ' + emote().replace(/:/g, 'ː') + " = [url=https://steamcommunity.com/sharedfiles/youtube/" + pool(s.discussions['1290691937724869711']) + '/?autoplay=1]' + pool(d.chinese.split(''), 6) + "[/url] ← " + pool(d.emotes[12], 4).replace(/:/g, 'ː'),
+  _t = pool(d.items_unowned, 1, null)[0],
+  q = _t[1].startsWith('BLACK') ? 11 : _t[2],
+  t = s.A[0].reviews[g].contents + ' [table][tr][td]https://steamcommunity.com/tradeoffer/new/?partner=89734501' + "[/td][td]" + _t[0] + "[/td][td]" + emote(q).replace(/:/g, 'ː')  + "\n" + emote(q).replace(/:/g, 'ː') + "[/td][/tr][/table]") =>
+  !s.A[0].reviews[g].contents.includes('tradeoffer') && (
+    log(A[0], "SUCCESS | userreviews/update(ing): " + ("https://steamcommunity.com/" + profile_url(A[0]) + "/recommended/" + g).yellow),
+    http(A[0], 'userreviews/update/' + s.A[0].reviews[g].id, { received_compensation: false, voted_up: true, review_text: t }, (b, r, x) => (
+      s.A[0].reviews[g].contents = t))),
+link_review_edits = profile.review2.slots[0].slice(0),
+link_review_edits_interval = setInterval(insert_link_review, 1800000, pool(link_review_edits))
+//------------------------------------------------------------------------------ Review2023
+insert_emojis = (text) => (
+  d.emojis.i = 0,
+  text.replace(/YYY/g, () => pool(pool(d.emojis, 1, null, false)[0])))
+generate_emoji_fortune = (size, file = 'all', text = fortune(file, 1, size, size).split(' ')) => (
+  [...Array(3).keys()].forEach((i) =>
+    text[(i+1)*(Math.floor((text.length+1)/4)-1)] += " YYY"),
+  insert_emojis("YYY " + text.join(' ') + " YYY"))
+post_review_sheet_2023 = (a, g, h1, h2, h3, _m = shuffle(d.links_steam),
+  m = (pool(d.emotes[6], 1) + ' ' +
+    _m[0] + ' ' + pool(d.emotes[8], 1) + ' ' +
+    _m[1] + ' ' + pool(d.emotes[2], 1) + ' ' +
+    _m[2] + ' ' + pool(d.emotes[4], 1) + ' ' +
+    _m[3] + ' ' + pool(d.emotes[3], 1) + ' ' +
+    _m[4] + ' ' + pool(d.emotes[11], 1) + ' ' +
+    _m[5] + ' ' + pool(d.emotes[9], 1) + ' ' +
+    _m[6] + ' ' + pool(d.emotes[5], 1) + ' ' +
+    _m[7]).replace(/:/g, 'ː') + " " + h1 + " [h1]" + fortune('all', 1, 55, 60).replace(/[\[\]]g/, '') + "[/h1][quote=" + generate_emoji_fortune(50, 'all') + "][table][tr][td]" + h3 + "[/td][td]" + pool(d.ascii_face) + "[/td][td][b]" + fortune('knowledge').replace(/\n/, "[/b]\n[i]") + "[/i][/td][/tr][/table][/quote] " + h2) =>
+  (links[0].includes(h1.match(/https:\/\/(www.)?youtu.+/)[0].slice(8).replace('www\.', '').replace('youtu.be/', '').replace('youtube.com/watch?v=', '').replace(/\?.*/, '').replace(/\&.*/, ''))) ? console.log(h1)
+  : (links[1].map((e) => e.match(/\d+/)[0]).includes(h2.match(/\d+/)[0]) || A[0].wishlist.concat(d.game_collector.flat()).concat(d.game_collector_dlc.flat()).includes(h2.match(/\d+/)[0])) ? console.log(h2)
+  : (links[2].includes(h3)) ? console.log(h3)
+  : http(a, 'https://store.steampowered.com/friends/recommendgame', {
+      appid: g, steamworksappid: g, comment: m, rated_up: true, is_public: true, language: 'english', received_compensation: 0, disable_comments: 0}, (b, r, e) => (
+        log(a, 'SESSION | recommendgame: https://steamcommunity.com/my/recommended/' + g),
+        get_reviews(a, 0, true, [ g ])))
+//------------------------------------------------------------------------------ FixReviews
+fix_reviews_multi = () =>
+  Object.entries(s.A[0].reviews).some((e, i) => (
+    ((e[1].contents.includes("youtube.com") || e[1].contents.includes("youtu.be")) && !e[1].banned) && (
+      {
+        review_edit_m = e[1].contents.replace(/.*\[h1]/, '[h1]' + pool(d.emojis_bulk) + " ").replace(/\[\/h1]/, " " + pool(d.emojis_bulk) + '[/h1]'),
+        review_text: e[1].contents.replace(/id\/byteframe/g, "profiles/76561197961017729")
+      }
+      {
+        review_text: ((state.accounts[account.index].reviews[data.review[index]].contents.indexOf('[/h1]') == -1) ? state.accounts[account.index].reviews[data.review[index]].contents : state.accounts[account.index].reviews[data.review[index]].contents.substr(0, state.accounts[account.index].reviews[data.review[index]].contents.indexOf('[/h1]'))) + "[/h1][quote=" + generate_emoji_fortune(50, 'all') + "][table][tr][td]" + data.review_items[index].join('[/td][td]') + "[/td][/tr][/table][/quote]" }, (body, response, error) => (
+      }
+      {
+        review_text: Cheerio.load(body)('textarea')[0].children[0].data + " [h1]" + generate_fortune('all', 1, 55, 60)
+      }
+      {
+        review_edit_m_a = pool(pool(d.items_review, 1, null, false)[0]),
+        review_edit_m_b = pool(pool(d.items_review, 1, null, false)[0]),
+        review_edit_m_c = (review_edit_m_a.includes('#845870') || review_edit_m_b.includes('#845870')) ? 11 : 10,
+        review_edit_m = "https://www.youtube.com/watch?v=" + e[1].contents.match(/https:\/\/(www.)?youtu.+ \[h/)[0].slice(0,-3).slice(8).replace('www\.', '').replace('youtu.be/', '').replace('youtube.com/watch?v=', '').replace(/\?.*/, '').replace(/\&.*/, '') + " [h1]" + fortune('all', 1, 55, 60).replace(/[\[\]]g/, '') + "[/h1][table][tr][td]" + review_edit_m_a + "[/td][td]" + emote(review_edit_m_c).replace(/:/g, 'ː') + "\n" + emote(review_edit_m_c).replace(/:/g, 'ː') + "[/td][td]" + review_edit_m_b + "[/td][/tr][/table]",
+      }
+      log(A[0], "SUCCESS | userreviews/update(ing): " + ("https://steamcommunity.com/" + profile_url(A[0]) + "/recommended/" + e[0] + " (" + i + ")" + " #" + e[1].id).yellow),
+      http(A[0], 'userreviews/update/' + e[1].id, { received_compensation: false, voted_up: true, review_text: review_edit_m }, (b, r, x) => (
+        profile.review.slots[0].push(e[0]),
+        profile.review.types[0] = -1,
+        s.A[0].reviews[e[0]].contents = review_edit_m)),
+      true))),
+//------------------------------------------------------------------------------ StartupLinkGather
+links = [ [], [], [] ],
+Object.entries(s.A[0].reviews).forEach((e) =>
+  (!e[1].banned) && (
+    e[1].contents.includes('[h1]') ? profile.review.slots[0].push(+e[0])
+    : e[1].contents.includes('[table]') ? profile.review2.slots[0].push(+e[0])
+    : profile.gamesPlayed.slots[0].push(+e[0]))),
+profile.review.slots[0].forEach((e) => (
+  (s.A[0].reviews.hasOwnProperty(e)) && (
+    links[0].push(s.A[0].reviews[e].contents.match(/https:\/\/(www.)?youtu.+ \[h/)[0].slice(0,-3).slice(8).replace('www\.', '').replace('youtu.be/', '').replace('youtube.com/watch?v=', '').replace(/\?.*/, '').replace(/\&.*/, '')),
+    links[1].push(s.A[0].reviews[e].contents.match(/https:\/\/store.steampowered.com\/app\/[0-9]+/)[0])))),
+profile.review.slots[0].concat(profile.review2.slots[0]).forEach((e) => (
+  (s.A[0].reviews.hasOwnProperty(e)) && (
+    links[2] = links[2].concat(s.A[0].reviews[e].contents.match(/inventory\/#[0-9_]+/).map((e) => e.substr(11))))))
+//------------------------------------------------------------------------------ ReviewVoteUp
+http_request(a(i), 'https://steamcommunity.com/userreviews/rate/$REVIEWID', { rateup: true });
+//------------------------------------------------------------------------------ sort reviews and print
+sorted_reviews = Object.entries(s.A[0].reviews).sort((e, _e) => _e[1].time - e[1].time).filter((__e) => (d.review_3507533.includes(+__e[0])))
+text = '';
+for (var i = 0; i < sorted_reviews.length; i++) {
+  if (i % 10 == 0) {
+    console.log(text);
+    text = '';
+  }
+  text += sorted_reviews[i] + ",";
+}
+//------------------------------------------------------------------------------ ReviewVisbilityTogglers
+(profile.review.hasOwnProperty('last') && profile.review.last.length > 0) && (
+  http(account, 'userreviews/update/' + state.accounts[account.index].reviews[profile.review.last[0]].id, { is_public: false }),
+  http(account, 'userreviews/update/' + state.accounts[account.index].reviews[profile.review_3507533.last[0]].id, { is_public: false })),
+(!err) && (
+  http(account, 'userreviews/update/' + state.accounts[account.index].reviews[profile.review.selection[0]].id, { is_public: true }),
+  http(account, 'userreviews/update/' + state.accounts[account.index].reviews[profile.review_3507533.selection[0]].id, { is_public: true })),
+(public_review = (e = 0) => (e < data.review.length) && http(accounts[0], 'userreviews/update/' + state.accounts[0].reviews[data.review[e]].id, { is_public: true }, () => setTimeout(public_review, 5000, e+1), true))()
+(public_review = (e = 0) => (e < data.review_3507533.length) && http(accounts[0], 'userreviews/update/' + state.accounts[0].reviews[data.review_3507533[e]].id, { is_public: true }, () => setTimeout(public_review, 5000, e+1), true))()
 //------------------------------------------------------------------------------ GenerateFavoriteSharedConfig
 sharedconfig.forEach((appid) => console.log("\"" + appid + "\"\n{\n\t\"hidden\"\t\t\"1\"" + (state.reviewed.indexOf(appid) > -1 ? "\n\t\"tags\"\n\t{\n\t\t\t\"0\"\t\t\"favorite\"\n\t}" : '') + "\n}"))
 //------------------------------------------------------------------------------ EditReviewsProcedural

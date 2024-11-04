@@ -1,4 +1,57 @@
+//------------------------------------------------------------------------------ GooglePhotos
+googleAPIsPhotos = require('googlephotos'),
+google_photos = new googleAPIsPhotos(google_auth.credentials.access_token),
+google_photos.albums.list().then((result) =>
+  ((total_count = +result.albums[0].mediaItemsCount + +result.albums[1].mediaItemsCount,
+    picture = Math.floor(Math.random() * total_count),
+    album = (picture > 19999 ? result.albums[0].id : result.albums[1].id) ) =>
+      google_photos.mediaItems.search(album).then((result) =>
+        global.result1 = result
+      );
+  )()
+//------------------------------------------------------------------------------ GoogleOAuth2
+scopes = [
+  "https://www.googleapis.com/auth/youtube.readonly",
+  "https://www.googleapis.com/auth/youtubepartner",
+  "https://www.googleapis.com/auth/youtube",
+  "https://www.googleapis.com/auth/gmail.readonly",
+  "https://www.googleapis.com/auth/youtube.upload",
+  "https://www.googleapis.com/auth/photoslibrary.readonly",
+  "https://www.googleapis.com/auth/drive.metadata.readonly",
+  "https://www.googleapis.com/auth/drive.file",
+  "https://www.googleapis.com/auth/drive.readonly"
+];
+google_auth.generateAuthUrl({ access_type: 'offline', scope: scopes.join(' ') });
+code = 'CODE_FROM_GOOGLE';
+google_auth.getToken(code, (err, token) => (err) ? console.error(err) : (console.log(token), state.google_token = token));
+//------------------------------------------------------------------------------ GenerateToken2023
+const readline = require('readline').createInterface({ input: process.stdin });
+fs = require('fs');
+s = JSON.parse(fs.readFileSync('state.json', 'utf8'));
+base64 = (data) => new Buffer(data).toString('base64');
+google = require('googleapis').google;
+(generate_auth_token = () => {
+  var token;
+  oAuth2Client = new google.auth.OAuth2(s.google_secret.client_id, s.google_secret.client_secret, 'http://localhost');
+  const authUrl = oAuth2Client.generateAuthUrl({
+    access_type: 'offline',
+    scope: [ 'https://www.googleapis.com/auth/gmail.readonly', 'https://www.googleapis.com/auth/youtube.readonly' ],
+  });
+  console.log('Authorize this app by visiting this url, then enter code:', authUrl);
+  readline.question('', (code) => {
+    readline.close();
+    oAuth2Client.getToken(code, (err, data) => {
+      token = data;
+      if (err) return console.error('Error retrieving access token', err);
+      oAuth2Client.setCredentials(token);
+      console.dir(token);
+    });
+  });
+})();
 //------------------------------------------------------------------------------ starters
+https://f-droid.org/en/packages/com.termux/
+https://f-droid.org/en/packages/com.termux.api/
+apt install termux-api
 pkg install screen nodejs
 npm install \
   colors \
@@ -25,6 +78,22 @@ check_achievements = (a = A[0], i = 0, q = 250, E = a.ownedapp.slice(i*q, i*q+q)
   : http(A[0], "https://api.steampowered.com/IPlayerService/GetAchievementsProgress/v1/", { access_token: A[0].access_token, steamid: A[0].steamID, appids: E }, (b, r, x) => (
       b.response.achievement_progress.filter(e => e.total > 0).forEach(e => s.A[a.i].achievements[e.appid] = (e)),
       setTimeout(check_achievements, (global.check_achievements_timeout || 10000), a, i+1, q))));
+//------------------------------------------------------------------------------ VDF/sharedconfig
+(process.platform === 'win32') ? (
+  dir_path = 'D:/',
+  steam_path = 'C:/Program Files (x86)/Steam/userdata/752001/')
+: (dir_path = '/mnt/Datavault',
+  steam_path = '.'),
+SimpleVDF = require('simple-vdf'),
+data.faker_apps = [],
+sharedconfig_vdf = SimpleVDF.parse(fs.readFileSync(steam_path + "/7/remote/sharedconfig.vdf", 'utf8')).UserLocalConfigStore.Software.Valve.Steam.Apps,
+Object.keys(sharedconfig_vdf).filter((appid) =>
+  (sharedconfig_vdf[+appid].hidden && sharedconfig_vdf[+appid].hidden == 1 && state.not_faking.indexOf(+appid) == -1) &&
+    data.faker_apps.push(+appid)),
+remove_appid = (appid, index = data.faker_apps.indexOf(appid)) =>
+  (index > -1) && (
+    state.not_faking.push(appid),
+    data.faker_apps.splice(index, 1)),
 //------------------------------------------------------------------------------ GenerateSamBatch
 generate_sam_batch = (batch = 'C:\ncd "C:\\Users\\byteframe\\Downloads\\SteamAchievementManager-7.0.25"', index = 0) => (
   Object.entries(s.A[0].achievements).filter(e=>e[1].percentage != 100).map(e => e[1].appid).forEach(e => (
