@@ -3,6 +3,7 @@
 // In some ways, yes.
 // Studying the pattern made Euclid conscious of itself. I had to... Before it died it spit out the number. That consciousness is the number?
 // No, Max. It's only a nasty bug.
+
 exec = require('child_process').exec,
 execSync = require('child_process').execSync,
 Colors = require('colors'),
