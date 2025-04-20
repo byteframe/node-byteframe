@@ -1,3 +1,9 @@
+//------------------------------------------------------------------------------ SimpleFixer
+fix_review = () =>
+  review_edits.length && (
+    review(review_edits.shift()),
+    fix_review_timer = setTimeout(fix_review, 360000))
+fix_review_timer = setTimeout(fix_review)
 //------------------------------------------------------------------------------ CuratorBulkBaseFills
 timers.forEach((timer) => clearTimeout(timer));
 timers = [];

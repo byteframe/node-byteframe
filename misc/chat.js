@@ -1,3 +1,25 @@
+//------------------------------------------------------------------------------ SendImageToChatDiff
+< SteamCommunity.prototype.sendImageToUser = function(userID, imageContentsBuffer, options, callback) {
+---
+> SteamCommunity.prototype.sendImageToChat = function(userID = '37338_110446724', imageContentsBuffer, options, callback) {
+9c9
+<       if (!userID) {
+>       /*if (!userID) {
+12c12
+<       }
+>       }*/
+14,16c14,18
+<       if (typeof userID == 'string') {
+<               userID = new SteamID(userID);
+<       }
+>       //if (typeof userID == 'string') {
+>       //      userID = new SteamID(userID);
+>       //}
+>   userID = userID.split('_');
+117c119,120
+<                                       friend_steamid: userID.getSteamID64(),
+>           chat_group_id: userID[0],
+>           chat_id: userID[1],
 //------------------------------------------------------------------------------ WorseGroupSpammer
 !s.disable_sending &&
   A[0].u.chat.getGroups((x,r) =>

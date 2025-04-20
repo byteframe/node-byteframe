@@ -15,22 +15,31 @@ finish_gif_guide = (g, file) => (
   s.completed_guides_files.push(file.replace(/.*\//,'')));
 [...Array(3).keys() ].map(e => ((E = pool(d.emojis_food, 1, null)) => E[0][0] + "_" + mix(d.chinese.split('')).join('').substr(0,1) + "--" + E[0][1] + "--" + mix(d.chinese.split('')).join('').substr(0,1) + "_" + E[0][0])()).join(' ')
 d.guide_upload = mix(w.readdirSync('./images/guide_gif_square/uploaded').map(e => e.match(/\d+/)[0]).filter(e => !d.guide_collector_upload_culls.includes(+e))),
+//------------------------------------------------------------------------------ ItemButtonClickers
+jQuery("[id^=favorite_]").each((i,e) => e.click())
+jQuery("div.subscribeOption.subscribeOptionAdd").each((i, e) => e.click())
+//------------------------------------------------------------------------------ SteamVideoEndpoints
+"https://steamcommunity.com/sharedfiles/ajaxgetyoutubedetails/IaPo5io-Gfw"
+"https://steamcommunity.com/sharedfiles/youtube/IaPo5io-Gfw/?autoplay=1"
+//------------------------------------------------------------------------------ CollectionM3UConcat
+w.readdir('m3u/', (x, r) =>
+  !x && write('m3u/collections.m3u', r.filter(e => e.endsWith('.m3u') && e != '1290691937724869711.m3u' && e != 'collections.m3u').map(e => w.readFileSync('m3u/' + e, 'utf8')).join('\n'))),
 //------------------------------------------------------------------------------ UGCFill
 get_ugc(0, 'guides')
 get_ugc(0, 'guides', 'favorites')
-    get_ugc(0, 'collections')
-    get_ugc(0, 'collections', 'favorites')
-    get_ugc(0, 'merchandise')
-    get_ugc(0, 'merchandise', 'favorites')
+get_ugc(0, 'collections')
+get_ugc(0, 'collections', 'favorites')
+get_ugc(0, 'merchandise')
+get_ugc(0, 'merchandise', 'favorites')
 get_ugc(0, 'myworkshopfiles')
 get_ugc(0, 'myworkshopfiles', 'favorites')
 get_ugc(0, 'myworkshopfiles', 'subscriptions')
 get_ugc(0, 'videos')
 get_ugc(0, 'videos', 'favorites')
 get_ugc(0, 'images')
-    get_ugc(0, 'images', 'favorites')
+get_ugc(0, 'images', 'favorites')
 get_ugc(0, 'screenshots')
-    get_ugc(0, 'screenshots', 'favorites')
+get_ugc(0, 'screenshots', 'favorites')
 //------------------------------------------------------------------------------ GatherCollectionsAndDiscussions
 get_discussion_links('https://steamcommunity.com/groups/primarydataloop/discussions/0/1290691937724869711/')
 get_discussion_links('https://steamcommunity.com/groups/primarydataloop/discussions/0/4358997447065431365/')
@@ -52,9 +61,9 @@ http(a, 'https://steamcommunity.com/id/byteframe/videos/add', {
   "app_assoc": 388390
 }, (b, r, x) => global.result = [b, r, x])
 A[0].c._setCookie(Request.cookie('youtube_authaccount=primarydataloop%20'));
-http_request(accounts[0], 'my/videos/', { videos: [ 'youtube_id' ], action: 'add', app_assoc: '250820' });
-account.http_request('my/videos/add', { action: "add", sessionid: account.community.sessionID, videos: [ "qQpxmGnzYa0" ], app_assoc: "602630", other_assoc: "" });
-accounts[0].http_request('/my/videos/add', {   "action": "add", "videos[]": "pQwRiDhikL4",  "app_assoc": "", "other_assoc": "byteframe" })
+http(accounts[0], 'my/videos/', { videos: [ 'youtube_id' ], action: 'add', app_assoc: '250820' });
+account.http('my/videos/add', { action: "add", sessionid: account.community.sessionID, videos: [ "qQpxmGnzYa0" ], app_assoc: "602630", other_assoc: "" });
+accounts[0].http('/my/videos/add', {   "action": "add", "videos[]": "pQwRiDhikL4",  "app_assoc": "", "other_assoc": "byteframe" })
 jQuery.post('https://steamcommunity.com/id/byteframe/videos/add', {
   "action": "add",
   "videos[]": "pQwRiDhikL4",
@@ -78,19 +87,19 @@ setTimeout(() => (
 //------------------------------------------------------------------------------ SubscribeManual
 [XXX].forEach((index) =>
   ((appid = state.accounts[index].subscriptions.pop()) => (
-    http_request(a(index), 'sharedfiles/voteup', { appid: 250820, id: appid }),
-    http_request(a(index), 'sharedfiles/subscribe', { appid: 250820, id: appid }),
-    http_request(a(index), 'sharedfiles/favorite', { appid: 250820, id: appid })))())
+    http(a(index), 'sharedfiles/voteup', { appid: 250820, id: appid }),
+    http(a(index), 'sharedfiles/subscribe', { appid: 250820, id: appid }),
+    http(a(index), 'sharedfiles/favorite', { appid: 250820, id: appid })))())
 state.accounts.forEach((account) => account.subscriptions.length > 0 && console.log(account.name + " " + account.subscriptions));
 //------------------------------------------------------------------------------ CheckContentFiles
 check_content_files = (account, content_files = {}, page = 1, base = 'my/videos', url = base + "/?p=" + page + '&privacy=8&sort=oldestfirst') =>
-  http_request(account, url, null, (body, response, err, files = body.match(/OnVideoClicked\( \d+/g)) =>
+  http(account, url, null, (body, response, err, files = body.match(/OnVideoClicked\( \d+/g)) =>
     (typeof files !== 'undefined' && !files.length) ?
       console_log('done: ' + content_files.length)
     : (get_content_details = (f = files.length-1) =>
       (f < 0 || content_files[files[f].substr(16)]) ?
         check_content_files(account, content_files, page+1, base)
-      : http_request(account, 'sharedfiles/filedetails/?id=' + files[f].substr(16), null, (body, response, err) => (
+      : http(account, 'sharedfiles/filedetails/?id=' + files[f].substr(16), null, (body, response, err) => (
           content_files[files[f].substr(16)] = [ body.match(/workshopItemTitle\"\>.+\</)[0].slice(19, -1)
             , Cheerio.load(body)('.nonScreenshotDescription').text().slice(1, -1)
             , body.match(/"appid" value="\d+"/)[0].slice(15, -1)
@@ -104,12 +113,12 @@ last_index = 0;
     last_index = n,
     (characters < 42) ? (
       person = pool(people, 1, null)[0],
-      http_request(accounts[0], 'sharedfiles/addcontributor/', { id: data.guides[n], steamid: person[0]}, (body, response, err) =>
+      http(accounts[0], 'sharedfiles/addcontributor/', { id: data.guides[n], steamid: person[0]}, (body, response, err) =>
         setTimeout(() => contribute(n, characters + person[1].length), 4444)))
     : contribute(n+1)))(last_index);
 //------------------------------------------------------------------------------ SetVisibility
 data.guide_favorite.concat(data.guide_favorite_showcase).forEach((guide_id) =>
-  setTimeout(() => http_request(accounts[0], 'sharedfiles/itemsetvisibility', { id: guide_id, visibility: 2}), n*1500))
+  setTimeout(() => http(accounts[0], 'sharedfiles/itemsetvisibility', { id: guide_id, visibility: 2}), n*1500))
 //------------------------------------------------------------------------------ RateAccordingly
 verbose = true;
 [...Array(69).keys()].forEach((i) =>
@@ -122,7 +131,7 @@ frequency = 2000;
 shuffle_array(new_guides),
 (rate_accordingly = (n = 0, id = new_guides[n]) =>
   (n < new_guides.length-1) &&
-    http_request(accounts[0], 'sharedfiles/filedetails/?id=' + id + '&preview=true', null, (body, response, error,
+    http(accounts[0], 'sharedfiles/filedetails/?id=' + id + '&preview=true', null, (body, response, error,
       ratings = +body.match(/\d* ratings/)[0].match(/\d*/)[0],
       action = (ratings > 69 ? 'down' : 'up'),
       ratings_needed = Math.abs(69 - ratings)) => (
@@ -132,7 +141,7 @@ shuffle_array(new_guides),
           rate_accordingly(n+1)
         :[...Array(69).keys()].some((i) =>
           (!a(i).limited && guide_votes[id].indexOf(a(i).index) == -1) ? (
-            http_request(a(i), 'sharedfiles/vote' + action + '?' + id , { "id": id , "appid": 0 }, (body, response, err) => (
+            http(a(i), 'sharedfiles/vote' + action + '?' + id , { "id": id , "appid": 0 }, (body, response, err) => (
               setTimeout((err) =>
                 (err) ?
                   rate(m)
@@ -147,14 +156,14 @@ smatter = [ 1780348952,1780350483,1780351096,1780351340,1780351371,1780351492,
 smatter.forEach((id, n) =>
   setTimeout((id) =>
     [...Array(Math.floor(Math.random()*(12-8)+8)).keys()].forEach((i) => (
-      http_request(a(i), 'sharedfiles/voteup', { "appid": 0, "id": id }),
-      http_request(a(i), 'sharedfiles/favorite', { "appid": 0, "id": id }))), 9999*n, id))
+      http(a(i), 'sharedfiles/voteup', { "appid": 0, "id": id }),
+      http(a(i), 'sharedfiles/favorite', { "appid": 0, "id": id }))), 9999*n, id))
 //------------------------------------------------------------------------------ GatherVideos1
 get_video_details = (i = 0) =>
   (i < temp_videos.length) &&
     (state.videos.hasOwnProperty(temp_videos[i])) ?
       get_video_details(++i)
-    : http_request(accounts[0], 'sharedfiles/filedetails/?id=' + temp_videos[i], null, (body, response, err) => (
+    : http(accounts[0], 'sharedfiles/filedetails/?id=' + temp_videos[i], null, (body, response, err) => (
       state.videos[temp_videos[i]] = [
         body.match(/workshopItemTitle\"\>.+\</)[0].slice(19, -1)
         , Cheerio.load(body)('.nonScreenshotDescription').text().slice(1, -1)
@@ -192,7 +201,7 @@ get_video_details = (i = 0) =>
 })();
 //------------------------------------------------------------------------------ RemoteStorageApp
 (get_page = (p = 0) => {
-  account.http_request('https://store.steampowered.com/account/remotestorageapp?appid=760&index=' + p*50, {}, (body, response, error) => {
+  account.http('https://store.steampowered.com/account/remotestorageapp?appid=760&index=' + p*50, {}, (body, response, error) => {
     if (err) {
       console.error('ERROR');
       return setTimeout(get_page, 5000, p);

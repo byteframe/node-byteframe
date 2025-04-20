@@ -1,3 +1,6 @@
+//------------------------------------------------------------------------------ CheckRecentAvatarSearch
+avatar_appids = d.avatars.concat(d.avatars2).concat(d.avatars3).map(e => e.replace(/_.*/, ''))
+Object.entries(s.avatar_search).filter(e => e[1] && !avatar_appids.includes(e[0])).map(e => "https://steamcommunity.com/games/" + e[0] + "/Avatar/List")
 //------------------------------------------------------------------------------ AddAppidToIdForJson
 E.map(e => e.map(e => e + " {" + A[0].inventory.backgrounds.find(_e => _e.id == e.substr(6)).market_fee_app + "}"))
 //------------------------------------------------------------------------------ MiscDupeChecking
@@ -69,7 +72,7 @@ checkDlcInterval = 8000;
   : check_app_if_dlc(i+1))();
 //------------------------------------------------------------------------------ print_achievement_page
 print_achievement_page = (account, appid = 710780, text = '<html><head><style>.td1 { background-color: white; font-weight: bold; } .td2 { background-color: #C1C1C1; font-weight: italic; } body { font-color: #123123; background-color: #333333; }</style></head><body>\n<table border="1">') =>
-  http(account, 'my/ajaxgetachievementsforgame/' + appid, {}, (body) => (
+  http(a, 'my/ajaxgetachievementsforgame/' + appid, {}, (body) => (
     Cheerio.load(body)('div.achievement_list_item').each((i, item) =>
       text += "\n  <tr>\n    <td><img src=\"" + item.children[1].attribs.src + "\" width=\"48\" length=\"48\"></td>\n"
         + '    <td class="td1">' + appid + '_' + item.attribs['data-statid'] + '_' + item.attribs['data-bit'] + '</td>\n'
@@ -83,63 +86,6 @@ sharedconfig = SimpleVDF.parse(fs.readFileSync("./sharedconfig.vdf", 'utf8')).Us
 sharedconfig = Object.keys(sharedconfig).filter((appid) =>
   sharedconfig[appid].hidden == 1 && !sharedconfig[appid].tags);
 other.concat(sharedconfig).forEach((appid) => { try { console.log("  \"https://steamdb.info/appid/"+appid+" -- "+accounts[0].user.picsCache.apps[appid].appinfo.common.name + (accounts[0].user.picsCache.apps[appid].appinfo.common.type == 'Demo' ? " *** DEMO ***" : "")) } catch (ex) { console.log('fail: ' + appid) } });
-//------------------------------------------------------------------------------ ReplicantSaleRoutine
-bedazzle = (m) =>
-  split_words([1,2].map(e=>
-    pool([
-      "","","","",
-      ((m = pool(d.ascii)) => m)(),
-      ((m = pool(d.emojis_people.flat(), 1)) => m)(),
-      ((m = pool(d.emojis_sexy.flat(), 1)) => m)() ])).join(" " + m + " ")).map(e => Math.random() < 0.25 ? font(e, rand(0,d.fonts.length-3)) : e).join(' ').trim(),
-emoticon_convert = (m, g = -1) =>
-  m = m.replace(/(:|ː)[0-9a-zA-Z_]+:/g, () => g == -1 ? pool(pool(d.emojis, 1, null, false)[0]) : pool(d.emojis[g])),
-sale = (i = 1, o = i, a = A[i], first = pool(d.first_female), last = pool(d.last_name), _country = pool([ 'US','CA','GB','US','CA','GB','DE','IT','FR','VG','VI','DK' ]), country = d.countries.find(e => e[0] == _country), state_index = Math.floor(Math.random()*country[1].length), hr = pool([ [ '[h1]', '[/h1]' ], [ '[h2]', '[/h2]' ], [ '[h3]', '[/h3]' ], [ '\n','\n' ], [ '\n','\n' ], [ '\n','\n' ], [ '\n','\n' ], [ '\n','\n' ], [ '\n','\n' ], [ '\n','\n' ], [ '\n','\n' ] ], 2, null)) =>
-  i <= o && logon(a, '', () => (
-    setTimeout((i, o) => ( logout(A[i]), sale(++i, o) ), 60000, i, o),
-    Object.entries(a.u.myFriends).filter(e => e[1] == 2 || e[1] == 4).forEach(e => a.u[e[1] == 2 ? 'addFriend' : 'removeFriend'](e[0])),
-    Object.keys(a.u.myGroups).includes('103582791462974104') && a.c.leaveGroup('103582791462974104'),
-    mix(Object.keys(A[0].u.myGroups).filter(e => !a.u.myGroups.hasOwnProperty(e))).slice(0,4).forEach(e => a.c.joinGroup(e)),
-    a.chats.find(e => e[0] == '10276749') || a.u.chat.joinGroup(10276749),
-    a.chats.filter(e => e[0] != '10276749').forEach(e => a.u.chat.leaveGroup(e[0])),
-    a.u.setPersona(1),
-    !a.limited && (
-      a.c.clearPersonaNameHistory(x => (
-        x && log(a, 'FAILURE | clearPersonaNameHistory: ' + x.message.yellow),
-        http(a, 'actions/selectPreviousAvatar', { sha: pool(d.avatar_sha), json: 1 })
-        a.inventory.backgrounds.length && http(a, 'https://api.steampowered.com/IPlayerService/SetProfileBackground/v1', { access_token: a.access_token, communityitemid: +pool(a.inventory.backgrounds, 1, null)[0].id }),
-        http(a, 'https://api.steampowered.com/IPlayerService/SetProfileTheme/v1', { access_token: a.access_token, theme_id: pool(['','Summer','Midnight','Steel','Cosmic','DarkMode' ]) }),
-        ((g = pool(a.badges, 1, null)[0]) => ( http(a, 'https://api.steampowered.com/IPlayerService/SetFavoriteBadge/v1', { access_token: a.access_token, badgeid: g.badgeid, communityitemid: g.communityitemid } )))()
-        a.edit_1 = "&type=profileSave&json=1&hide_profile_awards=0&weblink_1_title=&weblink_1_url=&weblink_2_title=&weblink_2_url=&weblink_3_title=&weblink_3_url=" +
-          "&customURL=" + ((profile_url(a).startsWith('id/byte') || profile_url(a).startsWith('profiles/')) ? mix([ pool([ () => pool(d.pickups), () => fortune('love'), () => fortune('men-women') ], 1, null)[0]().replace(/(\w)(\w*)/g, (g0, g1, g2) => g1.toUpperCase() + g2.toLowerCase()).replace(/[^a-zA-Z0-9\ ]+/g, '').split(' ').reduce((e, _e) => e.length < 22 ? e +_e : e), ""+a.i]).join('') : profile_url(a).slice(3)) +
-          "&personaName=" + ((Math.random() < 0.25 ? pool(d.words_sexy.filter(e => !e.startsWith('Sex'))) : '') + " " + bedazzle(first)).trim() +
-          "&real_name=" + bedazzle(first + " " + pool(['', last])) +
-          "&summary=" + emoticon_convert(mix([
-            pool([ "", "", "", jitter(), messages[1][2](), "[i]" + fortune('men-women', 1, 1,75) + "[/i]", "[b]" + fortune('love', 1, 1,75) + "[/b]", pool_discussion_links(rand(1,3)) + " ", fortune('jokes', 1, 1), jitter() ]),
-            ((i = +(""+a.i).slice(-1)) =>
-              i == 0 ? messages[0][3]()
-            : i == 1 ? messages[0][5]()
-            : i == 2 ? messages[0][44]()
-            : i == 3 ? messages[2][0]()
-            : i == 4 ? messages[0][29]()
-            : i == 5 ? "[h1]" + messages[1][5]() + "[/h1]"
-            : i == 6 ? "[b]" + messages[1][0]() + "[/b]"
-            : i == 7 ? bedazzle(fortune('men-women', 1, 150,300).replace(/ -- .*?/, '')) + hr[0][1] + " " + hr[1][0] + bedazzle(fortune('love', 1, 150,300).replace(/ -- .*?/, ''))
-            : i == 8 ? messages[0][33]() 
-            : fortune('people', 1, 75).replace(/\s+--.*/, ''))() ], 1, null).join('\n') + (Math.random() < 0.25 ? "\n\n" + text_art('anime') : (Math.random() < 0.5 ? messages[2][2](a.steamID, new Date(), [ rand(1,2), rand(8,16)  ]) : '')), rand(0,3)).trim() +
-          "&country=" + country[0],
-        country[1].length && (
-          a.edit_1 += "&state=" + country[1][state_index][0],
-          country[1][state_index][1].length  && Math.random() < 0.5 && (
-            a.edit_1 += "&city=" + country[1][state_index][1][Math.floor(Math.random()*country[1][state_index][1].length)] )),
-        http(a, 'my/edit', a.edit_1),
-        a.level > 9 && d.workshop_favorite_long[a.i].length == 5 &&
-          setTimeout(http, 50000, a, 'my/edit', "&type=showcases&json=1&profile_showcase_style_5_0=1&rgShowcaseConfig[24_0][0][replay_year]=2022" + "&profile_showcase%5B%5D=" + '12' + "&profile_showcase_purchaseid%5B%5D=0" +
-            d.workshop_favorite_long[a.i].map((e, i) => "&rgShowcaseConfig%5B12_0%5D%5B" + i + "%5D%5Bappid%5D=0&rgShowcaseConfig%5B12_0%5D%5B" + i + "%5D%5Bpublishedfileid%5D=" + e)))),
-      setTimeout(a => http(a, 'my/edit', { type: 'favoriteclan', primary_group_steamid: mix(Object.keys(a.u.myGroups).filter(e => A[0].u.myGroups[e] && !d.group_favorite.includes(e)))[0] }), 40000, a),
-      claim(a),
-      wish(a),
-      discover(a, true),
-      s.A[a.i].privacy != 3 && http(a, 'my/ajaxsetprivacy', { eCommentPermission: 1, Privacy: JSON.stringify({ "PrivacyProfile": 3, "PrivacyInventory": 3, "PrivacyInventoryGifts": 3, "PrivacyOwnedGames": 3, "PrivacyPlaytime": 3, "PrivacyFriendsList": 3 })}, (b, r, x) => ( s.A[a.i].privacy = 3 ), false, 'POST', true))))
 //------------------------------------------------------------------------------ GroupFormPriorToWikipedia
 { "abbreviation": "pdl-stm",
   "country": "PS",
@@ -274,8 +220,6 @@ generate_emoticons = (length, text = '', delimiter = '', indexes = [ 2,3,4,5,6,7
   pool(indexes, length, null).forEach((index) =>
     text += pool(d.emotes[index]) + delimiter),
   text), 
-edit_text = (account, publishedfileid, title, description = '') =>
-  http(account, 'sharedfiles/itemedittext?' + publishedfileid, { id: publishedfileid, language: 0, title: title, description: description }),
 emoticon_convert = (m) => (
   m = m.replace(/ː/g, ':').replace(/:[0-9a-zA-Z_]+:/g, () => pool(pool(d.emojis, 1, null)[0])),
   d.emojis.index = 0,
@@ -390,47 +334,6 @@ summary_text.slots[0][0] = (summary_text = '') => (
 information_text.slots[0][0] = () => comment_message_bot(8000),
 information_title.slots[0][0] = () => artwork_selection_text()
 accounts[a].user.gamesPlayed(generate_game_title()), true)))))()))
-//------------------------------------------------------------------------------ OGGAvatars
-http(a, 'https://steamcommunity.com/games/' + profile.game_favorite.selection[0] + '/Avatar/List', null, (b, r, x) =>
-  (b.includes('<h2>Avatars</h2>')) && console.log('https://steamcommunity.com/games/' + profile.game_favorite.selection[0] + '/Avatar/List')),
-http(a, 'https://steamcommunity.com/games/' + profile.game_favorite2.selection[0] + '/Avatar/List', null, (b, r, x) =>
-  (b.includes('<h2>Avatars</h2>')) && console.log('https://steamcommunity.com/games/' + profile.game_favorite2.selection[0] + '/Avatar/List')), 
-var array = avatars.pool
-  , found = {}
-  , new_avatars = [];
-(find_avatar_url = (index = 0) => {
-  if (index == array.length) {
-    return console.log('done');
-  }
-  if (array[index][0] in found) {
-    new_avatars.push([found[''+array[index][0]], array[index][1]]);
-    console.log('found: ' + array[index][0] + "/" + array[index][1]);
-    find_avatar_url(index+1);
-  } else {
-    jQuery.get('//steamcommunity.com/ogg/' + array[index][0] + '/Avatar/List'
-    ).fail(function() {
-      console.log('FAIL, request_avatar_url: ' + avatar[0]);
-      setTimeout(find_avatar_url, 3000, index);
-    }).done(function(data) {
-      var url = '';
-      try {
-        url = jQuery(data).find('p.returnLink a')[0].href.substr(33);
-      } catch (e) {
-        console.log(e);
-        return setTimeout(find_avatar_url, 3000, index);
-      }
-      found[''+array[index][0]] = url;
-      new_avatars.push([url, array[index][1]]);
-      console.log('new: ' + url + "/" + array[index][1]);
-      setTimeout(find_avatar_url, 3000, index+1);
-    });
-  }
-})();
-avatar = pool_elements(avatars, 1, null)[0];
-http('ogg/' + avatar[0] + '/Avatar/List', {}, (body, response, err) => {
-  http(Cheerio.load(body)('p.returnLink a')[0].attribs.href + '/selectAvatar', { selectedAvatar: avatar[1] });
-});
-http('https://steamcommunity.com/games/' + avatar[0] + '/selectAvatar', { selectedAvatar: avatar[1] });
 //------------------------------------------------------------------------------ Countries
 alter_showcase(countries, (i, element) => {
   var state_index = Math.floor(Math.random()*element[1].length);
@@ -765,3 +668,39 @@ gamesPlayed: { shuffle_slots: [], shuffle_types: [ 0 ], slots: [ [
         + pool(d.emojis[0]) + " " + pool(d.emojis[1]) + " "
         + pool(d.emojis[2])), 2000),
       setTimeout(() => account.user.setPersona(1), 3000)) ) ] ] } }
+//------------------------------------------------------------------------------ ImageMagick
+im = require('imagemagick'),
+generate_collection_background = (g = pool(w.readdirSync("./images/collections/")), width = 16, height = 9, date = Date.now(), index = 2, prefix = "") =>
+  [...Array(height).keys() ].forEach(i =>
+    im.convert([ ...mix(w.readdirSync("./images/collections/" + g)).slice(0, width).map(e => "./images/collections/" + g + "/" + e + "[" + index + "]"), '-resize', '120x120', '+append', 'im_out-' + date + "_" + g + "_" + i + ".jpg" ], (x, stdout, stderr) =>
+      x ? log(A[0], 'FAILURE | im_convert_a: ' + (x).yellow)
+      : (i == height-1) &&
+        setTimeout(() => im.convert([ ...w.readdirSync('.').filter(e => e.startsWith('im_out-' + date + "_" + g)), "-append", prefix + g + "_" + date + ".jpg" ], (x, stdout, stderr) =>
+          x ? log(A[0], 'FAILURE | im_convert_b: ' + (x).yellow) : (
+            setTimeout(() => w.readdirSync(".").forEach(e => e.startsWith('im_out-' + date + "_" + g) && w.unlinkSync(e)), 15000),
+            log(A[0], 'SUCCESS | generate_collection_background: ' + ('https://steamcommunity.com/sharedfiles/filedetails/?id=' + g).yellow))), 10000))),
+IM_Banner = () =>
+  im_combine(['+append', '-adaptive-resize', 'x100' ], select_screenshots(21), './im_out-1.jpg', (err, stdout) =>
+    im_combine(['+append', '-adaptive-resize', 'x100' ], select_screenshots(21), './im_out-2.jpg', (err, stdout) =>
+      im_combine(['+append', '-adaptive-resize', 'x100' ], select_screenshots(21), './im_out-3.jpg', (err, stdout) =>
+        im_combine(['+append', '-adaptive-resize', 'x100' ], select_screenshots(21), './im_out-4.jpg', (err, stdout) =>
+          im_combine(['+append', '-adaptive-resize', 'x100' ], select_screenshots(21), './im_out-5.jpg', (err, stdout) =>
+            im_combine(['+append', '-adaptive-resize', 'x100' ], select_screenshots(21), './im_out-6.jpg', (err, stdout) =>
+              im_combine(['+append', '-adaptive-resize', 'x100' ], select_screenshots(21), './im_out-7.jpg', (err, stdout) =>
+                im_combine(['+append', '-adaptive-resize', 'x100' ], select_screenshots(21), './im_out-8.jpg', (err, stdout) =>
+                  im_combine(['+append', '-adaptive-resize', 'x100' ], select_screenshots(21), './im_out-9.jpg', (err, stdout) =>
+                    im_combine(['+append', '-adaptive-resize', 'x100' ], select_screenshots(21), './im_out-10.jpg', (err, stdout) =>
+                      im_combine(['+append', '-adaptive-resize', 'x100' ], select_screenshots(21), './im_out-11.jpg', (err, stdout) =>
+                        im_combine(['+append', '-adaptive-resize', 'x100' ], select_screenshots(21), './im_out-12.jpg', (err, stdout) =>
+                          im_combine([ '-append' ], [ './im_out-1.jpg', './im_out-2.jpg' ], 'im_out-a.jpg', (err, stdout) =>
+                            im_combine([ '-append' ], [ './im_out-a.jpg', './im_out-3.jpg' ], 'im_out-b.jpg', (err, stdout) =>
+                              im_combine([ '-append' ], [ './im_out-b.jpg', './im_out-4.jpg' ], 'im_out-c.jpg', (err, stdout) =>
+                                im_combine([ '-append' ], [ './im_out-c.jpg', './im_out-5.jpg' ], 'im_out-d.jpg', (err, stdout) =>
+                                  im_combine([ '-append' ], [ './im_out-d.jpg', './im_out-6.jpg' ], 'im_out-e.jpg', (err, stdout) =>
+                                    im_combine([ '-append' ], [ './im_out-e.jpg', './im_out-7.jpg' ], 'im_out-f.jpg', (err, stdout) =>
+                                      im_combine([ '-append' ], [ './im_out-f.jpg', './im_out-8.jpg' ], 'im_out-g.jpg', (err, stdout) =>
+                                        im_combine([ '-append' ], [ './im_out-g.jpg', './im_out-9.jpg' ], 'im_out-h.jpg', (err, stdout) =>
+                                          im_combine([ '-append' ], [ './im_out-h.jpg', './im_out-10.jpg' ], 'im_out-i.jpg', (err, stdout) =>
+                                            im_combine([ '-append' ], [ './im_out-i.jpg', './im_out-11.jpg' ], 'im_out-j.jpg', (err, stdout) =>
+                                              im_combine([ '-append' ], [ './im_out-j.jpg', './im_out-12.jpg' ], 'im_out-youtube.jpg', (err, stdout) => console.log('done'))))))))))))))))))))))))
+                                              

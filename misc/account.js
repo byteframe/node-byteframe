@@ -1,83 +1,45 @@
-//------------------------------------------------------------------------------ GooglePhotos
-googleAPIsPhotos = require('googlephotos'),
-google_photos = new googleAPIsPhotos(google_auth.credentials.access_token),
-google_photos.albums.list().then((result) =>
-  ((total_count = +result.albums[0].mediaItemsCount + +result.albums[1].mediaItemsCount,
-    picture = Math.floor(Math.random() * total_count),
-    album = (picture > 19999 ? result.albums[0].id : result.albums[1].id) ) =>
-      google_photos.mediaItems.search(album).then((result) =>
-        global.result1 = result
-      );
-  )()
-//------------------------------------------------------------------------------ GoogleOAuth2
-scopes = [
-  "https://www.googleapis.com/auth/youtube.readonly",
-  "https://www.googleapis.com/auth/youtubepartner",
-  "https://www.googleapis.com/auth/youtube",
-  "https://www.googleapis.com/auth/gmail.readonly",
-  "https://www.googleapis.com/auth/youtube.upload",
-  "https://www.googleapis.com/auth/photoslibrary.readonly",
-  "https://www.googleapis.com/auth/drive.metadata.readonly",
-  "https://www.googleapis.com/auth/drive.file",
-  "https://www.googleapis.com/auth/drive.readonly"
-];
-google_auth.generateAuthUrl({ access_type: 'offline', scope: scopes.join(' ') });
-code = 'CODE_FROM_GOOGLE';
-google_auth.getToken(code, (err, token) => (err) ? console.error(err) : (console.log(token), state.google_token = token));
-//------------------------------------------------------------------------------ GenerateToken2023
-const readline = require('readline').createInterface({ input: process.stdin });
-fs = require('fs');
-s = JSON.parse(fs.readFileSync('state.json', 'utf8'));
-base64 = (data) => new Buffer(data).toString('base64');
-google = require('googleapis').google;
-(generate_auth_token = () => {
-  var token;
-  oAuth2Client = new google.auth.OAuth2(s.google_secret.client_id, s.google_secret.client_secret, 'http://localhost');
-  const authUrl = oAuth2Client.generateAuthUrl({
-    access_type: 'offline',
-    scope: [ 'https://www.googleapis.com/auth/gmail.readonly', 'https://www.googleapis.com/auth/youtube.readonly' ],
-  });
-  console.log('Authorize this app by visiting this url, then enter code:', authUrl);
-  readline.question('', (code) => {
-    readline.close();
-    oAuth2Client.getToken(code, (err, data) => {
-      token = data;
-      if (err) return console.error('Error retrieving access token', err);
-      oAuth2Client.setCredentials(token);
-      console.dir(token);
-    });
-  });
-})();
-//------------------------------------------------------------------------------ starters
+//------------------------------------------------------------------------------ JQueryLoad
+var jq = document.createElement('script');
+jq.src = "https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js";
+document.getElementsByTagName('head')[0].appendChild(jq);
+setTimeout(function() {
+  loaded = 1;
+  jQuery.noConflict();
+  proceed();
+}, 2000);
+//------------------------------------------------------------------------------ starter
+ps aux | grep -q [s]shd || sshd
+if ps aux | grep -q [b]yteframe.js; then
+  echo "ERROR: node-byteframe already running!"
+else
+  cd node-byteframe
+  node --inspect=$(ip -4 addr show wlan0 | grep -oP '(?<=inet\s)\d+(\.\d+){3}'):9229 byteframe.js
+fi
+//------------------------------------------------------------------------------ installation
 https://f-droid.org/en/packages/com.termux/
 https://f-droid.org/en/packages/com.termux.api/
+termux-change-repo
 apt install termux-api
-pkg install screen nodejs
-npm install \
-  colors \
+pkg install graphicsmagick
+pkg install screen
+pkg install nodejs
+npm install colors \
   steam-user \
+  steam-session \
   steamcommunity \
+  steamstore \
+  steam-tradeoffer-manager \
   weather-js \
   cheerio \
   mispell \
-  image-size \
-  imagemagick \
-  steam-tradeoffer-manager \
+  image-size@1.2.1 \
+  gm \
   wikipedia \
   giphy \
   adventurejs \
   figlet \
   googleapis \
   rivescript@1.19.0
-cd ~/node-byteframe ; screen -dmS node-byteframe node --inspect=192.168.50.102:9229 byteframe.js
-//------------------------------------------------------------------------------ check_achievements
-check_achievements = (a = A[0], i = 0, q = 250, E = a.ownedapp.slice(i*q, i*q+q)) => (
-  !s.A[a.i].achievements && ( s.A[a.i].achievements = {} ),
-  !E.length ?
-    console.log('done')
-  : http(A[0], "https://api.steampowered.com/IPlayerService/GetAchievementsProgress/v1/", { access_token: A[0].access_token, steamid: A[0].steamID, appids: E }, (b, r, x) => (
-      b.response.achievement_progress.filter(e => e.total > 0).forEach(e => s.A[a.i].achievements[e.appid] = (e)),
-      setTimeout(check_achievements, (global.check_achievements_timeout || 10000), a, i+1, q))));
 //------------------------------------------------------------------------------ VDF/sharedconfig
 (process.platform === 'win32') ? (
   dir_path = 'D:/',
@@ -94,17 +56,6 @@ remove_appid = (appid, index = data.faker_apps.indexOf(appid)) =>
   (index > -1) && (
     state.not_faking.push(appid),
     data.faker_apps.splice(index, 1)),
-//------------------------------------------------------------------------------ GenerateSamBatch
-generate_sam_batch = (batch = 'C:\ncd "C:\\Users\\byteframe\\Downloads\\SteamAchievementManager-7.0.25"', index = 0) => (
-  Object.entries(s.A[0].achievements).filter(e=>e[1].percentage != 100).map(e => e[1].appid).forEach(e => (
-    (index !== 0 && index % 20 == 0) &&
-      ( batch += '\ntimeout /t 30000' ),
-    batch += '\nstart SAM.Game.exe ' + e,
-    index++)),
-  console.log(batch));
-//------------------------------------------------------------------------------ Quitting
-(quitting > 0 && --quitting < 1) && setTimeout(process.exit, 3000, 0)),
-http(A[0], 'https://steamcommunity.com/actions/selectPreviousAvatar', { json: 1, sha: 'db02ac5a0970af2a79cd08d07e4f1a20b4e76133' }),
 //------------------------------------------------------------------------------ NodeCustomRequests
 finish_request_haiku = (response) => {
   return Cheerio.load(response)("strong").text().replace(
@@ -604,50 +555,6 @@ jQuery(document).keyup(function(event) {
     });
   }
 });
-//------------------------------------------------------------------------------ Zadey
-((user, community) => (
-  user.logOn({ accountName: 'USERNAME', password: 'PASSWORD' }),
-  user.on('loggedOn', () => user.setPersona(SteamUser.Steam.EPersonaState.Online)),
-  user.on('webSession', (sessionID, cookies) => {
-    community.sessionID = sessionID;
-    community.setCookies(cookies);
-    (user.started) ?
-      console.log('restarted connection')
-    : (target = (t = 0, targets = [
-      [ '76561197961017729', 'byteframe', 3],
-      [ '76561198117362085', 'Zadey', 6]
-    ]) =>
-      (t == targets.length) ?
-        process.exit(0)
-      : (comment = (c = 0, comments = [
-        'I think',
-        'you should',
-        'have five',
-        'differant',
-        'hearts',
-        '*** HAPPY NEW YEAR, $NAME, you dumb motherstuffer! ***'
-      ]) =>
-        (c == comments.length || targets[t][2] == 0) ?
-          target(t+1)
-        : setTimeout(() =>
-          community.postUserComment(targets[t][0],
-            ((targets[t][2] > 1 && c < comments.length-1)
-              ? comments[c] : comments[comments.length-1].replace('$NAME', targets[t][1]))
-          , (err) => {
-            if (err){
-              if (err.message == 'The settings on this account do not allow you to add comments.') {
-                target(t+1)
-              }
-              console.error(err.message);
-              return comment(c);
-            }
-            console.log(`comment: ${c+1}, target: ${t+1}/${targets.length}`);
-            targets[t][2]--;
-            comment(c+1);
-          }), 30000);
-      )();
-    )()
-  })))(new require('steam-user'), new require('steamcommunity'));
 //------------------------------------------------------------------------------ N4ZAvatars
 if (typeof process.argv[2] == 'undefined') {
   console.log('username not supplied');
@@ -718,6 +625,61 @@ account.user.on('loggedOn', (details, parental) => {
     group_avatar_changer(index+1);
   }, (60-new Date().getSeconds())*1000);
 })(avatars.length);
+//------------------------------------------------------------------------------ GooglePhotos
+googleAPIsPhotos = require('googlephotos'),
+google_photos = new googleAPIsPhotos(google_auth.credentials.access_token),
+google_photos.albums.list().then((result) =>
+  ((total_count = +result.albums[0].mediaItemsCount + +result.albums[1].mediaItemsCount,
+    picture = Math.floor(Math.random() * total_count),
+    album = (picture > 19999 ? result.albums[0].id : result.albums[1].id) ) =>
+      google_photos.mediaItems.search(album).then((result) =>
+        global.result1 = result
+      );
+  )()
+//------------------------------------------------------------------------------ Zadey
+((user, community) => (
+  user.logOn({ accountName: 'USERNAME', password: 'PASSWORD' }),
+  user.on('loggedOn', () => user.setPersona(SteamUser.Steam.EPersonaState.Online)),
+  user.on('webSession', (sessionID, cookies) => {
+    community.sessionID = sessionID;
+    community.setCookies(cookies);
+    (user.started) ?
+      console.log('restarted connection')
+    : (target = (t = 0, targets = [
+      [ '76561197961017729', 'byteframe', 3],
+      [ '76561198117362085', 'Zadey', 6]
+    ]) =>
+      (t == targets.length) ?
+        process.exit(0)
+      : (comment = (c = 0, comments = [
+        'I think',
+        'you should',
+        'have five',
+        'differant',
+        'hearts',
+        '*** HAPPY NEW YEAR, $NAME, you dumb motherstuffer! ***'
+      ]) =>
+        (c == comments.length || targets[t][2] == 0) ?
+          target(t+1)
+        : setTimeout(() =>
+          community.postUserComment(targets[t][0],
+            ((targets[t][2] > 1 && c < comments.length-1)
+              ? comments[c] : comments[comments.length-1].replace('$NAME', targets[t][1]))
+          , (err) => {
+            if (err){
+              if (err.message == 'The settings on this account do not allow you to add comments.') {
+                target(t+1)
+              }
+              console.error(err.message);
+              return comment(c);
+            }
+            console.log(`comment: ${c+1}, target: ${t+1}/${targets.length}`);
+            targets[t][2]--;
+            comment(c+1);
+          }), 30000);
+      )();
+    )()
+  })))(new require('steam-user'), new require('steamcommunity'));
 //------------------------------------------------------------------------------ SimonI
 if (process.argv.length < 3) {
   console.error('username not supplied!');
