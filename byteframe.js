@@ -1,4 +1,4 @@
-// Certain programs cause computers to get stuck in a particular loop. The loop leads to meltdown but just before the crash, they become aware of their own structure. The computer has a sense of its own silicon nature and it prints out the ingredients.
+// Certain programs cause computers to get stuck in a particular loop. The loop leads to meltdown but just before the crash, they become aware of their own structure. The computer... has a sense of its own silicon nature and it prints out the ingredients.
 // The computer becomes conscious?
 // In some ways, yes.
 // Studying the pattern made Euclid conscious of itself. I had to... Before it died it spit out the number. That consciousness is the number?
@@ -566,7 +566,7 @@ group_avatar = (a = A[0], f = (s.A[a.i].group || '103582791432273268'), g = "./i
       "avatar": { "value": r, "options": { "filename": 'avatar.jpg', "contentType": 'image/jpeg' }, "MAX_FILE_SIZE": r.length }}, null, false, 'POST', true)),
 clear_name_history = (a = A[0]) =>
   http(a, 'profiles/' + a.steamID + '/ajaxclearaliashistory/', {}, null),
-profile_privacy = (privacy = s.privacy || 2, a = A[0]) =>
+profile_privacy = (privacy = s.hasOwnProperty('privacy') ? s.privacy : 2, a = A[0]) =>
   http(a, 'profiles/' + a.steamID + '/ajaxsetprivacy', { eCommentPermission: !a.i ? 2 : 1, Privacy: JSON.stringify({"PrivacyProfile": Math.max(1, privacy), "PrivacyInventory": 3, "PrivacyInventoryGifts": 3, "PrivacyOwnedGames": Math.max(1, privacy), "PrivacyPlaytime": a.i ? 3 : 2, "PrivacyFriendsList": 3 })}, (b, r, x) => (
     log(a, 'SUCCESS | ajaxsetprivacy: ' + ("*" + s.A[a.i].privacy + " >> " + privacy + "*").yellow),
     privacy == 0 &&

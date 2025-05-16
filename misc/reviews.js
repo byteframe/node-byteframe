@@ -1,3 +1,8 @@
+//------------------------------------------------------------------------------ DeleteReviews
+delete_reviews = (G = profile.review.slots[0].concat(profile.review2.slots[0])) => 
+  G.length && (
+    http(A[0], 'my/recommended', { action: "delete", appid: G[0] }),
+    setTimeout(delete_reviews, 8008, G.slice(1)))
 //------------------------------------------------------------------------------ SimpleFixer
 fix_review = () =>
   review_edits.length && (

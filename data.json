@@ -1,5 +1,5 @@
 {
-  "TODO": "Edit2CallbackOverhaul | GoogleToken > YoutubeOverhaul > AdjustDiscussions | ActionQueueRater",
+  "TODO": "SubscriptionCollectionAdjustments | Edit2CallbackOverhaul | GoogleToken > YoutubeOverhaul > AdjustDiscussions | ActionQueueRater",
   "image_dirs": [
     [ "./images", "\\.gif$" ],
     [ "/mnt/d/Image/Internet" ],
