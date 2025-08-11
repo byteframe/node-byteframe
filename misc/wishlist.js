@@ -1,3 +1,5 @@
+//------------------------------------------------------------------------------ JQueryClearWishlist
+setInterval($ => $('.nK8lTB5HZ5o-').click(), 500, $)
 //------------------------------------------------------------------------------ FinalDumbWishlisters
 wishlister = (a, g = profile.game_favorite.selection[0].replace(/\/.*/, "")) =>
   http(a, 'https://store.steampowered.com/api/removefromwishlist', { appid: g }, (b, r, x) =>

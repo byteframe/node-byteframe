@@ -1,3 +1,31 @@
+//------------------------------------------------------------------------------ ScreenshotsForUnowned
+w.readdirSync('/mnt/c/Program Files (x86)/Steam/userdata/752001/760/remote').filter(e => !Object.keys(A[0].u.picsCache.apps).includes(e)).map(e => 'https://steamdb.info/app/' + e)
+//------------------------------------------------------------------------------ DemoSubAdder
+(demo_add = (G = demos) =>
+  G.length && (
+    A[0].store.addFreeLicense(G[0]),
+    setTimeout(demo_add, 30000, G.slice(1))))()
+//------------------------------------------------------------------------------ RemoveGameCode
+demoSubsToRemove2 = mix(demoSubsToRemove).filter(e => A[0].u.picsCache.packages.hasOwnProperty(e)),
+removeSubTimeout = 90000,
+removeSub = (G = demoSubsToRemove2) =>
+  G.length ? (
+    console.log('https://steamdb.info/sub/' + G[0] + " -- " + G.length + " -- " + A[0].u.picsCache.packages[G[0]]),
+    http(A[0], 'https://help.steampowered.com/en/wizard/AjaxDoPackageRemove', { packageid: G[0], wizard_ajax: 1, gamepad: 0, appid: A[0].u.picsCache.packages[G[0]].packageinfo.appids[0] }),
+    setTimeout(removeSub, removeSubTimeout, G.slice(1)))
+  : console.log('done')
+removeSubJquery = (G = mix(demoSubsToRemove3)) =>
+  G.length ? (
+    jQuery.post('https://store.steampowered.com/account/removelicense', {
+        jQuery.post('https://help.steampowered.com/en/wizard/AjaxDoPackageRemove', {
+      sessionid: g_sessionID,
+      packageid: G[0][0],
+          appid: G[0][1],
+          wizard_ajax: 1,
+          gamepad: 0
+    }),
+    setTimeout(removeSubJquery, removeSubTimeout, G.slice(1)))
+  : console.log('done');
 //------------------------------------------------------------------------------ JQueryLoad
 var jq = document.createElement('script');
 jq.src = "https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js";

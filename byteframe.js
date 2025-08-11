@@ -1153,7 +1153,7 @@ get_store = (a = A[0], z = null) =>
     z != null && z()), false, 'GET'),
 account_info = a => ("https://steamcommunity.com/" + profile_url(a) + " \"" + a.u.accountInfo.name + "\"" + " | @" + a.u.accountInfo.country + ",#" + a.u.accountInfo.flags + " fw=" + a.following.length + ",lvl=" + a.level).yellow,
 A = s.A.map((a, i) =>
-  ({ u: new SteamUser({ dataDirectory: null, autoRelogin: true, enablePicsCache: false }), session: new SteamSession.LoginSession(1), c: new SteamCommunity(), trade: new SteamTradeOfferManager(), store: new SteamStore(), i: i, steamID: a.steamID, limited: a.limited, new_friends: [], blotter: [], avatar_sha: [ [ '', 0 ] ], last_group_chat: [ 37338, 143271 ] })),
+  ({ u: new SteamUser({ dataDirectory: null, autoRelogin: true, enablePicsCache: true }), session: new SteamSession.LoginSession(1), c: new SteamCommunity(), trade: new SteamTradeOfferManager(), store: new SteamStore(), i: i, steamID: a.steamID, limited: a.limited, new_friends: [], blotter: [], avatar_sha: [ [ '', 0 ] ], last_group_chat: [ 37338, 143271 ] })),
 A.forEach((a, i) => (
   a.tf2 = new TeamFortress2(a.u),
   a.tf2.on('accountUpdate', e => log(a, 'SESSION | accountUpdate: ' + Object.entries(e))),
@@ -1178,8 +1178,10 @@ A.forEach((a, i) => (
   a.c.on('sessionExpired', x => (
     log(a, 'FAILURE | sessionExpired: ' + x),
     a.u.webLogOn())),
-  a.u.on('error', x =>
-    log(a, 'FAILURE | error: ' + x.message.yellow)),
+  a.u.on('error', x => (
+    x.message == 'Expired' &&
+      delete s.A[a.i].refreshToken,
+    log(a, 'FAILURE | error: ' + x.message.yellow))),
   a.u.on('accountLimitations', (limited, communityBanned, locked, canInviteFriends) =>
     (limited || communityBanned || locked) && (
       a.limited = true,

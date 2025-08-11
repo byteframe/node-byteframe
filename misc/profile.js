@@ -1,3 +1,9 @@
+//------------------------------------------------------------------------------ byteframe13Finale
+a.edit_2 = "&type=showcases&json=1&profile_showcase_style_5_0=1&rgShowcaseConfig[24_0][0][replay_year]=2022",
+a.edit_2 += "&profile_showcase%5B%5D=11&profile_showcase_purchaseid%5B%5D=0",
+a.edit_2 += "&rgShowcaseConfig%5B11_0%5D%5B0%5D%5Bappid%5D=0&rgShowcaseConfig%5B11_0%5D%5B0%5D%5Bpublishedfileid%5D=3482263834"
+http(a, 'my/edit', a.edit_2)
+A[0].c.uploadAvatar("/mnt/d/Work/node-byteframe/images/avatar.jpg")
 //------------------------------------------------------------------------------ CheckRecentAvatarSearch
 avatar_appids = d.avatars.concat(d.avatars2).concat(d.avatars3).map(e => e.replace(/_.*/, ''))
 Object.entries(s.avatar_search).filter(e => e[1] && !avatar_appids.includes(e[0])).map(e => "https://steamcommunity.com/games/" + e[0] + "/Avatar/List")

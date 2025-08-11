@@ -1,5 +1,11 @@
+//------------------------------------------------------------------------------ HideReviews
+hide_review = (G = Object.entries(s.A[0].reviews).filter(e => e[1].visibility)) =>
+  G.length && (
+    console.log(G.length),
+    review_privacy(G[0][0], false, A[0]),
+    setTimeout(hide_review, 3000, G.slice(1)))
 //------------------------------------------------------------------------------ DeleteReviews
-delete_reviews = (G = profile.review.slots[0].concat(profile.review2.slots[0])) => 
+delete_reviews = (G = profile.review.slots[0].concat(profile.review2.slots[0])) =>
   G.length && (
     http(A[0], 'my/recommended', { action: "delete", appid: G[0] }),
     setTimeout(delete_reviews, 8008, G.slice(1)))
