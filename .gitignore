@@ -1,3 +1,4 @@
 /state*
 /share/*
 /images
+/tampermonkey/_state.js
