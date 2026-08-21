@@ -2,3 +2,4 @@
 /share/*
 /images
 /tampermonkey/_state.js
+/misc/fill.js

@@ -147,27 +147,32 @@ print_item_sheet = (E, a = A[0], g = "./html/temp.out") => (
           "<a href=\"https://www.steamcardexchange.net/index.php?gamepage-appid-" + e.market_fee_app + "\"><small><i>" + e.market_fee_app + "</i></small></a></td>").join("") +
       "</tr>").join('\n') +
     "\n</table>\n</div>\n</body>")),
-initialize_profile = (check = false, print = false) => (
+initialize_data = (check = false, print = false) => (
   d = JSON.parse(w.readFileSync('./data.json', 'utf8')),
   d.images = {},
   d.image_dirs.forEach(_e =>
-    w.existsSync(_e[0]) &&
-      w.readdir(_e[0], { recursive: true }, (x, E) => 
-        d.images[_e[0]] = E.filter(e => e.match(!_e[1] ? /\.(gif|jpg|png)/gi : new RegExp(_e[1], 'gi'))).map(e => _e[0] + "/" + e))),
+    w.existsSync(_e[0]) && (
+      d.images[_e[0]] = w.readdirSync(_e[0], { recursive: true }).filter(e => e.match(!_e[1] ? /\.(gif|jpg|png)/gi : new RegExp(_e[1], 'gi'))).map(e => _e[0] + "/" + e))),
   d.images.all = Object.values(d.images).flat(),
   w.readdir('./images/group', (x, r) => d.avatar_group_files = r),
+  w.mkdirSync('images/avatar_sha', { recursive: true }),
   w.readdir('./images/avatar_sha', (x, r) => d.avatar_sha_files = r),
   d.emoticons_array = d.items_emoticons_array1.concat(d.items_emoticons_array2),
   d.mandelas = d.mandelas1.concat(d.mandelas2),
-  d.game_egc = d.games_egc1.concat(d.games_egc2),
   d.collection_names = Object.values(s.collections).map(e => e.name.toLowerCase()),
-  workshop_collector_favorite = 
-    s.ugc[A[0].steamID][1181120].myworkshopfiles.favorites.concat(
-    s.ugc[A[0].steamID][431960].myworkshopfiles.subscriptions).concat(
-    s.ugc[A[0].steamID][821880].myworkshopfiles.favorites).concat(
-    s.ugc[A[0].steamID][431960].myworkshopfiles.favorites).concat(
-    s.ugc[A[0].steamID][740810].myworkshopfiles.subscriptions),
-  workshop_collector_fullsize = [...Array(2).keys()].map(e => (q = 1, j = '') => pool(workshop_collector_favorite, q, j)).concat(Object.entries(s.collections).map(e => eval("(q = 1, j = '') => pool(s.collections[" + e[0] + "].ids, q, j)"))),
+  d.films = w.readdirSync('/mnt/d/Video/Movie'),
+  d.shows = w.readdirSync('/mnt/d/Video/Television'),
+  d.music = w.readdirSync('/mnt/d/Audio').filter(e => !e.match(/(Game|Soundtrack|Speech)/)),
+  d.screenshot_memes = pool_ugc(undefined, 'screenshots', 'files', 440).concat(pool_ugc(undefined, 'screenshots', 'files', 300)).concat(pool_ugc(undefined, 'screenshots', 'files', 240)),
+  d.screenshots_cats = s.ugc[A[0].steamID][0].images.files
+    .filter(e => !d.artwork.includes(e) && !d.artwork2.includes(e) && !d.artwork_collector[0].includes(e) && !d.artwork_collector[1].includes(e) && !d.artwork_collector[2].includes(e) && !d.artwork_collector[3].includes(e)),
+  d.workshop_collector_favorite = pool_ugc(A[96].steamID, 'myworkshopfiles','subscriptions'),
+  d.workshop_collector_fullsize = [...Array(2).keys()].map(e => (q = 1, j = '') => pool(d.workshop_collector_favorite, q, j)).concat(Object.entries(s.collections).map(e => eval("(q = 1, j = '') => pool(s.collections[" + e[0] + "].ids, q, j)"))),
+  d.game_collector = Object.keys(s.appids).map(e => eval("() => pool(s.appids['" + e + "']).match(/\\d+/)[0]"))
+    .concat(d.games_dlc_sets.map((e, i) => eval("a => pool(d.games_dlc_sets[" + i + "])")))
+    .concat([ a => pool(A[96].followed), a => pool(A[96].ignored2) ]),
+  d.game_collector = d.game_collector.concat([...Array(30-d.game_collector.length).keys()].map(e => a => pool(A[96].wishlist))),
+  d.links_youtube_collection_previews = mix(s.youtube['UCSZQK43hJ422otti5D3iNgA_videos'].videos.concat(s.youtube['UCWexneRkoTC8lyTCL_JS-cg_videos'].videos)),
   profile = {
     backgrounds: Object.keys(d).filter(e => e.includes('backgrounds')).map(e => d[e]).flat(2).map(e => e.replace(/ .*/, '')),
     backgrounds_whitelisted: Object.keys(d).filter(e => e.includes('backgrounds')).map(e => d[e]).flat(2).filter(e => e.includes('whitelist')).map(e => e.match(/753_6_[0-9]+/)[0]),
@@ -180,31 +185,31 @@ initialize_profile = (check = false, print = false) => (
     screenshot_collector2: { moves: [], types: [ -1,-1,-1,-1 ], slots: [ [ () => pool(d.screenshot_collector2_main) ] ].concat([...Array(3).keys()].map(e => [ () => pool(d.screenshot_collector2) ])) },
     artwork_collector: { moves: [ 1,2,3 ], types: [ -1,-1,-1,-1 ], slots: [ [ () => pool(d.artwork_collector[0]) ], d.artwork_collector[1],d.artwork_collector[2],d.artwork_collector[3] ] },
     artwork: { moves: [], types: [ 0 ], slots: [ d.artwork ] },
-    artwork2: { moves: [], types: [ 0 ], slots: [ w.readdirSync('./images/artwork2/side').filter(e => e.includes('____')).map(e => e.replace(/.*____/, '').slice(0, -4)) ] },
-    videos_OFF: { moves: [], types: [ -1,-1,-1,-1 ], slots: [...Array(4).keys()].map(e => [ () => pool(d.video_collector) ]) },
+    artwork2: { moves: [], types: [ 0 ], slots: [ d.artwork2 ] },
+    videos_PRIVATE: { moves: [], types: [ -1,-1,-1,-1 ], slots: [...Array(4).keys()].map(e => [ () => pool(d.video_collector) ]) },
     group_primary: { moves: [], types: [ 0 ], slots: [ d.group_primary ] },
-    group_favorite: { moves: [], types: [ 0 ], slots: [ [ () => pool(d.group_favorite, 1, '', false) ] ] },
+    group_favorite:  { moves: [], types: [ 0 ], slots: [ [ () => pool(d.group_favorite, 1, '', false) ] ] },
     group_favorite2: { moves: [], types: [ 0 ], slots: [ [ () => pool(d.group_favorite, 1, '', false) ] ] },
-    guide_favorite: { moves: [], types: [ 0 ], slots: [ d.guide_favorite ] },
+    guide_favorite:  { moves: [], types: [ 0 ], slots: [ d.guide_favorite ] },
     guide_favorite2: { moves: [], types: [ 0 ], slots: [ [ () => pool(d.guide_upload, 1, '', false) ] ] },
-    guide_collector: { moves: [], types: [ 1,1,1,1,1,1,1,1 ], slots: [ [ () => pool(d.guide_upload, 1, '', false) ], [ () => pool(d.guide_upload, 1, '', false) ], [ () => pool(d.guide_upload, 1, '', false) ], [ () => pool(d.guide_upload, 1, '', false) ], [ () => pool(d.guide_upload, 1, '', false) ], [ () => pool(d.guide_collector) ], [ () => pool(d.guide_collector2) ],[ () => pool(d.guide_favorite_long) ]]  },
+    guide_collector:  { moves: [], types: [ 1,1,1,1,1,1,1,1 ], slots: [ [ () => pool(d.guide_upload, 1, '', false) ], [ () => pool(d.guide_upload, 1, '', false) ], [ () => pool(d.guide_upload, 1, '', false) ], [ () => pool(d.guide_upload, 1, '', false) ], [ () => pool(d.guide_upload, 1, '', false) ], [ () => pool(d.guide_collector) ], [ () => pool(d.guide_collector2) ],[ () => pool(d.guide_favorite_long) ]]  },
     guide_collector2: { moves: [], types: [ 1,1,1,1,1,1,1,1 ], slots: [ [ () => pool(d.guide_upload, 1, '', false) ], [ () => pool(d.guide_upload, 1, '', false) ], [ () => pool(d.guide_upload, 1, '', false) ], [ () => pool(d.guide_upload, 1, '', false) ], [ () => pool(d.guide_upload, 1, '', false) ], [ () => pool(d.guide_upload, 1, '', false) ], [ () => pool(d.guide_collector3, 1, '', false) ], [ () => pool(d.guide_collector3, 1, '', false) ] ] },
-    workshop_favorite: { moves: [], types: [ -1 ], slots: [ d.workshop_favorite ] },
+    workshop_favorite:  { moves: [], types: [ -1 ], slots: [ d.workshop_favorite ] },
     workshop_favorite2: { moves: [], types: [ -1 ], slots: [ [ () => pool(d.workshop_merchandise), () => pool(pool(d.workshop_collector_rgby, 1, null)[0]) ] ] },
-    workshop_collector: { moves: [], types: [ -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1 ], slots: [...Array(15).keys()].map(e => [ () => pool(workshop_collector_fullsize, 1, null)[0]() ]) },
-    workshop_collector2: { moves: [], types: [ -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1 ], slots: [...Array(15).keys()].map(e => [ () => pool(workshop_collector_fullsize, 1, null)[0]() ]) },
-    workshop_collector3: { moves: [], types: [ -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1 ], slots: [...Array(15).keys()].map(e => [ () => pool(workshop_collector_fullsize, 1, null)[0]() ]) },
-    game_collector: { moves: [], types: [ 1,1,1,1,1,1,1,1,1,1,1,1 ], slots: mix([ [ a => pool(pool(d.games_dlc_sets, 1, null)[0]) ], [ a => pool(d.game_egc) ] ].concat([...Array(10).keys()].map(e => [ a => pool(a.wishlist) ]))) },
-    game_collector2: { moves: [], types: [ 1,1,1,1,1,1,1,1,1,1,1,1 ], slots: mix([ [ () => pool(d.games_owlyboi) ] ].concat([...Array(9).keys()].map(e => [ a => pool(a.followed) ])).concat([...Array(2).keys()].map(e => [ a => pool(a.ignored2) ]))) },
-    game_collector3: { moves: [], types: [ 1,1,1,1,1,1,1,1,1,1,1,1 ], slots: mix([ [ () => pool(d.games_owlyboi) ] ].concat([...Array(9).keys()].map(e => [ a => pool(a.followed) ])).concat([...Array(2).keys()].map(e => [ a => pool(a.ignored2) ]))) },
-    game_favorite: { moves: [], types: [ -1 ], slots: [ [ a => pool(a.ignored) ] ] },
-    game_favorite2: { moves: [], types: [ -1 ], slots: [ [ a => pool(a.ignored) ] ] },
-    game_favorite3: { moves: [], types: [ -1 ], slots: [ [ a => pool(a.ignored) ] ] },
+    workshop_collector:  { moves: [], types: [ -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1 ], slots: [...Array(15).keys()].map(e => [ () => pool(d.workshop_collector_fullsize, 1, null)[0]() ]) },
+    workshop_collector2: { moves: [], types: [ -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1 ], slots: [...Array(15).keys()].map(e => [ () => pool(d.workshop_collector_fullsize, 1, null)[0]() ]) },
+    workshop_collector3: { moves: [], types: [ -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1 ], slots: [...Array(15).keys()].map(e => [ () => pool(d.workshop_collector_fullsize, 1, null)[0]() ]) },
+    game_collector:  { moves: [], types: [ 1,1,1,1,1,1,1,1,1,1,1,1 ], slots: [...Array(10).keys()].map(e => [ a => pool(d.game_collector, 1, null)[0]() ]) },
+    game_collector2: { moves: [], types: [ 1,1,1,1,1,1,1,1,1,1,1,1 ], slots: [...Array(10).keys()].map(e => [ a => pool(d.game_collector, 1, null)[0]() ]) },
+    game_collector3: { moves: [], types: [ 1,1,1,1,1,1,1,1,1,1,1,1 ], slots: [...Array(10).keys()].map(e => [ a => pool(d.game_collector, 1, null)[0]() ]) },
+    game_favorite: { moves: [], types: [ -1 ], slots: [ [ a => pool(A[96].ignored) ] ] },
+    game_favorite2: { moves: [], types: [ -1 ], slots: [ [ a => pool(A[96].ignored) ] ] },
+    game_favorite3: { moves: [], types: [ -1 ], slots: [ [ a => pool(A[96].ignored) ] ] },
     greenlight_OFF: { moves: [], types: [ -1 ], slots: [ [ a => pool(d.workshop_greenlight) ] ] },
     badge_collector: { moves: [ 1,2,3,4,5 ], types: [ 1,1,1,1,1,1 ], slots: d.badge_collector },
     badge_favorite: { moves: [], types: [ -1 ], slots: [ d.badge_favorite ] },
-    review: { moves: [], types: [ -1 ], slots: [ [] ] },
-    review2: { moves: [], types: [ -1 ], slots: [ [] ] },
+    review: { moves: [], types: [ -1 ], slots: [ d.review ] },
+    review2: { moves: [], types: [ -1 ], slots: [ d.review2 ] },
     items_trade: { moves: [ 0,1,2,3,4,5 ], types: [ 1,1,1,1,1,1 ], slots: [...Array(6).keys()].map(e => [ () => pool(minute.getSeconds() % 2 == 0 ? d.items_570_ti : d.items_570_ti_green, 1, '', false) ]) },
     items_trade2: { moves: [ 0,1,2,3,4,5 ], types: [ 1,1,1,1,1,1 ], slots: [...Array(6).keys()].map(e => [ () => pool(d.items_570_ti_end, 1, '', false) ]) },
     item_showcase: { moves: [ 12,13,14,15,16 ], types: [ 1,1,1,1,1,1,1,1,1,1,1,1,-1,-1,-1,-1,-1,-1,1,1,1,1 ], slots: [
@@ -221,7 +226,7 @@ initialize_profile = (check = false, print = false) => (
       [ [ () => pool(pool(d.items_showcase2_misc, 1, null, false)[0], 1, '', false) ] ]).concat([...Array(3).keys()].map(e => [ () => pool(d.items_showcase2_misc[d.items_showcase2_misc.i], 1, '', false) ])) },
     completionist: { moves: [ 0,1 ], types: [ 1,1 ], slots: [ [], [] ] },
     completionist2: { moves: [], types: [ 1,1,1,1,1,1 ], slots: [...Array(6).keys()].map(e => [ () => pool(d.completionist2) ]) },
-    completionist3: { moves: [], types: [ 1,1,1,1,1,1 ], slots: [ [], [] ] },
+    completionist3: { moves: [], types: [ 1,1 ], slots: [ [], [] ] },
     countries: { moves: [], types: [ -1 ], slots: [ d.countries ] },
      achievement: { moves: [...Array(21).keys()], types: [ 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1 ], slots: [ [ () => pool(d.achievements[0]) ], [ () => pool(d.achievements[1]) ] ].concat([...Array(19).keys()].map(e => [ () => pool(d.achievements[2]) ])) },
     achievement2: { moves: [...Array(21).keys()], types: [ 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1 ], slots: [ [ () => pool(d.achievements[0]) ], [ () => pool(d.achievements[1]) ] ].concat([...Array(19).keys()].map(e => [ () => pool(d.achievements[2]) ])) },
@@ -240,7 +245,7 @@ initialize_profile = (check = false, print = false) => (
       "| [b][u]TASK[/u][/b] [i](" + a.dossier[0] + ")[/i]" ] ] },
     persona_name: { moves: [], types: [ 0 ], slots: [ [ (a, lite, i, privacy, t = '¡ byteframe ' + pool(d.emojis_smileys) + " is " + pool(d.adjectives).toLowerCase() + " !" , m = encodeURIComponent(t).match(/%[89ABab]/g)) =>
       byte_length(t) < 33 ? ((typeof(s.weathers) == 'undefined' || privacy < 1 || s.A[a.i].stop_name) ? 'byteframe' : 'byteframe 🌡️ ' + s.weathers.current.temperature + '° 💧 ' + s.weathers.current.humidity + '% ' + weather_emoji(s.weathers.current.skytext) + ' ' + s.weathers.current.windspeed.match(/\d+/)[0] + 'm ' + moon()) : profile.persona_name.slots[0][0](a, lite, i, privacy) ] ] },
-    summary_text: { moves: [], types: [ 0 ], slots: [ [ (a, lite, i, privacy, film = pool(d.films), show = pool(d.shows), artist = pool(d.artists)) =>
+    summary_text: { moves: [], types: [ 0 ], slots: [ [ (a, lite, i, privacy, film = pool(d.films), show = pool(d.shows), artist = pool(d.music)) =>
       emote(3, [2]) + emote(3, [3]) + emote(3, [4]) +
       emote(3, [5]) + emote(3, [6]) + emote(2, [7]) +
       emote(3, [8]) + emote(3, [9]) + '\n' +
@@ -289,20 +294,19 @@ initialize_profile = (check = false, print = false) => (
     d.emotes[e].forEach(e =>
       profile.item_showcase.slots[i+6].push('753_6_' + A[0].inventory.emoticons.find(_e => _e.name.toUpperCase() === e.toUpperCase()).id)))),
   s.A[0].reviews && (
-    emoticon_quotes = [],
-    Object.entries(s.A[0].reviews).filter(e => !e[1].banned).forEach(e =>
-      e[1].contents.includes('\[quote') ? emoticon_quotes.push(e[1].contents.replace(/.*\[quote/, '[quote'))
-      : e[1].contents.startsWith('https://steamcommunity.com/sharedfiles/filedetails') ? profile.review2.slots[0].push(+e[0])
-      : e[1].contents.includes('[table]') && !e[1].contents.includes('www.youtu') ? profile.review.slots[0].push(+e[0])
-      : profile.gamesPlayed.slots[0].push(+e[0]))),
+    emoticon_quotes = Object.entries(s.A[0].reviews).filter(e => !e[1].banned && e[1].contents.includes('\[quote')).map(e => e[1].contents.replace(/.*\[quote/, '[quote'))),
   profile.background = { moves: [], types: [ 0 ], slots: [ profile.backgrounds_unused ] },
   check && (
+    Object.entries(d).filter(e => e[0].startsWith('completionist')).map(e => e[1]).flat(3).filter(e =>
+      !s.A[0].achievements[e] || s.A[0].achievements[e].percentage != 100).forEach(e =>
+        log(A[0], 'NOTICES | incomplete completionist: ' + ("https://steamcommunity.com/stats/" + e + "/achievements").yellow)),
     duplicates(
       Object.values(s.collections).map(e => e.ids).flat().concat(
       Object.values(s.discussions).flat()).concat(
-      s.A[0].following).concat(A[0].following).concat(
+      s.A[96].following).concat(A[96].following).concat(
       emoticon_quotes.map(e => e.substr(0,200))).concat(
-      A[0].wishlist).concat(A[0].followed).concat(A[0].ignored).concat(A[0].ignored2).concat(
+      Object.values(s.appids).flat().map( e => +e.match(/\d+/g)[0])).concat(
+      A[96].wishlist).concat(A[96].followed).concat(A[96].ignored).concat(A[96].ignored2).concat(
       profile.review.slots[0]).concat(profile.review2.slots[0]).concat(
       s.A[0].inventory[753].map(e => e.name + " | " + e.market_fee_app)).concat(
       Object.keys(d).filter(e => /^(games_|completionist|avatar|achievements|links|items|workshop|screenshot|artwork|guide).*$/.test(e)).map(e => d[e]).flat(2).map(
@@ -316,7 +320,7 @@ initialize_profile = (check = false, print = false) => (
     A[0].inventory.cards.filter(e => !d.items_cards_array.find(_e => _e.includes('753_6_' + e.id)))
       .forEach(e => log(A[0], 'WARNING | unused card: {' + e.market_fee_app + '} ' + ('https://steamcommunity.com/id/byteframe/inventory/#753_6_' + e.id + " | " + e.name).yellow)),
     A[0].inventory.emoticons.filter(e => !d.emoticons_array.find(_e => _e.includes("753_6_"+e.id)) && !d.emotes.find(_e => _e.includes(e.name)))
-      .forEach(e => log(A[0], 'WARNING | unused emoticon: https://steamcommunity.com/id/byteframe/inventory/#753_6_' + e.id + "  --  " + e.name)))),
+      .forEach(e => log(A[0], 'WARNING | unused emoticon: {' + e.market_fee_app + '} ' + ('https://steamcommunity.com/id/byteframe/inventory/#753_6_' + e.id + " | " + e.name))))),
 play = (g = [], a = A[0]) =>
   !a.u.playingState.blocked ?
     !s.A[a.i].hasOwnProperty('play') ?
@@ -332,6 +336,8 @@ randomize = (a = A[0], j = profile, interval = 1, z = null, date = minute,
   avatar_frame = privacy == 0 ? '' : a.avatar_sha[a.avatar_sha.length-1][0] ? '176265835286' : (a.avatar_frame == '176265835286' || date.getMinutes() % 4 == 0) ? pool(d.items_avatar_frames, 1, '', false) : a.avatar_frame,
   showcase = (k, id = 0, z = null) =>
     j.hasOwnProperty(k) && (
+      j[k].types.length < j[k].slots.length &&
+        [...Array(j[k].slots.length - j[k].types.length).keys()].forEach(e => j[k].types.push(1)),
       j[k].last = j[k].selection || [...Array(j[k].types.length).keys()].map((e, i) => j[k].slots[i][0]),
       j[k].selection = [],
       j[k].moves.length > 1 &&
@@ -446,7 +452,7 @@ randomize = (a = A[0], j = profile, interval = 1, z = null, date = minute,
       showcase('items_trade', 4, (i, _e, e = _e.split('_')) => a.edit_2 += "&rgShowcaseConfig%5B4_0%5D%5B" + i + "%5D%5Bappid%5D=" + e[0] + "&rgShowcaseConfig%5B4_0%5D%5B" + i + "%5D%5Bitem_contextid%5D=" + e[1] + "&rgShowcaseConfig%5B4_0%5D%5B" + i + "%5D%5Bitem_assetid%5D=" + e[2]),
       showcase('items_trade2', 4, (i, _e, e = _e.split('_')) => a.edit_2 += "&rgShowcaseConfig%5B4_2410599%5D%5B" + i + "%5D%5Bappid%5D=" + e[0] + "&rgShowcaseConfig%5B4_2410599%5D%5B" + i + "%5D%5Bitem_contextid%5D=" + e[1] + "&rgShowcaseConfig%5B4_2410599%5D%5B" + i + "%5D%5Bitem_assetid%5D=" + e[2]),
       showcase('trade_text', 4, (i, e) => a.edit_2 += "&rgShowcaseConfig%5B4_0%5D%5B6%5D%5Bnotes%5D=" + e),
-      showcase('artwork_collector', 13, (i, e) => a.edit_2 += "&rgShowcaseConfig%5B13_0%5D%5B" + i + "%5D%5Bpublishedfileid%5D=" + e),
+      showcase('trade_text2', 4, (i, e) => a.edit_2 += "&rgShowcaseConfig%5B4_2410599%5D%5B6%5D%5Bnotes%5D=" + e),
       showcase('achievement', 17, (i, e) => a.edit_2 += "&rgShowcaseConfig%5B17_0%5D%5B" + i + "%5D%5Bappid%5D=" + e.substr(0, e.indexOf('_')) + "&rgShowcaseConfig%5B17_0%5D%5B" + i + "%5D%5Btitle%5D=" + e.substr(e.indexOf('_')+1)),
       showcase('achievement2', 17, (i, e) => a.edit_2 += "&rgShowcaseConfig%5B17_3993982%5D%5B" + i + "%5D%5Bappid%5D=" + e.substr(0, e.indexOf('_')) + "&rgShowcaseConfig%5B17_3993982%5D%5B" + i + "%5D%5Btitle%5D=" + e.substr(e.indexOf('_')+1)),
       showcase('achievement3', 17, (i, e) => a.edit_2 += "&rgShowcaseConfig%5B17_7251680%5D%5B" + i + "%5D%5Bappid%5D=" + e.substr(0, e.indexOf('_')) + "&rgShowcaseConfig%5B17_7251680%5D%5B" + i + "%5D%5Btitle%5D=" + e.substr(e.indexOf('_')+1)),
@@ -457,9 +463,6 @@ randomize = (a = A[0], j = profile, interval = 1, z = null, date = minute,
       showcase('item_showcase3', 3, (i, _e, e = _e.split('_')) => a.edit_2 += "&rgShowcaseConfig%5B3_6724101%5D%5B" + i + "%5D%5Bappid%5D=" + e[0] + "&rgShowcaseConfig%5B3_6724101%5D%5B" + i + "%5D%5Bitem_contextid%5D=" + e[1] + "&rgShowcaseConfig%5B3_6724101%5D%5B" + i + "%5D%5Bitem_assetid%5D=" + e[2]),
       showcase('review', 10, (i, e) => (review_privacy(e), a.edit_2 += "&rgShowcaseConfig%5B10_0%5D%5B0%5D%5Bappid%5D=" + e)),
       showcase('review2', 10, (i, e) => (review_privacy(e), a.edit_2 += "&rgShowcaseConfig%5B10_3507533%5D%5B0%5D%5Bappid%5D=" + e)),
-      showcase('screenshot_collector', 7, (i, e) => a.edit_2 += "&rgShowcaseConfig%5B7_0%5D%5B" + i + "%5D%5Bpublishedfileid%5D=" + e),
-      showcase('screenshot_collector2', 7, (i, e) => a.edit_2 += "&rgShowcaseConfig%5B7_5911488%5D%5B" + i + "%5D%5Bpublishedfileid%5D=" + e),
-      ugc_privacy_bulk(profile.screenshot_collector2.selection, 'screenshots', 'public'),
       showcase('workshop_favorite', 11, (i, e) => a.edit_2 += "&rgShowcaseConfig%5B11_0%5D%5B0%5D%5Bappid%5D=0&rgShowcaseConfig%5B11_0%5D%5B0%5D%5Bpublishedfileid%5D=" + e),
       showcase('workshop_favorite2', 11, (i, e) => a.edit_2 += "&rgShowcaseConfig%5B11_3542246%5D%5B0%5D%5Bappid%5D=0&rgShowcaseConfig%5B11_3542246%5D%5B0%5D%5Bpublishedfileid%5D=" + e),
       showcase('badge_collector', 5, (i, e) => a.edit_2 += "&rgShowcaseConfig%5B5_0%5D%5B" + i + "%5D%5Bbadgeid%5D=1&rgShowcaseConfig%5B5_0%5D%5B" + i + "%5D%5Bappid%5D=" + e + "&rgShowcaseConfig%5B5_0%5D%5B" + i + "%5D%5Bborder_color%5D="),
@@ -477,19 +480,19 @@ randomize = (a = A[0], j = profile, interval = 1, z = null, date = minute,
       showcase('group_favorite2', 9, (i, e) => a.edit_2 += "&rgShowcaseConfig%5B9_5565300%5D%5B0%5D%5Baccountid%5D=" + e),
       showcase('guide_collector', 16, (i, e) => a.edit_2 += "&rgShowcaseConfig%5B16_0%5D%5B" + i + "%5D%5Bappid%5D=0&rgShowcaseConfig%5B16_0%5D%5B" + i + "%5D%5Bpublishedfileid%5D=" + e),
       showcase('guide_collector2', 16, (i, e) => a.edit_2 += "&rgShowcaseConfig%5B16_5071893%5D%5B" + i + "%5D%5Bappid%5D=0&rgShowcaseConfig%5B16_5071893%5D%5B" + i + "%5D%5Bpublishedfileid%5D=" + e),
-      showcase('trade_text2', 4, (i, e) => a.edit_2 += "&rgShowcaseConfig%5B4_2410599%5D%5B6%5D%5Bnotes%5D=" + e),
       showcase('completionist', 23, (i, e) => a.edit_2 += "&rgShowcaseConfig%5B23_0%5D%5B" + i + "%5D%5Bappid%5D=" + e),
       showcase('completionist2', 23, (i, e) => a.edit_2 += "&rgShowcaseConfig%5B23_5789108%5D%5B" + i + "%5D%5Bappid%5D=" + e),
       showcase('completionist3', 23, (i, e) => a.edit_2 += "&rgShowcaseConfig%5B23_7654995%5D%5B" + i + "%5D%5Bappid%5D=" + e),
-      showcase('artwork', 22, (i, e) => a.edit_2 += "&rgShowcaseConfig%5B22_0%5D%5B" + i + "%5D%5Bpublishedfileid%5D=" + e),
-      showcase('artwork2', 22, (i, e) => a.edit_2 += "&rgShowcaseConfig%5B22_5565294%5D%5B" + i + "%5D%5Bpublishedfileid%5D=" + e),
-      !s.disable_artwork_hide_toggle &&
-        ugc_privacy(profile.artwork2.selection[0]),
       showcase('videos', 14, (i, e) => a.edit_2 += "&rgShowcaseConfig%5B14_0%5D%5B" + i + "%5D%5Bpublishedfileid%5D=" + e),
       showcase('greenlight', 18, (i, e) => a.edit_2 += "&rgShowcaseConfig%5B18_0%5D%5B0%5D%5Bappid%5D=0&rgShowcaseConfig%5B18_0%5D%5B0%5D%5Bpublishedfileid%5D=" + e),
       showcase('workshop_collector', 12, (i, e) => a.edit_2 += "&rgShowcaseConfig%5B12_0%5D%5B" + i + "%5D%5Bappid%5D=0&rgShowcaseConfig%5B12_0%5D%5B" + i + "%5D%5Bpublishedfileid%5D=" + e),
       showcase('workshop_collector2', 12, (i, e) => a.edit_2 += "&rgShowcaseConfig%5B12_4340775%5D%5B" + i + "%5D%5Bappid%5D=0&rgShowcaseConfig%5B12_4340775%5D%5B" + i + "%5D%5Bpublishedfileid%5D=" + e),
-      showcase('workshop_collector3', 12, (i, e) => a.edit_2 += "&rgShowcaseConfig%5B12_6277454%5D%5B" + i + "%5D%5Bappid%5D=0&rgShowcaseConfig%5B12_6277454%5D%5B" + i + "%5D%5Bpublishedfileid%5D=" + e)),
+      showcase('workshop_collector3', 12, (i, e) => a.edit_2 += "&rgShowcaseConfig%5B12_6277454%5D%5B" + i + "%5D%5Bappid%5D=0&rgShowcaseConfig%5B12_6277454%5D%5B" + i + "%5D%5Bpublishedfileid%5D=" + e),
+      showcase('artwork', 22, (i, e) => a.edit_2 += "&rgShowcaseConfig%5B22_0%5D%5B" + i + "%5D%5Bpublishedfileid%5D=" + e),
+      showcase('artwork2', 22, (i, e) => a.edit_2 += "&rgShowcaseConfig%5B22_5565294%5D%5B" + i + "%5D%5Bpublishedfileid%5D=" + e),
+      showcase('artwork_collector', 13, (i, e) => a.edit_2 += "&rgShowcaseConfig%5B13_0%5D%5B" + i + "%5D%5Bpublishedfileid%5D=" + e),
+      showcase('screenshot_collector', 7, (i, e) => a.edit_2 += "&rgShowcaseConfig%5B7_0%5D%5B" + i + "%5D%5Bpublishedfileid%5D=" + e),
+      showcase('screenshot_collector2', 7, (i, e) => a.edit_2 += "&rgShowcaseConfig%5B7_5911488%5D%5B" + i + "%5D%5Bpublishedfileid%5D=" + e)),
     a.new_friends = a.new_friends.filter(e => date.getTime() - +e[0].substr(4) < 21600000),
     Date.now() - a.avatar_sha[a.avatar_sha.length-1][1] >= 360000 && (
       a.avatar_sha[a.avatar_sha.length-1][0] = ''),
@@ -505,24 +508,25 @@ randomize = (a = A[0], j = profile, interval = 1, z = null, date = minute,
         group_avatar(A[0], d.group_favorite[(!s.hasOwnProperty('group_avatar_index') ? s.group_avatar_index = -1 : s.group_avatar_index) >= d.group_favorite.length-1 ? s.group_avatar_index = 0 : ++s.group_avatar_index], "./images/avatar_sha/" + pool(d.avatar_sha_files))),
       http(a, 'my/edit', a.edit_2, (b, r, x) => (
         x && x.includes('saving your showcase') ? (
-          !a.edit2_fail ? (
-            a.edit2_fail = true)
+          !a.edit2_fail ?
+            a.edit2_fail = true
           :(w.writeFileSync(Date.now() + "_edit2.txt", decodeURIComponent(A[0].edit_2).replace(/&/g, '\n')),
             delete a.edit2_fail))
         : delete a.edit2_fail,
         !j.ran_once ?
           j.ran_once = true
-        : setTimeout(() => (
-          ugc_privacy_bulk(profile.screenshot_collector2.last),
-          !s.disable_artwork_hide_toggle &&
-            ugc_privacy(profile.artwork2.last[0], 2),
-          review_privacy(profile.review.last[0], false),
-          review_privacy(profile.review2.last[0], false)), 30000),
+        :(review_privacy(profile.review.last[0], false),
+          review_privacy(profile.review2.last[0], false),
+          ugc_privacy_bulk(profile.artwork_collector.selection.concat(profile.screenshot_collector.selection).concat(profile.screenshot_collector2.selection).concat(profile.artwork.selection).concat(profile.artwork2.selection), undefined, 'public', A[0], G => (
+            A[0].ugc_private && A[0].ugc_private.length > 0 &&
+              setTimeout(ugc_privacy_bulk, 300000, A[0].ugc_private, undefined, 'unlisted', A[0], G =>
+                A[0].ugc_private = A[0].ugc_private.filter(e => !G.includes(e))),
+            A[0].ugc_private = !A[0].ugc_private ? G : A[0].ugc_private.concat(G)))),
         termux && !s.disable_randomize_termux && (
           x ? exec('termux-vibrate -d 250', { timeout: 1000 })
           : exec('termux-wallpaper -u ' + pool_background_image(A[0], j.background.selection[0], { timeout: 5000 }))),
         (date.getMinutes() % 6 == 0 || privacy == 0) &&
-          http(a, 'https://api.steampowered.com/IPlayerService/SetMiniProfileBackground/v1', { access_token: a.access_token, communityitemid: privacy == 0 ? '' : pool(d.items_avatar_backgrounds) }, (b, r, x) =>
+          http(a, 'https://api.steampowered.com/IPlayerService/SetMiniProfileBackground/v1', { access_token: a.access_token, communityitemid: privacy == 0 ? '' : pool(d.items_avatar_mini) }, (b, r, x) =>
             http(a, 'https://api.steampowered.com/IPlayerService/SetProfileTheme/v1', { access_token: a.access_token, theme_id: privacy == 0 ? '' : pool(d.profile_themes) }, (b, r, x) =>
               http(a, 'https://api.steampowered.com/IPlayerService/SetFavoriteBadge/v1', { access_token: a.access_token, communityitemid: privacy == 0 ? '' : j.badge_favorite.selection[0].substr(16) }))),   
         date.getMinutes() % 6 == 0 && privacy > 0 ?
@@ -540,7 +544,7 @@ randomize = (a = A[0], j = profile, interval = 1, z = null, date = minute,
           j.ran_once && privacy >= 1 && b.hasOwnProperty('success') && b.success == 1 && (
             s.A[a.i].comment_count = +_b.match(/_totalcount\">[\d,]*/)[0].slice(13).replace(',', ''),
             s.A[a.i].comment_count < 50000 &&
-              interact(a, 6), 
+              interact(a, 6),
             Object.entries(j).filter(e => /^(game_|review_|completionist_).*/.test(e[0])).forEach(_e =>
               _e[1].selection.forEach((e, i) =>
                 _b.indexOf("app/" + e + '"') == -1 &&
@@ -565,6 +569,11 @@ randomize = (a = A[0], j = profile, interval = 1, z = null, date = minute,
     s.A[a.i].persona && (!a.u.users[a.steamID] || !a.u.users[a.steamID].persona_state) && (
       log(a, 'SESSION | setPersona: ' + (""+s.A[a.i].persona).yellow),
       a.u.setPersona(s.A[a.i].persona))),
+ugc_privacy_bulk = (G, h1 = 'screenshots', h2 = 'public', a = A[0], z = null, k = { action: h2 }) => (
+  k[h1] = Object.fromEntries(G.map(e => [ e, 'on' ])),
+  http(a, profile_url(A[0]) + "/" + h1, k, (b, r, x) => z != null && z(G))),
+ugc_privacy = (g, privacy = 0, a = A[0]) =>
+  http(a, 'sharedfiles/itemsetvisibility', { id: g, visibility: privacy }),
 group_avatar = (a = A[0], f = (s.A[a.i].group || '103582791432273268'), g = "./images/group/" + pool(d.avatar_group_files)) =>
   w.readFile(g, null, (x, r) =>
     http(a, 'https://steamcommunity.com/actions/FileUploader', {
@@ -673,7 +682,7 @@ messages = [
     f => font(fortune(pool(['medicine','paradoxum','fgump','dogfacts','news','goedel','starwars','magic','perl','linuxcookie']), 1, 1).replace(/\s+--.*/, '').replace(/ /g, "      "), 15) ],
   [ f => jitter(pool(d.greetings), true),
     f => pool(['Happy ', 'Enjoy your ', "Have fun this "]) + minute.toLocaleDateString('en-us', { weekday: 'long' }) + pool(['.', '!', '']),
-    f => (Math.random() < 0.5 ? "You're " : ' ' ) + pool(d.words_sexy) + (Math.random() < 0.5 ? "." : "..." ),
+    f => (Math.random() < 0.5 ? "You're " : ' ' ) + pool(d.words_positive) + (Math.random() < 0.5 ? "." : "..." ),
     f => pool(responses, 1, null)[0](),
     f => jitter(pool(d.confusion), (Math.random() < 0.5 ? true : false)),
     f => jitter(pool(d.pickups), true, undefined, 0.3) ],
@@ -835,15 +844,16 @@ get_group_history = (a = A[0], _f = (s.A[a.i].group || '103582791432273268')) =>
           chat('/me #' + a.i + ' [' + e[1].type.toUpperCase() + "] " + pool(d.emojis_bulk) + " " + f.replace(/ 🌡️.*/, '') + " -- " + (e[1].user == a.steamID ? 'https://steamcommunity.com/gid/' + _f : "https://steam.pm/" + e[1].user) + " - {" + _f + "}", a.i, 37338, 110446724),
           log(a, 'SESSION | getGroupHistory/' + e[1].type.toUpperCase() + (" -- #" + _f + " = " + f + (e[1].user == a.steamID ? '' : " https://steam.pm/" + e[1].user)).yellow))))),
       s.group_history[_f] = new Date(r.items[0].date).getTime())),
-ugc = (E, type = 'unfavorite', g = 0, a = A[0]) => (
+ugc = (E, type = 'unfavorite', g = 0, a = A[0], z = null) => (
   E instanceof Array || ( E = [ E ] ),
   http(a, 'sharedfiles/' + type, (type == 'addchild' || type == 'removechild' ? { id: g, childid: E[0] } : (type == 'addcontributor' ? { id: E[0], steamid: g } : { id: E[0], appid: g, include_dependencies: false })), (b, r, x) => (
     log(a, (!x ? 'SUCCESS' : 'FAILURE') + ' | sharedfiles/' + type + " (https://steamcommunity.com/sharedfiles/filedetails/?id=" + E[0] + ") " + ((type == 'addchild' ? 'https://steamcommunity.com/sharedfiles/filedetails/?id=' : '#') + g + " {" + E.length + "}" + (x ? " = " + x : '')).yellow),
     !x && type == 'voteup' && (
       !s.A[a.i].votes && ( s.A[a.i].votes = [] ),
       s.A[a.i].votes.push(E[0])),
-    E.length > 1 &&
-      setTimeout(ugc, global.ugc_timeout || 3000, E.slice(1), type, g, a)), true)),
+    E.length > 1 ?
+      setTimeout(ugc, global.ugc_timeout || 3000, E.slice(1), type, g, a, z)
+    : z != null && z()), true)),
 !s.ugc && ( s.ugc = {} ),
 edit_ugc = (a = A[0], g, m, n = '') =>
   http(a, 'sharedfiles/itemedittext?' + g, { id: g, language: 0, title: m, description: n }),
@@ -860,7 +870,7 @@ get_ugc = (G = 0, _h1 = 'myworkshopfiles', h2 = 'files', p = 1, a = A[0], f = a.
         p == q ?
           _h1 == 'videos' && G.length > 1 &&
             setTimeout(get_ugc, global.get_ugc_timeout || 1500, G.slice(1), _h1, h2, 1, a, f, 5, null, H)
-        : _b.match('No matching files') ? (
+        : (_b.match('No matching files') || _b.match('You haven\'t favorited')|| _b.match('You currently have no')) ? (
           log(a, 'WARNING | get_ugc: ' + h2.toUpperCase() + "/" + _h1 + ": " + ('p=' + p + '/' + Math.max(q,p) + ' <BLANK PAGE>').yellow),
           setTimeout(get_ugc, global.get_ugc_timeout || 1500, G, _h1, h2, p+1, a, f, 5, q, H))
         : retries > 0 ?
@@ -898,17 +908,16 @@ delete_ugc = (h1 = 'images', h2 = 'favorites', g = 0, h3 = 0, a = A[0]) =>
       ((i = s.ugc[a.steamID][e][h1][h2].indexOf(+h3)) => i > -1 && s.ugc[a.steamID][e][h1][h2].splice(i, 1))()
     : s.ugc[a.steamID][e][h1][h2] = []),
 !s.discussions && ( s.discussions = {} ),
-get_discussion_links = (h = 'https://steamcommunity.com/groups/primarydataloop/discussions/0/1290691937724869711', p = 1, a = A[0]) =>
+get_discussion_links = (h = 'https://steamcommunity.com/workshop/filedetails/discussion/3482263834/508454943003311527', p = 1, a = A[0]) =>
   http(a,  h + '/?ctp=' + p, null, (_b, r, x, b = Cheerio.load(_b), q = Cheerio.load(b('.forum_paging_summary.ellipsis')[0]).text().match(/\d+/g), M = (_b.match(/vi\\\/.+?\\\/0\.jpg/g) || []).map(e => e.slice(4, -7))) => (
     s.discussions[h.match(/\d+/g)[1]] = p == 1 ? M : s.discussions[h.match(/\d+/g)[1]].concat(M),
     w.mkdirSync('m3u', { recursive: true }),
     write('m3u/' + h.match(/\d+/g)[1] + ".sh", s.discussions[h.match(/\d+/g)[1]].map(e => 'yt-dlp -o "%(channel)s {%(id)s} %(title)s" https://www.youtube.com/watch?v=' + e).join('\n')),
     write('m3u/' + h.match(/\d+/g)[1] + ".m3u", s.discussions[h.match(/\d+/g)[1]].map(e => 'https://www.youtube.com/watch?v=' + e).join('\n')),
     +q[1] < +q[2] && setTimeout(get_discussion_links, 3000, h, p+1, a))),
-pool_discussion_links = (q = 1, h = [ '1290691937724869711' ]) =>
-  [...Array(q).keys()].map(e =>
-    "https://www.youtube.com/watch?v=" + pool(Object.entries(s.discussions).filter(e => !h.includes(e[0])).map(e => e[1]).flat())).join('\n'),
-post = (t = mix([ !s.discussions.hasOwnProperty('1290691937724869711') ? '' : 'https://youtube.com/watch?v=' + pool(s.discussions['1290691937724869711']), jitter(pool(responses, 1, null)[0]()), pool([ pool_game(), "\nhttps://steamcommunity.com/id/byteframe/inventory/#753_6_" + pool(Object.values(A[0].inventory).flat(), 1, null)[0].id ], 1, null)[0] ]).join(' '), g = pool(d.games_steam_devdays), a = A[0]) =>
+pool_discussion_links = (q = 1, H = Object.values(s.discussions)) =>
+  [...Array(q).keys()].map(e => "https://www.youtube.com/watch?v=" + pool(pool(H, 1, null)[0])).join('\n'),
+post = (t = mix([ !s.discussions.hasOwnProperty('508454943003311527') ? '' : 'https://youtube.com/watch?v=' + pool(s.discussions['508454943003311527']), jitter(pool(responses, 1, null)[0]()), pool([ pool_game(), "\nhttps://steamcommunity.com/id/byteframe/inventory/#753_6_" + pool(Object.values(A[0].inventory).flat(), 1, null)[0].id ], 1, null)[0] ]).join(' '), g = pool(d.games_steam_devdays), a = A[0]) =>
   !s.disable_post && !a.limited &&
     http(a, "my/ajaxpostuserstatus", { appid: g, status_text: t }, (b, r, x, h = x ? '' : 'https://steamcommunity.com/' + profile_url(a) + '/status/' + b.blotter_html.match(/userstatus_\d+_/)[0].slice(11, -1)) => 
       log(a, 'SUCCESS | ajaxpostuserstatus: ' + (h + " #" + g).yellow)),
@@ -937,11 +946,6 @@ upload_ugc = (file, a = A[0], type = 3, g = 767, m = pool(d.emojis_smileys) + " 
             !x && id.length > 3 && z != null &&
               z(id, file),
             log(a, (x || id.length < 3 ? 'FAILURE |' : 'SESSION |') + " ugcupload: " + file.replace(/.*\//,'') + " " + (x ? x.message : r.rawHeaders[3]).yellow)), true, 'POST', true)))()),
-ugc_privacy = (g, privacy = 0, a = A[0]) =>
-  http(a, 'sharedfiles/itemsetvisibility', { id: g, visibility: privacy }),
-ugc_privacy_bulk = (G, h1 = 'screenshots', h2 = 'private', a = A[0], k = { action: h2 }) => (
-  k[h1] = Object.fromEntries(G.map(e => [ e, 'on' ])),
-  http(a, profile_url(A[0]) + "/" + h1, k)),
 ugc_edit = (g, m = null, n = null, a = A[0]) =>
   http(a, 'sharedfiles/itemedittext/?id=' + g, null, (_b, r, x, b = Cheerio.load(_b), _m = b('#title')[0].attribs.value, _n = b('#description').text()) => (
     typeof m === 'function' && ( m = m(_m)),
@@ -1020,31 +1024,34 @@ download_ugc_image = (G = [], a = A[0], _h = 'filedetails', g = "./", z = null, 
       setTimeout(download_ugc_image, 3000, !h ? G.slice(1) : [ h.attribs.src.replace(/\/\?.*/, '/') + " | " + G[0] ].concat(G.slice(1)), a, _h, g, z)))
   : z != null && z()),
 !s.collections && ( s.collections = {} ),
-get_collection_items = (g = Object.keys(s.collections)[(!s.hasOwnProperty('collection_index') ? s.collection_index = -1 : s.collection_index) >= Object.keys(s.collections).length-1 ? s.collection_index = 0 : ++s.collection_index], a = A[0], l = (s.collections.hasOwnProperty(g) ? s.collections[g].ids.length : 0)) =>
+get_collection_items = (g = Object.keys(s.collections)[(!s.hasOwnProperty('collection_index') ? s.collection_index = -1 : s.collection_index) >= Object.keys(s.collections).length-1 ? s.collection_index = 0 : ++s.collection_index], a = A[96], l = (s.collections.hasOwnProperty(g) ? s.collections[g].ids.length : 0)) =>
   http(a, 'sharedfiles/filedetails/?id=' + g, null, (_b, r, x, b = _b.match(/id=\"sharedfile_\d+/g), _g = _b.match(/https:\/\/steamcommunity.com\/app\/[0-9]+/)[0].replace(/.*\//, ''), m = _b.match(/workshopItemTitle\">.+?<\/div>/)[0].slice(19, -6)) =>
     b == null ?
       log(a, "FAILURE | manageCollection: https://steamcommunity.com/sharedfiles/filedetails/?id=" +  g + " " + ('null_match').yellow)
     :(s.collections[g] = { name: m, ids: b.map(e => +e.match(/\d+/)[0]) },
-      !s.disable_ugc_download_collection &&
-        download_ugc_image(s.collections[g].ids, a, undefined, './images/collections/' + g, () => (
+      w.mkdirSync('./bat', { recursive: true}),
+      write("./bat/steam_cmd_collection_" + g + ".bat",
+        "c:\\users\\byteframe\\Downloads\\steamcmd\\steamcmd.exe +login " + s.A[0].name + s.collections[g].ids.map(e => " +workshop_download_item " + _g + " " + e).join("")),
+      write("./bat/repkg_collection_" + g + ".bat", s.collections[g].ids.map(e =>
+        "C:\\Users\\byteframe\\Downloads\\RePKG.exe extract -o \"C:\\Users\\byteframe\\Downloads\\steamcmd\\steamapps\\workshop\\content\\" + _g + "\\" + e + "\" \"C:\\Users\\byteframe\\Downloads\\steamcmd\\steamapps\\workshop\\content\\" + _g + "\\" + e + "\\scene.pkg\"" + "\n" +
+        "C:\\Users\\byteframe\\Downloads\\RePKG.exe extract -t -o \"C:\\Users\\byteframe\\Downloads\\steamcmd\\steamapps\\workshop\\content\\" + _g + "\\" + e + "\" \"C:\\Users\\byteframe\\Downloads\\steamcmd\\steamapps\\workshop\\content\\" + _g + "\\" + e + "\\materials\"").join("\n")),
+      !s.disable_ugc_download_collection && (
+        w.mkdirSync('./images/collections/' + g, { recursive: true}),
+        download_ugc_image(s.collections[g].ids, a, undefined, './images/collections/' + g, () =>
           w.readdirSync('./images/collections/' + g).filter(e => !s.collections[g].ids.includes(+e.slice(0, -4))).forEach(e =>
-            w.unlinkSync('./images/collections/' + g + '/' + e)),
-          write('./images/collections/' + g + "/steam_cmd_collection_" + _g + "_" + g + ".bat",
-            "c:\\users\\byteframe\\Downloads\\steamcmd\\steamcmd.exe +login " + s.A[0].name + s.collections[g].ids.map(e => " +workshop_download_item " + _g + " " + e).join("")),
-          write('./images/collections/' + g + "/repkg_collection_" + _g + "_" + g + ".bat", s.collections[g].ids.map(e =>
-            "C:\\Users\\byteframe\\Downloads\\RePKG.exe extract -o \"C:\\Users\\byteframe\\Downloads\\steamcmd\\steamapps\\workshop\\content\\" + _g + "\\" + e + "\" \"C:\\Users\\byteframe\\Downloads\\steamcmd\\steamapps\\workshop\\content\\" + _g + "\\" + e + "\\scene.pkg\"" + "\n" +
-            "C:\\Users\\byteframe\\Downloads\\RePKG.exe extract -t -o \"C:\\Users\\byteframe\\Downloads\\steamcmd\\steamapps\\workshop\\content\\" + _g + "\\" + e + "\" \"C:\\Users\\byteframe\\Downloads\\steamcmd\\steamapps\\workshop\\content\\" + _g + "\\" + e + "\\materials\"").join("\n")))),
-      http(a, 'sharedfiles/filedetails/discussions/' + g, null, (_b, r, x, b = _b.match(/https:\/\/steamcommunity.com\/workshop\/filedetails\/discussion\/[0-9]+\/[0-9]+/)) =>
-        b && get_discussion_links(b[0], 1, a)),
-      Math.random() < 0.0 &&
-        http(A[0], 'sharedfiles/addyoutubepreview', { id: g, youtubeurl: 'https://www.youtube.com/watch?v=' + pool(d.links_youtube_collection_previews) } ),
+            w.unlinkSync('./images/collections/' + g + '/' + e)))),
+      _b.includes('active discussions') &&
+        http(a, 'sharedfiles/filedetails/discussions/' + g, null, (_b, r, x, b = _b.match(/https:\/\/steamcommunity.com\/workshop\/filedetails\/discussion\/[0-9]+\/[0-9]+/)) =>
+          b && get_discussion_links(b[0], 1, a)),
+      !s.disable_youtube_collection_preview &&
+        http(A[0], 'sharedfiles/addyoutubepreview', { id: g, youtubeurl: 'https://www.youtube.com/watch?v=' + pool(d.links_youtube_collection_previews, 1, null)[0].id } ),
       l != b.length &&
         log(a, "SESSION | managecollection: https://steamcommunity.com/sharedfiles/filedetails/?id=" +  g + " " + (m + " = " + l + " >> " + b.length).yellow))),
 !s.failed_curate && ( s.failed_curate = [] ),
 curate = (a = A[0], h = '2751860-primarydataloop') =>
   http(a, 'https://store.steampowered.com/curator/' + h + '/lists/', null, (b, r, x, B = b.match(/\/steam\/apps\/\d+/g).map(e => +e.slice(12))) =>
     http(a, 'https://store.steampowered.com/curator/' + h + '/admin/ajaxgetassociatedappslist/', null, (_b, r, x, b = _b.recommendations.map(e => e.appid),
-      g = mix(A[0].wishlist.concat(A[0].following).concat(A[0].ignored).concat(A[0].ignored2).concat(
+      g = mix(A[96].wishlist.concat(A[96].following).concat(A[96].ignored).concat(A[96].ignored2).concat(
         profile.review.slots[0]).concat(d.completionist_array.flat()).concat(d.completionist2).concat(Object.entries(s.A[0].reviews).filter(e => e[1].banned).map(e => +e[0])).filter(e =>
           !s.failed_curate.includes(e) && !b.includes(e) && !B.includes(e)))[0],
       t = !g || !s.A[a.i].reviews[g] ? [ '', 0 ] : [ s.A[a.i].reviews[g].contents, s.A[a.i].reviews[g].rating ? 0 : 2 ]) =>
@@ -1067,7 +1074,7 @@ discover = (a = A[0], first = false, z = null, retry = 0) =>
           first ?
             setTimeout(discover, 5000, a, false, z)
           : z && z()), true), i*200)), true),
-wish = (a, remove = false, G = mix(A[0].wishlist).filter(e => remove ? a.wishlist.includes(e) : !a.wishlist.includes(e)).slice(0,5)) =>
+wish = (a, remove = false, G = mix(A[96].wishlist).filter(e => remove ? a.wishlist.includes(e) : !a.wishlist.includes(e)).slice(0,5)) =>
   G.length && http(a, 'https://store.steampowered.com/api/' + (remove ? 'removefrom' : 'addto') + 'wishlist', { appid: G[0] }, (b, r, x) => setTimeout(wish, 3000, a, remove, G.slice(1)), true),
 claim_package = (a, g, z) => 
   a.u.getProductInfo([], [ g ], false, (x, r, r1) =>
@@ -1124,7 +1131,10 @@ get_inventory = (H = null, a = A[0], z = null) => (
   !s.A[a.i].inventory && ( s.A[a.i].inventory = {} ),
   !H ?
     a.c.getUserInventoryContexts((x, r) =>
-      get_inventory(Object.values(r).filter(e => e.asset_count > 0 && e.appid != 440 && (e.appid == 753 || !s.A[a.i].inventory[e.appid])), a, z))
+      x ? (
+        log(a, 'FAILURE | getUserInventoryContexts: ' + x.message + " " + ('https://steam.pm/' + a.steamID).yellow),
+        get_inventory([], a, z))
+      : get_inventory(Object.values(r).filter(e => e.asset_count > 0 && e.appid != 440 && (e.appid == 753 || !s.A[a.i].inventory[e.appid])), a, z))
   : H.length > 0 ?
     H[0].rgContexts && H[0].rgContexts.length < 1 ?
       setTimeout(get_inventory, 1000, H.slice(1), a, z)
@@ -1157,15 +1167,15 @@ get_store = (a = A[0], z = null) =>
       (a.followed = b.rgFollowedApps)).concat(
       (a.appsincart = b.rgAppsInCart)),
     z != null && z()), false, 'GET'),
-account_info = a => ("https://steamcommunity.com/" + profile_url(a) + " \"" + a.u.accountInfo.name + "\"" + " | @" + a.u.accountInfo.country + ",#" + a.u.accountInfo.flags + " fw=" + a.following.length + ",lvl=" + a.level).yellow,
+account_info = a =>
+  ("https://steamcommunity.com/" + profile_url(a) + " \"" + a.u.accountInfo.name + "\"" + " | @" + a.u.accountInfo.country + ",#" + a.u.accountInfo.flags + " fw=" + a.following.length + ",lvl=" + a.level).yellow,
 A = s.A.map((a, i) =>
   ({ u: new SteamUser({ dataDirectory: null, autoRelogin: true, enablePicsCache: true }), session: new SteamSession.LoginSession(1), c: new SteamCommunity(), trade: new SteamTradeOfferManager(), store: new SteamStore(), i: i, steamID: a.steamID, limited: a.limited, new_friends: [], blotter: [], avatar_sha: [ [ '', 0 ] ], last_group_chat: [ 37338, 143271 ] })),
 A.forEach((a, i) => (
   a.tf2 = new TeamFortress2(a.u),
   a.tf2.on('accountUpdate', e => log(a, 'SESSION | accountUpdate: ' + Object.entries(e))),
   a.tf2.on('itemSchemaError', x => log(a, 'FAILURE | itemSchemaError: ' + (x).yellow)),
-  a.tf2.on('backpackLoaded', () =>
-    log(a, 'SESSION | backpackLoaded: ' + (a.tf2.backpack.length + " items").yellow)),
+  a.tf2.on('backpackLoaded', () => log(a, 'SESSION | backpackLoaded: ' + (a.tf2.backpack.length + " items").yellow)),
   a.tf2.on('itemAcquired', e => log(a, 'SESSION | itemAcquired: ' + (a.tf2.itemSchema ? a.tf2.itemSchema.items[e.def_index].name : 'def_index: ' + e.def_index) + (" #" + e.id).yellow)),
   a.tf2.on('itemRemoved', e => log(a, 'NOTICES | itemRemoved: ' + (a.tf2.itemSchema ? a.tf2.itemSchema.items[e.def_index].name : 'def_index: ' + e.def_index) + (" #" + e.id).yellow)),
   a.tf2.on('itemSchemaLoaded', () => log(a, 'SESSION | itemSchemaLoaded')),
@@ -1220,12 +1230,17 @@ A.forEach((a, i) => (
                   get_inventory(undefined, a, () => (
                     log(a, 'SESSION | logon: ' + account_info(a)),
                     !a.i &&
-                      initialize_profile(true),
+                      initialize_data(true),
                     a.logon_callback(),
                     delete a.logon_callback))))))))))))),
   a.u.on('communityMessages', q => (
     log(a, 'NOTICES | communityMessages: '+ (""+q).yellow),
-    q && !a.i && ( s.disable_randomize = -1 ))),
+    q && !a.i && (
+      s.disable_randomize = -1))),
+  a.u.on('picsCache', q =>
+    !a.i &&
+      d.achievements.flat().map(e => +e.replace(/_.*/, '')).filter(e => !A[0].u.picsCache.apps.hasOwnProperty(e))
+        .forEach(e => log(A[0], 'WARNING | unowned achievement: {' + e + '} ' + ('https://store.steampowered.com/app/_' + e).yellow))),
   a.u.on('newItems', q =>
     q > 0 && (
       clearTimeout(a.item_timer),
@@ -1346,7 +1361,7 @@ invite = (f = null, a = A[0], _f = (s.A[a.i].group || '103582791432273268')) =>
         :(log(a, 'SUCCESS | inviteToGroup: https://steam.pm/' + f + " " + ("https://steamcommunity.com/gid/" + _f + "/history").yellow),
           a.u.inviteToGroup(f, _f)))),
 add = (a = A[0], _F = Object.keys(a.u.myFriends), f = pool(a.following.concat(s.A[a.i].following).filter(e => !_F.includes(e)))) =>
-  !a.limited &&
+  !s.disable_add && a.limited &&
     a[Math.random() < 0.5 ? 'u' : 'c'].addFriend(f, x =>
       log(a, (x ? 'FAILURE' : 'SUCCESS') + ' | addFriend: ' + (x ? x.message.toUpperCase() : '') + ("= https://steamcommunity.com/profiles/" + f).yellow)),
 wikipedia = require('wikipedia'),
@@ -1426,10 +1441,9 @@ reply = (f, m, a = A[0]) =>
   : m.startsWith('#I') ? ((item = pool(s.A[0].inventory[pool(d.item_contexts_review)], 1, null)[0]) => "https://steamcommunity.com/id/byteframe/inventory/#" + item.appid + "_" + item.contextid + "_" + item.id)()
   : m.startsWith('#g') ? pool_game()
   : m.startsWith('#l') ? "/pre " + ((_m = m.substr(2).trim()) => figlet.textSync(_m == '' ? pool(d.adjectives) : _m, { font: pool(figlets) }))()
-  : m.startsWith('#v') ? "https://www.youtube.com/watch?v=" + pool(s.discussions['1290691937724869711'])
-  : m.startsWith('#V') ? pool_discussion_links()
-  : m.startsWith('#y') ? pool_youtube(pool(s.youtube[s.google[0][2]].subscriptions.filter(e => s.youtube[e.id]), 1, null)[0].id)
-  : m.startsWith('#Y') ? pool_youtube(pool(Object.keys(s.youtube).filter(e => !s.youtube[s.google[0][2]].subscriptions.find(_e => _e.id == e))))
+  : m.startsWith('#v') ? pool_discussion_links()
+  : m.startsWith('#y') ? pool_youtube()
+  : m.startsWith('#Y') ? pool_youtube(1, Object.values(s.youtube).filter(e => e.alt))
   : m.startsWith('#b') ? vibrate(f)
   : m.startsWith('#B') ? flashlight(f)
   : m.startsWith('#a') ? "https://avatars.fastly.steamstatic.com/" + pool(d.avatar_sha2) + "_full.jpg"
@@ -1521,13 +1535,13 @@ google_token = (i = 0, code) =>
     x ? console.error('Error retrieving access token', x)
     : google[i].setCredentials(s.google[i][1] = r)),
 !s.youtube && ( s.youtube = {} ),
-get_youtube = (_h = 'subscriptions', f = google[1], g = f.youtube_channelId, q = -1, p = '', i = 1, E = [], t = '', h = _h == 'playlistItems' || _h == 'search' ? 'videos' : _h,
+get_youtube = (_h = 'subscriptions', f = google[0], g = f.youtube_channelId, q = -1, p = '', i = 1, E = [], t = '', h = _h == 'playlistItems' || _h == 'search' ? 'videos' : _h,
   k = { auth: f, part: _h == 'subscriptions' ? 'snippet,contentDetails' : 'snippet', maxResults: 50, pageToken: p }) => (
-  k[_h == 'playlistItems' ? 'playlistId' : _h == 'videos' ? 'id' : 'channelId'] = g,
-  _h == 'search' && ( k.order = 'date', k.type = 'video', t && (k.publishedBefore = t)),
+  k[_h == 'playlistItems' ? 'playlistId' : _h == 'videos' ? 'id' : g.startsWith('UC') ? 'channelId' : 'q'] = g,
+  _h == 'search' && ( k.safeSearch = 'none', k.order = 'date', k.type = 'video', t && (k.publishedBefore = t)),
   googleapis_youtube[_h].list(k, (x, r) => (
     (x || s.verbose) &&
-      log(A[0], (x ? 'FAILURE' : 'SUCCESS') + ' | getyoutube/' + _h.toUpperCase() + (" | " + g + " << i: (" + i + "/" + q + ") | " + t + "_" + p.substr(0,15)).yellow + (x ? "=" + x.message : '')),
+      log(A[0], (x ? 'FAILURE' : 'SUCCESS') + ' | getyoutube/' + _h.toUpperCase() + (" | " + g + " << i: (" + i + "/" + q + ") | " + t + "_" + p.substr(0,15)).yellow + (x ? "=" + x.message : r.data.items.length)),
     !x && (
       h != 'videos' && i == 1 && (
         !s.youtube[g] && ( s.youtube[g] = {} ),
@@ -1550,10 +1564,9 @@ get_youtube = (_h = 'subscriptions', f = google[1], g = f.youtube_channelId, q =
             !_e.playlistIds.includes(g) && _e.playlistIds.push(g))())),
       r.data.nextPageToken && (q == -1 || i < q) ?
         get_youtube(_h, f, g, q, r.data.nextPageToken, i+1, E)
-      : _h == 'subscriptions' ? g == f.youtube_channelId && s.youtube[g][h].push(g)
       : _h != 'playlists' && E.length && write('m3u/' + _h + "_" + g + ".m3u", E.map(e => 'https://www.youtube.com/watch?v=' + e.id).join('\n')))))),
-pool_youtube = (g = pool(Object.keys(s.youtube)), h = 'videos') =>
-  (k => "https://www.youtube.com/watch/?v=" + k.id + " | " + k.title)(pool(s.youtube[g][h], 1, null)[0]),
+pool_youtube = (q = 1, H = Object.values(s.youtube).filter(e => e.videos && e.videos.length > 0 && !e.alt)) =>
+  H.length && [...Array(q).keys()].map(e => (k => "https://www.youtube.com/watch?v=" + k.id + " | " + k.title)(pool(pool(H, 1, null)[0].videos, 1, null)[0])).join('\n'),
 print_youtube_player = (G = [], g = 'html/youtube_player.html') =>
   write(g,
     `<html>
@@ -1579,21 +1592,22 @@ print_youtube_player = (G = [], g = 'html/youtube_player.html') =>
         </script>
       </body>
     </html>`),
+ytdlpjs = new require('ytdlp-nodejs'),
+ytdlp = new ytdlpjs.YtDlp(),
 get_gmail = (a, callback, maxResults = 10, q = 'from:noreply@steampowered.com') =>
   googleapis_gmail.users.messages.list({ auth: google[0], userId: 'me', maxResults: maxResults, q: q + ",to:" + s.A[a.i].mail }, (x, response, gmails = []) => (
     (x || !response.data.messages) ? (
       log(a, 'FAILURE | gmail error: ' + (x ? x : 'no gmail data').yellow),
+      x && google_token(),
       callback(true, []))
-    :(read_message = (m = 0) =>
-      m == response.data.messages.length ?
+    :(read_message = (i = 0) =>
+      i == response.data.messages.length ?
         callback(false, gmails)
       : googleapis_gmail.users.messages.get({
-        auth: google[0], userId: 'me', id: response.data.messages[m].id
+        auth: google[0], userId: 'me', id: response.data.messages[i].id
       }, (x, r, b) => (
-        r.data.payload.parts.forEach(e => (
-          b += base64toUTF8(e.body.data))),
-        gmails.push(b),
-        read_message(m+1))))())),
+        gmails.push(r.data.payload.parts.map(e => e.parts.map(e => base64toUTF8(e.body.data)).join()).join()),
+        read_message(i+1))))())),
 search_gmail = (gmails, start, end, result = '') => (
   gmails.some((e, i, E, undefined, start_index = gmails[i].search(start)) =>
     start_index > -1 && ( result = gmails[i].slice(start_index, gmails[i].indexOf(end, start_index)))),
@@ -1645,8 +1659,8 @@ logout = a => (
   a.u.logOff(),
   delete a.inventory),
 !s.chat_buffer && ( s.chat_buffer = [] ),
-chat = (m, i = 0, h1 = A[i].last_group_chat[0], h2 = A[i].last_group_chat[1], force = false, override = false, immediate = false) =>
-  !s.disable_group_chat && !A[i].limited && s.A[i].chat && (
+chat = (m = '', i = 96, h1 = A[i].last_group_chat[0], h2 = A[i].last_group_chat[1], force = false, override = false, immediate = false) =>
+  !s.disable_group_chat && !A[i].limited && s.A[i].chat && m != '' && (
     m.startsWith('#') ?
       chat(reply(h1 + "_" + h2, m, A[i]), i, h1, h2, force, override, immediate)
     : immediate ?
@@ -1679,15 +1693,20 @@ print_sam_batch = (a = A[0], m = 'C:\ncd "C:\\Users\\byteframe\\Downloads\\Steam
     i++)),
   console.log(m),
   Object.keys(s.A[a.i].achievements).forEach(e => s.A[0].achievements[e].sam = true)),
-check_achievements = (a = A[0]) =>
-  d.completionist2.concat(d.completionist_array.flat()).filter(e =>
-    !s.A[a.i].achievements[e] || s.A[a.i].achievements[e].percentage != 100).forEach(e =>
-      log(a, 'NOTICES | incomplete completionist: ' + ("https://steamcommunity.com/stats/" + e + "/achievements").yellow)),
 pool_sharedfile = (E, z) =>
   typeof E == 'function' || E.length && http(A[0], 'https://steamcommunity.com/sharedfiles/filedetails/?id=' + (typeof E == 'function' ? E() : E[0]), null, (b, r, x) =>
     !b.includes('<h2>Error</h2>') ?
       z(r.request.href)
     : pool_sharedfile(typeof E == 'function' ? E : E.slice(1), z)),
+!s.appids && ( s.appids = {} ),
+get_store_apps = (H = [ '&developer=Valve', 'valve' ], p = 1, a = A[0], z = null) =>
+  http(a, 'https://store.steampowered.com/search/?sort_by=Released_DESC&' + H[0][0] + '&page=' + p, null, (b, r, x,
+    _p = b.match(/- [0-9]+ of [0-9]+/)[0].substr(2).split(' of '), G = b.match(/https:\/\/store.steampowered.com\/app\/[0-9]+\/.+\//g).map(e => e.slice(0, -1)), unfound = true) => (
+    !s.appids[H[0][1]] && ( s.appids[H[0][1]] = []),
+    G.filter(e => !A[0].ownedapp.includes(+e.match(/\d+/g)[0]) && !A[96].games_unowned.includes(+e.match(/\d+/g)[0])).every(e => !s.appids[H[0][1]].includes(e) ? s.appids[H[0][1]].push(e) : unfound = false),
+    _p && _p[0] != _p[1] && unfound ? setTimeout(get_store_apps, 3000, H, p+1, a, z)
+    : H.length > 1 ? setTimeout(get_store_apps, 3000, H.slice(1), 1, a, z)
+    : z != null && z(G))),
 empty_name = '	󠀡󠀡',
 empty_title = '­',
 empty_avatar = 'fef49e7fa7e1997310d705b2a6158ff8dc1cdfeb',
@@ -1698,6 +1717,10 @@ main = (a, date) =>
     logon(A[0])
   : randomize(A[0], profile, s.disable_randomize, () => (
     watchdog = 0,
+    wish(A[0], true, s.A[0].last_wishlist),
+    (g => (wish(A[0], false, g), s.A[0].last_wishlist = g))(pool(A[96].ignored)),
+    want(A[0], true, s.A[0].last_follow),
+    (g => (want(A[0], false, g), s.A[0].last_follow = g))(pool(A[96].ignored)),
     ((_G = Object.keys(s.avatar_search), g = mix(A[0].games_unowned.concat(profile.review.slots[0]).filter(e => !_G.includes(""+e)))[0]) =>
       g && http(A[0], 'games/' + g + '/Avatar/List', null, (b, r, x) => (
         s.avatar_search[g] = b.includes('<h2>Avatars</h2>'),
@@ -1708,46 +1731,48 @@ main = (a, date) =>
       claim_package(A[0], g = +pool(s.demos), z = () => s.demos.splice(s.demos.indexOf(g), 1)),
     (!s.date || s.date != date.getDate()) ? (
       s.date = date.getDate(),
-      s.date == 28 ? ( delete_ugc('screenshots', 'favorites'), get_ugc(0, 'screenshots', 'favorites'))
+      s.date == 28 ? (
+        delete_ugc('screenshots', 'favorites', 0, 0, A[96]), get_ugc(0, 'screenshots', 'favorites', 1, A[96]))
       : s.date == 21 ?
-        [ () => (delete_ugc('collections', 'favorites'), get_ugc(0, 'collections', 'favorites')),
-          () => (delete_ugc('collections', 'files'), get_ugc(0, 'collections', 'files')),
-          () => (delete_ugc('merchandise', 'favorites'), get_ugc(0, 'merchandise', 'favorites')),
-          () => (delete_ugc('merchandise', 'files'), get_ugc(0, 'merchandise', 'files')) ].forEach((e, i) =>
-            setTimeout(() => e(), i*15000))
+        [ () => (delete_ugc('videos', 'files'), get_ugc(0, 'videos')),
+          () => (delete_ugc('myworkshopfiles', 'favorites'), get_ugc(0, 'myworkshopfiles', 'favorites')),
+          () => (delete_ugc('myworkshopfiles', 'files'), get_ugc(0, 'myworkshopfiles')),
+          () => (delete_ugc('collections', 'favorites', 0, 0, A[96]), get_ugc(0, 'collections', 'favorites', 1, A[96])),
+          () => (delete_ugc('collections', 'files', 0, 0, A[96]), get_ugc(0, 'collections', 'files', 1, A[96])),
+          () => (delete_ugc('merchandise', 'favorites', 0, 0, A[96]), get_ugc(0, 'merchandise', 'favorites', 1, A[96])),
+          () => (delete_ugc('merchandise', 'files'), get_ugc(0, 'merchandise')) ].forEach((e, i) =>
+            setTimeout(() => e(), i*25000))
       : s.date == 14 ? (
-        delete_ugc(), get_ugc(0, 'images', 'favorites'))
-      : s.date % 10 == 0 ?
-        get_discussion_links()
+        delete_ugc('images', 'favorites', 0, 0, A[96]), get_ugc(0, 'images', 'favorites', 1, A[96]))
       : s.date % 5 == 1 ? get_youtube('subscriptions', google[0])
-      : s.date % 3 == 1 ? get_youtube('subscriptions', google[1])
       : s.date % 2 == 1 && get_reviews(A[0], 3, true),
-      get_ugc(0, 'guides', 'favorites'),
+      get_ugc(0, 'guides', 'favorites', 1, A[96]),
       http(A[0], 'https://store.steampowered.com/curator/2751860-primarydataloop/admin/ajaxupdatecuratordetails/', {
         "description": fortune('zippy', 4, 1, 175),
         "platform_windows": true, "platform_mac": true, "platform_linux": true, "vr_content": true,
         "website_title": "Today's YouTube Video {" + (date.getMonth()+1) + "/" + date.getDate() + "/" + date.getFullYear() + "}",
-        "website_url": "https://www.youtube.com/watch?v=" + pool(s.discussions['1290691937724869711']),
+        "website_url": "https://www.youtube.com/watch?v=" + pool(s.discussions['508454943003311527']),
         "discussions_url": "https://steamcommunity.com/id/byteframe",
         "tags_preferred[0]": "VR", "tags_preferred[1]": "Sexual Content", "tags_preferred[2]": "Nudity", "tags_preferred[3]": "Cyberpunk", "tags_preferred[4]": "Anime",
         "show_broadcast": true, "tagline_locs": {}, "async": true }),
-      chat(wikipedia_date(), 0, 37338, 143271),
-      chat('/code ' + text_art('nsfw-small'), 0, 37338, 143271),
-      chat("/code [" + pool(functions).replace(',', ']\n\n').slice(0, 3000), 0, 37338, 111346274),
+      chat(wikipedia_date(), 96, 37338, 143271),
+      chat('/code ' + text_art('nsfw-small'), 96, 37338, 143271),
+      chat("/code [" + pool(functions).replace(',', ']\n\n').slice(0, 3000), 96, 37338, 111346274),
       !s.disable_curate && !a.limited &&
         curate(),
+      get_store_apps(s.appid_urls),
       !s.disable_group_edit && !a.limited && (
         date.getDate() % 6 == 0 &&
-          setTimeout(() => A[0].c.scheduleGroupEvent(d.group_primary[0], pool(d.first_female), pool(d.games_egc2), jitter(pool(d.pickups), true, undefined, 0.3), null, { ip: pool(d.friends_rivals).substr(36), password: pool(d.words_sexy).toLowerCase() + 69 }, x =>
+          setTimeout(() => A[0].c.scheduleGroupEvent(d.group_primary[0], pool(d.first_female), pool(s.appids['egc']).match(/[0-9]+/g)[0], jitter(pool(d.pickups), true, undefined, 0.3), null, { ip: pool(d.friends_rivals).substr(36), password: pool(d.words_positive).toLowerCase() + 69 }, x =>
             log(A[0], (x ? 'FAILURE' : 'SUCCESS') + ' | scheduleGroupEvent: https://steamcommunity.com/gid/' + d.group_primary[0] + "/events" + (x ? x.message : '').yellow)), rand(3600000, 7200000)),
         (async () => (
           s.wikipedia = await wikipedia.onThisDay(),
           setTimeout(post, 3600000*rand(1,5), messages[4][1]('', s.date, messages_wikipedia_types[1]) + "\n\n[hr]\n" + messages[4][1]('', date, messages_wikipedia_types[0]) + "\nhttps://steamcommunity.com/sharedfiles/filedetails/?id=" + pool(d.screenshot_cats)),
           http(A[0], 'groups/primarydataloop/edit/profile', {
             "type": 'profileSave', "abbreviation": "pdl-stm", "customURL": "primarydataloop", "language": "english", "country": "PS", "state": "", "city": "",
-            "favorite_games": d.games_egc2.join(','),
+            "favorite_games": mix(pool(Object.values(s.appids), 1, null)[0]).slice(0,50).map(e => e.match(/[0-9]+/g)[0]),
             "headline": font("👽 STARDATE 👣 ", 4) + stardate() + pool([' 🌎',' 🌏',' 🌏']) + " {" + (date.getMonth()+1) + "/" + date.getDate() + "/" + date.getFullYear() + "} 🖖 - ( " + mix(d.chinese.split('')).join('').substr(0,8) + " ) " + fortune('startrek', 1, 124, 132).trimEnd(),
-            "summary": 
+            "summary":
               "[quote=On this day in history, the human race performed these actions][code]" + mix(s.wikipedia.events).slice(0,12).map(e => "- " + e.text + " {" + e.year + "}\n\n").join('') + "[/code][/quote]\n" +
               "[table][tr][th][b]👶 BABY SHOWERS 🤱[/b][/th][th][b]🛍️ SHOPPING LIST 💲[/b][/th][th][b]💀 OBITUARIES 👻[/b][/th][/tr][tr][td][list]" +
                 mix(s.wikipedia.births).filter(e => e.text.length).map(e => "[*]" + e.text.replace(/,.*$/, ' {') + e.year + "}        ").slice(0,10).join('') +
@@ -1755,33 +1780,36 @@ main = (a, date) =>
               "[/td][td][list]" + mix(s.wikipedia.deaths).filter(e => e.text.length).map(e => "[*]" + e.text.replace(/,.*$/, ' {') + e.year + "}        ").slice(0,10).join('') +
               "[/list][/td][/tr][/table]" })))()))
     : a % 180 == 0 ? (
-      (i => get_youtube('search', google[i], mix(s.youtube[s.google[i][2]].subscriptions.filter(e => (!s.youtube[e.id] || !s.youtube[e.id].videos || !s.youtube[e.id].videos.length < Math.min(500, Math.min(e.totalItemCount, 500)))))[0].id))(s.date % 4 == 0 ? 0 : 1),
-      d.avatar_sha.filter(e => !d.avatar_sha_files.includes(e + "_full.jpg")).forEach(e =>
-        http(A[0], 'avatars.fastly.steamstatic.com/' + e + '_full.jpg', null, (b, r, x) => (
-          w.writeFile("./images/avatar_sha/" + e + '_full.jpg', b, { encoding: null }, x =>
+      ((h = mix(Object.keys(s.youtube).filter(e => e.match(/(shorts|videos)/)))[0], _h = h.replace('_shorts', '/shorts').replace('_videos', '/videos')) =>
+        ytdlp.getInfoAsync('https://www.youtube.com/channel/' + _h, { flatPlaylist: true}).then(r => (
+          log(A[0], 'SUCCESS | yt-dlp: ' + ('https://www.youtube.com/channel/' + _h + " (" + (s.youtube[h] ? s.youtube[h].videos.length : '-') + '/' + r.entries.length + ")").yellow),
+          s.youtube[h] = { alt: true, videos: r.entries },
+          w.writeFileSync('./m3u/ytdlp-' + h + ".m3u", s.youtube[h].videos.map(e => 'https://www.youtube.com/watch?v=' + e.id).join('\n')))))(),
+      get_youtube('search', google[0], mix(s.youtube[s.google[0][2]].subscriptions.filter(e => (!s.youtube[e.id] || !s.youtube[e.id].videos || s.youtube[e.id].videos.length < Math.min(500, Math.min(e.totalItemCount || 0, 500)))))[0].id),
+      (download_avatar_sha = (H = d.avatar_sha.filter(e => !d.avatar_sha_files.includes(e + "_full.jpg"))) =>
+        http(A[0], 'https://avatars.fastly.steamstatic.com/' + H[0] + '_full.jpg', null, (b, r, x) => (
+          w.writeFile("./images/avatar_sha/" + H[0] + '_full.jpg', b, { encoding: null }, x =>
             !x && (
-              log(A[0], 'SESSION | downloaded avatar image: ' + ('https://avatars.fastly.steamstatic.com/' + e + '_full.jpg').yellow),
-              d.avatar_sha_files.push(e + '_full.jpg')))))),
+              log(A[0], 'SESSION | downloaded avatar image: ' + ('https://avatars.fastly.steamstatic.com/' + H[0] + '_full.jpg').yellow),
+              d.avatar_sha_files.push(H[0] + '_full.jpg'),
+              setTimeout(download_avatar_sha, global.download_avatar_sha_timeout || 3000, H.slice(1)))))))(),
       get_comment_history(),
       save(),
-      s.date % 4 == 0 ?
-        invite()
-      : s.date % 3 == 0 ?
-        !s.disable_add && add()
+      s.date % 4 == 0 ? invite()
+      : s.date % 3 == 0 ? add()
       : s.date % 2 == 0 && !s.disable_sending &&
         ((m = pool([ () => '/sticker ' + pool(d.items_stickers), () => pool(d.greetings), () => messages[2][9](), () => messages[2][10]() ], 1, null)[0](),
           f = pool(A[0].chats, 1, null)[0], _f = pool(f[1].group_summary.chat_rooms, 1, null)[0].chat_id) =>
-          chat(m, 0, f[0], _f))())
+          chat(m, 96, f[0], _f))())
     : a % 99 == 0 ? (
       weather(),
-      get_ugc(0, 'myworkshopfiles', date.getMinutes() % 2 == 0 ? 'favorites' : 'subscriptions'),
+      get_ugc(0, 'myworkshopfiles', 'subscriptions', 1, A[96]),
       a % 198 == 0 && (
         get_collection_items(),
-        get_group_history(),
+        get_group_history(A[96]),
         interact(A[0], 2)))
     : a % 36 == 0 &&
-      s.disable_interact >= 3 &&
-        get_blotter(),
+      s.disable_interact >= 3 && get_blotter(),
     a % 90 == 0 ?
       interact(A[0], 4)
     : a % 18 == 0 ? (
@@ -1789,21 +1817,21 @@ main = (a, date) =>
       Math.random() < 0.00250 ?
         post()
       : pool([
-        (h = 'https://steamcommunity.com/sharedfiles/filedetails/?id=' + pool(d.screenshot_cats)) => http(A[0], h, null, (b, r, x) => chat(h, 0, 37338, 111282936)),
-        (h = 'https://steamcommunity.com/sharedfiles/filedetails/?id=' + pool(pool_ugc(undefined, 'screenshots'))) => http(A[0], h, null, (b, r, x) => chat(h, 0, 37338, 111284104)),
-        () => pool_sharedfile(mix(pool_ugc().filter(e => !d.screenshot_cats.includes(e))), e => chat(e, 0, 37338, 111289953)),
-        () => pool_sharedfile(pool(workshop_collector_fullsize, 1, null)[0](50, null), e => chat(e, 0, 37338, 111282895)),
-        () => pool_sharedfile(mix(pool_ugc(undefined, 'images', 'favorites')), e => chat(e, 0, 37338, 111282897)),
-        () => chat(pool_discussion_links(), 0, 37338, 113356221),
-        () => chat("https://avatars.fastly.steamstatic.com/" + pool(d.avatar_sha) + "_full.jpg", 0, 37338, 137544983),
-        () => chat(pool_game(), 0, 37338, 120015827),
-        () => chat("https://www.youtube.com/watch?v=" + pool(s.discussions['1290691937724869711']), 0, 37338, 111282930),
-        () => chat('/pre ' + text_art(), 0, 37338, 111282890),
-        () => chat(pool_background_image(), 0, 37338, 110879063),
-        () => chat(pool_youtube(pool(s.youtube[s.google[0][2]].subscriptions.filter(e => s.youtube[e.id]), 1, null)[0].id).replace(/ \|.*/, ''), 0, 37338, 134625403),
-        () => chat(pool_youtube(pool(Object.keys(s.youtube).filter(e => !s.youtube[s.google[0][2]].subscriptions.find(_e => _e.id == e)))).replace(/ \|.*/, ''), 0, 37338, 134621739),
-        () => chat("https://www.youtube.com/watch?v=" + pool(s.youtube['UCDDJ2AawF4Z67glwPW6pNDg'].videos, 1, null)[0].id, 0, 37338, 134622939),
-        () => giphy(undefined, 1, pool(['r']), h => chat(h, 0, 37338, 111282913)) ], 1, null)[0]())
+        (h = 'https://steamcommunity.com/sharedfiles/filedetails/?id=' + pool(d.screenshot_cats)) => http(A[0], h, null, (b, r, x) => chat(h, 96, 37338, 111282936)),
+        (h = 'https://steamcommunity.com/sharedfiles/filedetails/?id=' + pool(pool_ugc(undefined, 'screenshots'))) => http(A[0], h, null, (b, r, x) => chat(h, 96, 37338, 111284104)),
+        () => pool_sharedfile(mix(pool_ugc().filter(e => !d.screenshot_cats.includes(e))), e => chat(e, 96, 37338, 111289953)),
+        () => pool_sharedfile(pool(d.workshop_collector_fullsize, 1, null)[0](50, null), e => chat(e, 96, 37338, 111282895)),
+        () => pool_sharedfile(mix(pool_ugc(undefined, 'images', 'favorites')), e => chat(e, 96, 37338, 111282897)),
+        () => chat(pool_discussion_links(), 96, 37338, 113356221),
+        () => chat("https://avatars.fastly.steamstatic.com/" + pool(d.avatar_sha) + "_full.jpg", 96, 37338, 137544983),
+        () => chat(pool_game(), 96, 37338, 120015827),
+        () => chat("https://www.youtube.com/watch?v=" + pool(s.discussions['508454943003311527']), 96, 37338, 111282930),
+        () => chat('/pre ' + text_art(), 96, 37338, 111282890),
+        () => chat(pool_background_image(), 96, 37338, 110879063),
+        () => chat(pool_youtube().replace(/ \|.*/, ''), 96, 37338, 134625403),
+        () => chat(pool_youtube(1, Object.values(s.youtube).filter(e => e.alt)).replace(/ \|.*/, ''), 96, 37338, 134621739),
+        () => chat("https://www.youtube.com/watch?v=" + pool(s.youtube['UCDDJ2AawF4Z67glwPW6pNDg'].videos, 1, null)[0].id, 96, 37338, 134622939),
+        () => giphy(undefined, 1, pool(['r']), h => chat(h, 96, 37338, 111282913)) ], 1, null)[0]())
     : a % 9 == 0 && (
       interact(A[0]),
       interact(A[0], 3)))),
@@ -1829,19 +1857,19 @@ bedazzle = (m) =>
       ((m = pool(d.ascii)) => m)(),
       ((m = pool(d.emojis_people.flat(), 1)) => m)(),
       ((m = pool(d.emojis_sexy.flat(), 1)) => m)() ])).join(" " + m + " ")).map(e => Math.random() < 0.25 ? font(e, rand(0,d.fonts.length-3)) : e).join(' ').trim(),
-cycle = (i = 1, o = i, action = '', date = global.minute || new Date(), a = A[i]) =>
+cycle = (i = 1, o = i, action = 'sale', date = global.minute || new Date(), a = A[i]) =>
   i <= o && (
-    s.A[a.i].limited ? 
-      cycle(i+1, o)
+    s.A[a.i].limited ?
+      cycle(i+1, o, action)
     : logon(a, '', () => (
       setTimeout(logout, 90000, a),
       setTimeout(cycle, 60000, i+1, o, action, date),
       a.u.setPersona(1),
+      a.u.gamesPlayed([440]),
       claim(a),
       wish(a),
       Object.entries(a.u.myFriends).filter(e => e[1] == 2 || e[1] == 4).forEach(e => a.u[e[1] == 2 ? 'addFriend' : 'removeFriend'](e[0])),
       mix(Object.keys(A[0].u.myGroups).filter(e => !a.u.myGroups.hasOwnProperty(e))).slice(0,4).forEach(e => a.c.joinGroup(e)),
-      a.chats.find(e => e[0] == '10276749') || a.u.chat.joinGroup(10276749),
       a.chats.filter(e => e[0] != '10276749').forEach(e => a.u.chat.leaveGroup(e[0])),
       action == 'profile' ?
         ((first = pool(d.first_female), last = pool(d.last_name),
@@ -1853,7 +1881,7 @@ cycle = (i = 1, o = i, action = '', date = global.minute || new Date(), a = A[i]
           http(a, 'my/edit',
             "&type=profileSave&json=1&hide_profile_awards=0" +
             "&customURL=" + ((profile_url(a).startsWith('id/byte') || profile_url(a).startsWith('profiles/')) ? mix([ pool([ () => pool(d.pickups), () => fortune('love'), () => fortune('men-women') ], 1, null)[0]().replace(/(\w)(\w*)/g, (g0, g1, g2) => g1.toUpperCase() + g2.toLowerCase()).replace(/[^a-zA-Z0-9\ ]+/g, '').split(' ').reduce((e, _e) => e.length < 22 ? e +_e : e), ""+a.i]).join('') : profile_url(a).slice(3)) +
-            "&personaName=" + ((Math.random() < 0.25 ? pool(d.words_sexy.filter(e => !e.startsWith('Sex'))) : '') + " " + bedazzle(first)).trim() +
+            "&personaName=" + ((Math.random() < 0.25 ? pool(d.words_positive.filter(e => !e.startsWith('Sex'))) : '') + " " + bedazzle(first)).trim() +
             "&real_name=" + bedazzle(first + " " + pool(['', last])) +
             "&summary=" + emoticon_convert(mix([
               pool([ "", "", "", jitter(), messages[1][2](), "[i]" + fortune('men-women', 1, 1,75) + "[/i]", "[b]" + fortune('love', 1, 1,75) + "[/b]", pool_discussion_links(rand(1,3)) + " ", fortune('jokes', 1, 1), jitter() ]),
@@ -1887,7 +1915,6 @@ cycle = (i = 1, o = i, action = '', date = global.minute || new Date(), a = A[i]
           get_inventory([{ appid: 440, rgContexts: { 2: { id: 2 } } }], a, () =>
             trade(a, A[96], s.A[a.i].inventory[440].filter(e => e.name == 'Secret Saxton'))), 15000, i)
       : action == 'sale' && (
-        a.u.gamesPlayed([440]),
         discover(a, true, () =>
           date.getFullYear() == 2024 ?
             discover(a, true)
@@ -1950,13 +1977,14 @@ riveScript.loadDirectory('./rivescript', () => (
   riveScript.sortReplies(),
   Object.entries(s.rivescript).forEach(e =>
     riveScript.setUservars(e[0], e[1])),
-  logon(A[0], '', () => (
-    chat_timer = setInterval((e = s.chat_buffer.shift()) =>
-      !s.paused && e !== undefined && e[0].length > 0 && A[e[4]].u.steamID &&
-        A[e[4]].u.chat.sendChatMessage(e[1], e[2], e[0], (x, r) => (
-          x || !s.disable_send_logging && 
-            log(A[e[4]], (x ? 'FAILURE' : 'SUCCESS') + ' | sendChatMessage: ' + e[1] + "_" + e[2] + " | " + e[0] + (x ? ' ' + x.message : ' ').yellow))), 60000),
-    setTimeout(() => timer = setInterval(() => !s.paused && (minute = new Date(), main(s.account_index = (!s.account_index || s.account_index+1 == A.length ? 1 : s.account_index+1), minute)), (!s.frequency ? 60000: s.frequency)), (60-new Date().getSeconds())*1000))),
+  logon(A[96], '', () => (
+    logon(A[0], '', () => (
+      chat_timer = setInterval((e = s.chat_buffer.shift()) =>
+        !s.paused && e !== undefined && e[0].length > 0 && A[e[4]].u.steamID &&
+          A[e[4]].u.chat.sendChatMessage(e[1], e[2], e[0], (x, r) => (
+            x || !s.disable_send_logging && 
+              log(A[e[4]], (x ? 'FAILURE' : 'SUCCESS') + ' | sendChatMessage: ' + e[1] + "_" + e[2] + " | " + e[0] + (x ? ' ' + x.message : ' ').yellow))), 60000),
+      setTimeout(() => timer = setInterval(() => (minute = new Date(), !s.paused && main(s.account_index = (!s.account_index || s.account_index+1 == A.length ? 1 : s.account_index+1), minute), (!s.frequency ? 60000: s.frequency))), (60-new Date().getSeconds())*1000))))),
  watchdog = 0)),
 save = (sync = false) => (
   s.rivescript = riveScript.getUservars(),
@@ -1967,10 +1995,12 @@ save = (sync = false) => (
   :(sync = Date.now(),
     w.writeFile('./state.json', JSON.stringify(s, null, 2), x =>
       x ? console_log('FAILURE | saving state: ' + x) : console_log("SESSION |" + '000'.bgGray.black + '| saved state: ' + (Date.now()-sync) + " milliseconds")))),
-quit = (saving = true, crashed = false, restart = false) => (
-  quit = () => void 0,
+quitting = false,
+quit = (saving = true, crashed = false, restart = false) =>
+ !quitting && (
+  quitting = true,
   termux && exec('termux-wake-unlock', { timeout: 500 }),
-  console_log('SESSION | ending process... ' + ("#"+Math.floor(process.uptime())).yellow),
+  console_log('SESSION | 000 | ending process... ' + ("uptime="+Math.floor(process.uptime())).yellow),
   timer != -1 &&
     clearInterval(timer),
   saving &&
@@ -1981,8 +2011,9 @@ quit = (saving = true, crashed = false, restart = false) => (
     w.unlinkSync('.crash'),
   A.forEach(a => a.u.logOff()),
   setTimeout(process.exit, 5000, 0)),
+process.on('exit', quit),
 process.on('SIGINT', (code) =>
-  quit()  
+  quit()
 ).on('uncaughtException', x =>
   console_log(x.stack)),
 functions = Object.entries(global).filter(e => typeof e[1] == 'function').map(e => [ e[0], e[1].toString() ]).filter(e => !e[1].startsWith('function') && !e[1].startsWith('class') && e[1].length > 100);

@@ -1,3 +1,13 @@
+//------------------------------------------------------------------------------ PrintAppHeaderImageHTMLSheet
+pages=[], lines='';
+A[0].ownedapp.forEach((e, i) => (
+  lines += "<img src=\"https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/" + e + "/header.jpg\" />",
+  i % 5 == 0 && (
+    lines+="<br /><br />\n"),
+  i % 200 == 0 && (
+    pages.push(lines),
+    lines='')))
+pages.forEach((e, i) => w.writeFileSync('./html/apps' + i + '.html', e))
 //------------------------------------------------------------------------------ byteframe13Finale
 a.edit_2 = "&type=showcases&json=1&profile_showcase_style_5_0=1&rgShowcaseConfig[24_0][0][replay_year]=2022",
 a.edit_2 += "&profile_showcase%5B%5D=11&profile_showcase_purchaseid%5B%5D=0",
@@ -212,9 +222,6 @@ item_showcase2: { moves: [], types: [ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
 + profile.background.selection[0].id + ']' + profile.background.selection[0].name.replace(' (Profile Background)', '') + '[/url]\n\n'
 "[i]" + fortune('all', 1, 192, 196) + "[/i]\n\n" +
 "[b]#" + emoticon_index + ": " + 
-//------------------------------------------------------------------------------ WeatherDiscussionPost
-print_weather_discussion_post = (E) =>
-  '[olist]' + E.map(e => "[*]" + fortune('zippy', 1, 50, 80) + "\n" + " " + pool(d.items_emoticons_array, 1, null)[0].map(e => A[0].inventory.emoticons.find(_e => _e.id == e.substr(6)).name).join(' - ') + " + " + mix(d.barcode.split('')).join('') + " + " + mix(d.chinese.split('')).slice(0,8).join('') + " https://www.youtube.com/watch?v=" + e).join('\n') + "\n[/olist]"
 //------------------------------------------------------------------------------ OldUtilityFunctions
 generate_emoticon_fortune = (text = '', length, emoticon_index, file = 'all', m = fortune(file).replace(/\n/g, ' ').split(/\s+/)) =>
   m.length < length ?
@@ -438,182 +445,6 @@ SetItemShowcaseSlot = (id, i, element) => {
 };
 alter_showcase(items_trade, (i, element) => { SetItemShowcaseSlot(4, i, element); });
 alter_showcase(item_showcase, (i, element) => { SetItemShowcaseSlot(3, i, element); });
-//------------------------------------------------------------------------------ RandomizeProcedural
-run_randomized_profile = (account, profile, callback = null, lite = false) => {
-  if (!account.user.steamID) {
-    return account.log("FAILURE | my/edit: " + "000=LostSteamID".yellow);
-  }
-  if (account.edit == null) {
-    return account.http('my/edit', { sessionid: account.community.getSessionID() }, (body, response, err) => {
-      account.edit = Cheerio.load(body);
-      account.backgrounds = { index: 0, pool: [] };
-      account.badges = JSON.parse(body.match(/InitBadges.*}]/)[0].substr(11));
-      account.money1 = ['XXX', "1.00"];
-      account.money2 = ['XXX', "2.00"];
-      if (!lite) {
-        return account.http('https://store.steampowered.com/account/', null, (body, response, err) => {
-          body = Cheerio.load(body);
-          account.money1 = [body('.accountLabel').text()];
-          account.money2 = [body('.accountd.price').text()];
-          account.community.getUserInventoryContents(account.user.steamID, 753, 6, false, 'english', (err, inventory, currencies, count) => {
-            inventory.forEach((item) => {
-              if (item.tags[2].name == 'Profile Background') {
-                account.backgrounds.pool.push(item);
-              }
-            });
-            run_randomized_profile(account, profile, callback, lite);
-          });
-        });
-      } else {
-        run_randomized_profile(account, profile, callback, lite);
-      }
-    });
-  }
-  if (account.backgrounds.pool.length) {
-    background = pool_elements(account.backgrounds, 1, null)[0];
-    account.edit("#profile_background").attr("value", background.id);
-  }
-  account.edit("select#showcase_style_5").val(1);
-  account.edit("input[name=sessionID]").attr("value", account.community.getSessionID());
-  alter_showcase = (showcase, callback = '') => {
-    if (!profile.hasOwnProperty(showcase)) {
-      return;
-    }
-    showcase = profile[showcase];
-    showcase.selection = [];
-    if (showcase.shuffle_slots.length) {
-      var to_shuffle = [];
-      showcase.shuffle_slots.forEach((slot) => {
-        to_shuffle.push([showcase.slots[slot], showcase.shuffle_types[slot]]);
-      });
-      shuffle_array(to_shuffle);
-      showcase.shuffle_slots.forEach((slot, i) => {
-        showcase.slots[slot] = to_shuffle[i][0];
-        showcase.shuffle_types[slot] = to_shuffle[i][1];
-      });
-    }
-    showcase.slots.forEach((slot, i) => {
-      if (slot.length && typeof showcase.shuffle_types[i] !== 'undefined') {
-        var element;
-        if (showcase.shuffle_types[i] === 0) {
-          element = slot[Math.floor(Math.random()*slot.length)];
-        } else if (showcase.shuffle_types[i] < 0) {
-          if (showcase.shuffle_types[i] == -1) {
-            shuffle_array(slot);
-          }
-          element = slot[Math.abs(showcase.shuffle_types[i])-1];
-          showcase.shuffle_types[i]--;
-          if (Math.abs(showcase.shuffle_types[i])-1 == slot.length) {
-            showcase.shuffle_types[i] = -1;
-          }
-        } else if (showcase.shuffle_types[i] > 0) {
-          element = slot[showcase.shuffle_types[i]-1];
-          showcase.shuffle_types[i]++;
-          if (showcase.shuffle_types[i]-1 == slot.length) {
-            showcase.shuffle_types[i] = 1;
-          }
-        }
-        if ({}.toString.call(element) === '[object Function]') {
-          element = element(account, lite);
-        }
-        if (lite && typeof element === 'string') {
-          element = emoticon_convert(element);
-        }
-        showcase.selection[i] = element;
-        callback(i, element);
-      }
-    });
-  }
-  alter_showcase('persona_name', (i, element) =>
-    account.edit("input[name=personaName]").attr("value", element));
-  alter_showcase('real_name', (i, element) =>
-    account.edit("input[name=real_name]").attr("value", element));
-  alter_showcase('summary_text', (i, element) =>
-    account.edit("textarea#summary").text(element + "ZZZ"));
-  alter_showcase('trade_text', (i, element) =>
-    account.edit("textarea#showcase_4_notes").val(element));
-  alter_showcase('information_text', (i, element) =>
-    account.edit("#showcase_8_notes").val(element));
-  alter_showcase('information_title', (i, element) =>
-    account.edit("input[name=rgShowcaseConfig\\[8\\]\\[0\\]\\[title\\]]").attr("value", element));
-  alter_showcase('group_primary', (i, element) =>
-    account.edit("#primary_group_steamid").attr("value", element.substr(0,18)));
-  alter_showcase('group_favorite', (i, element) =>
-    account.edit("input[name=rgShowcaseConfig\\[9\\]\\[0\\]\\[accountid\\]]").attr("value", element.substr(0,18)));
-  alter_showcase('game_favorite', (i, element) =>
-    account.edit("input[name=rgShowcaseConfig\\[6\\]\\[0\\]\\[appid\\]]").attr("value", element.replace(/_.*/, '')));
-  alter_showcase('review', (i, element) =>
-    account.edit("input[name=rgShowcaseConfig\\[10\\]\\[0\\]\\[appid\\]]").attr("value", element));
-  alter_showcase('badge_favorite', (i, element, _element = element.split('_')) =>
-    account.edit("#favorite_badge_" + _element[0]).attr("value", _element[1]));
-  alter_showcase('badge_collector', (i, element) =>
-    account.edit("input[name=rgShowcaseConfig\\[5\\]\\[" + i + "\\]\\[appid\\]]").attr("value", element));
-  alter_showcase_favorite = (id, i, element) =>
-    account.edit("input[name=rgShowcaseConfig\\[" + id + "\\]\\[" + i +"\\]\\[publishedfileid\\]]").attr("value", element);
-  alter_showcase('ugcfavorite', (i, element) =>
-    alter_showcase_favorite(11, i, element));
-  alter_showcase('ugccollector', (i, element) =>
-    alter_showcase_favorite(12, i, element));
-  alter_showcase('guide_favorite', (i, element) =>
-    alter_showcase_favorite(15, i, element));
-  alter_showcase('guide_collector', (i, element) =>
-    alter_showcase_favorite(16, i, element));
-  alter_showcase('screenshot', (i, element) =>
-    alter_showcase_favorite(7, i, element));
-  alter_showcase('artwork', (i, element) =>
-    alter_showcase_favorite(13, i, element));
-  alter_showcase('achievement', (i, element) => {
-    account.edit("input[name=rgShowcaseConfig\\[17\\]\\[" + i + "\\]\\[appid\\]]").attr("value", element.substr(0, element.indexOf('_')));
-    account.edit("input[name=rgShowcaseConfig\\[17\\]\\[" + i + "\\]\\[title\\]]").attr("value", element.substr(element.indexOf('_')+1));
-  });
-  if ('custom_url' in profile) {
-    account.edit("input[name=customURL]").attr("value", profile.custom_url);
-  }
-  var text = "&country=";
-  alter_showcase('countries', (i, element) => {
-    var state_index = Math.floor(Math.random()*element[1].length);
-    text += "&country=" + element[0];
-    if (element[1].length) {
-      text += "&state=" + element[1][state_index][0];
-      if (element[1][state_index][1].length) {
-        text += "&city=" + element[1][state_index][1][Math.floor(Math.random()*element[1][state_index][1].length)]
-      }
-    }
-  });
-  var edit_form = account.edit("#editForm").serialize().replace(/&country=.*&custom/, text + "&custom").replace(
-    /&profile_showcase%5B%5D=[0-9]*/g, '&profile_showcase%5B%5D=0');
-  alter_showcase('showcases', (i, element) =>
-    edit_form = edit_form.replace("&profile_showcase%5B%5D=0", "&profile_showcase%5B%5D=" + element));
-  alter_showcase('game_collector', (i, element) =>
-    edit_form += "&rgShowcaseConfig%5B2%5D%5B" + i + "%5D%5Bappid%5D=" + element);
-  SetItemShowcaseSlot = (id, i, element) => {
-    element = element.split('_');
-    edit_form += "&rgShowcaseConfig%5B" + id + "%5D%5B" + i + "%5D%5Bappid%5D=" + element[0];
-    edit_form += "&rgShowcaseConfig%5B" + id + "%5D%5B" + i + "%5D%5Bitem_contextid%5D=" + element[1];
-    edit_form += "&rgShowcaseConfig%5B" + id + "%5D%5B" + i + "%5D%5Bitem_assetid%5D=" + element[2];
-  };
-  alter_showcase('items_trade', (i, element) =>
-    SetItemShowcaseSlot(4, i, element));
-  alter_showcase('item_showcase', (i, element) =>
-    SetItemShowcaseSlot(3, i, element));
-  if (account.index == 97) {
-    edit_form = edit_form.replace('ZZZ', encodeURIComponent('\n\n[h1]Profile Debug:[/h1]\n[b]'
-      + (profile.game_favorite.selection[0]+"").replace(/_.*/, "") + "[/b] " + pool_elements(emoticon_static[12]) +  " [i]" + profile.game_collector.selection + "[/i]"));
-  }
-  fs.writeFileSync('edit_form.txt', edit_form.replace(/&/g,'\n&'));
-  account.http('my/edit', edit_form, (body, response, err) => {
-    account.edit = Cheerio.load(body);
-    var avatar = pool_elements(avatars, 1, null)[0];
-    account.http('https://steamcommunity.com/games/' + avatar[0] + '/selectAvatar', { selectedAvatar: avatar[1] });
-    if (!lite) {
-      profile_intermediate(account);
-    }
-    account.user.setPersona([1,2,3,4,5,6][Math.floor(Math.random()*6)]);
-    if (callback !== null) {
-      callback();
-    }
-  }, 'POST');
-};
 //------------------------------------------------------------------------------ ProfileIntermediateEditTexts
 generate_artwork_text = (text = [ haiku.random("html").toString(), haiku.random("html").toString(), haiku.random("html").toString() ]
     .reduce((a, v) => a && a.length <= v.length ? a : v, '').toLowerCase().replace(/<br>/g, '\n').split('\n')) =>

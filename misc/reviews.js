@@ -1,3 +1,10 @@
+//------------------------------------------------------------------------------ ParseOldState
+reviewsa = [], reviewsb = [], reviewsc = [], reviewsd = [],
+Object.entries(reviews).forEach(e =>
+  e[1].contents.includes('\[quote') ? reviewsc.push(+e[0])
+  : e[1].contents.startsWith('https://steamcommunity.com/sharedfiles/filedetails') ? reviewsb.push(+e[0])
+  : e[1].contents.includes('[table]') && !e[1].contents.includes('www.youtu') ? reviewsa.push(+e[0])
+  : reviewsd.push(+e[0]))
 //------------------------------------------------------------------------------ HideReviews
 hide_review = (G = Object.entries(s.A[0].reviews).filter(e => e[1].visibility)) =>
   G.length && (

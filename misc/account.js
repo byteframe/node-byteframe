@@ -1,3 +1,9 @@
+//------------------------------------------------------------------------------ get_app_title
+get_app_title = (G = [], a = A[0]) =>
+  G.length &&
+    http(a, 'https://store.steampowered.com/app/' + G[0], null, (b) => (
+      setTimeout(get_app_title, 500, G.slice(1), a),
+      console.log(G[0] + " : " + b.match(/<title>.*<\/title>/)[0].slice(7, -16))))
 //------------------------------------------------------------------------------ ScreenshotsForUnowned
 w.readdirSync('/mnt/c/Program Files (x86)/Steam/userdata/752001/760/remote').filter(e => !Object.keys(A[0].u.picsCache.apps).includes(e)).map(e => 'https://steamdb.info/app/' + e)
 //------------------------------------------------------------------------------ DemoSubAdder
@@ -66,6 +72,8 @@ npm install colors \
   giphy \
   adventurejs \
   figlet \
+  tf2 \
+  ytdlp-nodejs \
   googleapis \
   rivescript@1.19.0
 //------------------------------------------------------------------------------ VDF/sharedconfig
@@ -583,34 +591,6 @@ jQuery(document).keyup(function(event) {
     });
   }
 });
-//------------------------------------------------------------------------------ N4ZAvatars
-if (typeof process.argv[2] == 'undefined') {
-  console.log('username not supplied');
-  process.exit(1);
-}
-var readline = require('readline').createInterface({
-    input: process.stdin, output: process.stdout })
-  , avatars = [
-  ... ,
-];
-console.log('avatar pool size: ' + avatars.length);
-(function avatar_changer(index) {
-  if (index == avatars.length) {
-    index = 0;
-    shuffle_array(avatars);
-  }
-  setTimeout(function() {
-    if (account.user.client.loggedOn) {
-      account.community.uploadAvatar(avatars[index], null, function(err) {
-        if (err) {
-          return console.log('ERROR, uploadAvatar:' + err);
-        }
-        console.log('uploaded Avatar:' + index + " " + new Date().toString());
-      });
-    }
-    avatar_changer(index+1);
-  }, (60-new Date().getSeconds())*1000);
-})(avatars.length);
 //------------------------------------------------------------------------------ BrunoSardine
 var names = [
   'STUFF','JUNK','CRAP','BUNK','SCRAP','FOOD','MISC','WASTE','CHAOS','OFFAL',
